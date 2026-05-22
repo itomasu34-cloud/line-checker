@@ -213,7 +213,7 @@
 <div class="screen active" id="screen-0">
   <div class="intro-header">
     <div class="intro-icon">📋</div>
-    <div class="intro-title">シングルの<br>制度診断チェッカー</div>
+    <div class="intro-title">ひとり親の<br>制度診断チェッカー</div>
     <div class="intro-desc">5つの質問に答えるだけで<br>今すぐ動くべき制度TOP3がわかります</div>
   </div>
   <div class="intro-badges">
@@ -231,25 +231,21 @@
   </div>
   <div class="q-title">今の状況を<br>教えてください</div>
   <div class="card-grid">
-    <div class="card-btn" onclick="selectCard(this,'q1','st_divorce')">
-      <span class="card-emoji">💔</span>
-      <span class="card-label">離婚した<br>ばかり</span>
-    </div>
     <div class="card-btn" onclick="selectCard(this,'q1','st_thinking')">
       <span class="card-emoji">🤔</span>
       <span class="card-label">離婚を<br>考えている</span>
+    </div>
+    <div class="card-btn" onclick="selectCard(this,'q1','st_divorce')">
+      <span class="card-emoji">💔</span>
+      <span class="card-label">離婚した</span>
     </div>
     <div class="card-btn" onclick="selectCard(this,'q1','st_widow')">
       <span class="card-emoji">🕊️</span>
       <span class="card-label">パートナーを<br>亡くした</span>
     </div>
-    <div class="card-btn" onclick="selectCard(this,'q1','st_current')">
-      <span class="card-emoji">👩</span>
-      <span class="card-label">もうひとり親<br>として生活中</span>
-    </div>
     <div class="card-btn" onclick="selectCard(this,'q1','st_unwed')">
       <span class="card-emoji">👶</span>
-      <span class="card-label">未婚で<br>ひとり親</span>
+      <span class="card-label">未婚でひとり親<br>（婚姻歴なし）</span>
     </div>
   </div>
 </div>
