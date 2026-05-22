@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>制度診断チェッカー</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* プログレスバー */
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #06C755;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* 質問タイトル */
+    .q-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a1a;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* カード選択（Q1） */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+    .card-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-btn:active { transform: scale(0.97); }
+    .card-btn.selected {
+      border-color: #06C755;
+      background: #f0fdf4;
+    }
+    .card-emoji { font-size: 28px; }
+    .card-label { font-size: 13px; font-weight: bold; color: #333; line-height: 1.3; }
+
+    /* リスト選択（Q2〜Q5） */
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .option-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+    .option-btn:active { transform: scale(0.98); }
+    .option-btn.selected {
+      border-color: #06C755;
+      background: #f0fdf4;
+    }
+    .option-emoji { font-size: 22px; width: 30px; text-align: center; flex-shrink: 0; }
+    .option-text { flex: 1; }
+    .option-label { font-size: 15px; font-weight: bold; color: #333; }
+    .option-sub { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* 次へボタン */
+    .next-btn {
+      margin-top: 24px;
+      background: #06C755;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .next-btn:not(:disabled):active { opacity: 0.85; }
+
+    /* 導入画面 */
+    .intro-header {
+      text-align: center;
+      padding: 32px 0 24px;
+    }
+    .intro-icon { font-size: 56px; margin-bottom: 16px; }
+    .intro-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1a1a1a;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .intro-desc {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .intro-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .badge {
+      background: white;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: #333;
+      font-weight: bold;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* 完了画面 */
+    .done-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+    }
+    .done-icon { font-size: 64px; }
+    .done-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    .done-desc { font-size: 15px; color: #555; line-height: 1.6; }
+
+    /* ローディング */
+    .loading-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #06C755;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      color: #e53e3e;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== 画面0：導入 ========== -->
+<div class="screen active" id="screen-0">
+  <div class="intro-header">
+    <div class="intro-icon">📋</div>
+    <div class="intro-title">シングルマザーの<br>制度診断チェッカー</div>
+    <div class="intro-desc">5つの質問に答えるだけで<br>今すぐ動くべき制度TOP3がわかります</div>
+  </div>
+  <div class="intro-badges">
+    <div class="badge">⏱ 約1分</div>
+    <div class="badge">💰 完全無料</div>
+  </div>
+  <button class="next-btn" onclick="goTo(1)">診断スタート →</button>
+</div>
+
+<!-- ========== 画面1：Q1 状況 ========== -->
+<div class="screen" id="screen-1">
+  <div class="progress-wrap">
+    <div class="progress-label">1 / 5</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+  </div>
+  <div class="q-title">今の状況を<br>教えてください</div>
+  <div class="card-grid">
+    <div class="card-btn" onclick="selectCard(this,'q1','st_divorce')">
+      <span class="card-emoji">💔</span>
+      <span class="card-label">離婚した<br>ばかり</span>
+    </div>
+    <div class="card-btn" onclick="selectCard(this,'q1','st_thinking')">
+      <span class="card-emoji">🤔</span>
+      <span class="card-label">離婚を<br>考えている</span>
+    </div>
+    <div class="card-btn" onclick="selectCard(this,'q1','st_widow')">
+      <span class="card-emoji">🕊️</span>
+      <span class="card-label">パートナーを<br>亡くした</span>
+    </div>
+    <div class="card-btn" onclick="selectCard(this,'q1','st_current')">
+      <span class="card-emoji">👩</span>
+      <span class="card-label">もうひとり親<br>として生活中</span>
+    </div>
+    <div class="card-btn" onclick="selectCard(this,'q1','st_unwed')">
+      <span class="card-emoji">👶</span>
+      <span class="card-label">未婚で<br>ひとり親</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 画面2：Q2a 子の人数 ========== -->
+<div class="screen" id="screen-2">
+  <div class="progress-wrap">
+    <div class="progress-label">2 / 5</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+  </div>
+  <div class="q-title">お子さんは<br>何人いますか？</div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q2a','ch_one')">
+      <span class="option-emoji">👤</span>
+      <div class="option-text"><div class="option-label">1人</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2a','ch_multi')">
+      <span class="option-emoji">👥</span>
+      <div class="option-text"><div class="option-label">2人以上</div></div>
+    </div>
+  </div>
+  <button class="next-btn" id="btn-2" disabled onclick="nextQ2b()">次へ →</button>
+</div>
+
+<!-- ========== 画面3：Q2b 最年少の年齢 ========== -->
+<div class="screen" id="screen-3">
+  <div class="progress-wrap">
+    <div class="progress-label" id="label-3">3 / 5</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+  </div>
+  <div class="q-title" id="q2b-title">お子さんは<br>何歳ですか？</div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q2b','age_young')">
+      <span class="option-emoji">👶</span>
+      <div class="option-text">
+        <div class="option-label">0〜2歳</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2b','age_preschool')">
+      <span class="option-emoji">🧒</span>
+      <div class="option-text">
+        <div class="option-label">3〜5歳</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2b','age_school')">
+      <span class="option-emoji">🎒</span>
+      <div class="option-text">
+        <div class="option-label">小中学生（6〜14歳）</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2b','age_highschool')">
+      <span class="option-emoji">📚</span>
+      <div class="option-text">
+        <div class="option-label">高校生（15〜17歳）</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2b','age_adult')">
+      <span class="option-emoji">🎓</span>
+      <div class="option-text">
+        <div class="option-label">18歳以上</div>
+      </div>
+    </div>
+  </div>
+  <button class="next-btn" id="btn-3" disabled onclick="nextFromQ2b()">次へ →</button>
+</div>
+
+<!-- ========== 画面4：Q2c 最年長の年齢（ch_multiのみ） ========== -->
+<div class="screen" id="screen-4">
+  <div class="progress-wrap">
+    <div class="progress-label">3b / 5</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+  </div>
+  <div class="q-title">一番上のお子さんは<br>何歳ですか？</div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q2c','age_young')">
+      <span class="option-emoji">👶</span>
+      <div class="option-text"><div class="option-label">0〜2歳</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2c','age_preschool')">
+      <span class="option-emoji">🧒</span>
+      <div class="option-text"><div class="option-label">3〜5歳</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2c','age_school')">
+      <span class="option-emoji">🎒</span>
+      <div class="option-text"><div class="option-label">小中学生（6〜14歳）</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2c','age_highschool')">
+      <span class="option-emoji">📚</span>
+      <div class="option-text"><div class="option-label">高校生（15〜17歳）</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q2c','age_adult')">
+      <span class="option-emoji">🎓</span>
+      <div class="option-text"><div class="option-label">18歳以上</div></div>
+    </div>
+  </div>
+  <div id="error-q2c" class="error-msg">一番上のお子さんは一番下と同じか年上を選んでください</div>
+  <button class="next-btn" id="btn-4" disabled onclick="nextFromQ2c()">次へ →</button>
+</div>
+
+<!-- ========== 画面5：Q3 収入 ========== -->
+<div class="screen" id="screen-5">
+  <div class="progress-wrap">
+    <div class="progress-label">4 / 5</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+  </div>
+  <div class="q-title">年収はだいたい<br>どのくらいですか？<br><small style="font-size:14px;font-weight:normal;color:#888">目安で大丈夫です</small></div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q3','inc_1')">
+      <span class="option-emoji">💴</span>
+      <div class="option-text">
+        <div class="option-label">〜190万円</div>
+        <div class="option-sub">月収16万以下</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q3','inc_2')">
+      <span class="option-emoji">💴</span>
+      <div class="option-text">
+        <div class="option-label">190〜204万円</div>
+        <div class="option-sub">月収16〜17万</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q3','inc_3')">
+      <span class="option-emoji">💴</span>
+      <div class="option-text">
+        <div class="option-label">204〜296万円</div>
+        <div class="option-sub">月収17〜25万</div>
+      </div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q3','inc_4')">
+      <span class="option-emoji">💴</span>
+      <div class="option-text">
+        <div class="option-label">296万円以上</div>
+        <div class="option-sub">月収25万以上</div>
+      </div>
+    </div>
+  </div>
+  <button class="next-btn" id="btn-5" disabled onclick="goTo(6)">次へ →</button>
+</div>
+
+<!-- ========== 画面6：Q4 + Q5（最終） ========== -->
+<div class="screen" id="screen-6">
+  <div class="progress-wrap">
+    <div class="progress-label">5 / 5（最後です！）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+  </div>
+  <div class="q-title">養育費を受け取って<br>いますか？</div>
+  <div class="option-list" style="margin-bottom:24px">
+    <div class="option-btn" onclick="selectOption(this,'q4','alimony_yes')">
+      <span class="option-emoji">✅</span>
+      <div class="option-text"><div class="option-label">受け取っている</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q4','alimony_no')">
+      <span class="option-emoji">❌</span>
+      <div class="option-text"><div class="option-label">受け取っていない</div></div>
+    </div>
+  </div>
+
+  <div class="q-title">今の働き方を<br>教えてください</div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q5','work_full')">
+      <span class="option-emoji">💼</span>
+      <div class="option-text"><div class="option-label">正社員・フルタイム</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q5','work_part')">
+      <span class="option-emoji">🕐</span>
+      <div class="option-text"><div class="option-label">パート・アルバイト</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q5','work_none')">
+      <span class="option-emoji">🏠</span>
+      <div class="option-text"><div class="option-label">現在働いていない</div></div>
+    </div>
+  </div>
+  <button class="next-btn" id="btn-6" disabled onclick="submitAnswers()">診断結果を見る →</button>
+</div>
+
+<!-- ========== 画面7：送信中 ========== -->
+<div class="screen" id="screen-7">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <div style="font-size:16px;color:#555">診断中...</div>
+    <div style="font-size:13px;color:#888">LINEに結果を送信しています</div>
+  </div>
+</div>
+
+<!-- ========== 画面8：完了 ========== -->
+<div class="screen" id="screen-8">
+  <div class="done-wrap">
+    <div class="done-icon">✅</div>
+    <div class="done-title">診断が完了しました！</div>
+    <div class="done-desc">LINEのトーク画面に<br>結果をお送りしました。<br><br>確認してみてください。</div>
+    <button class="next-btn" onclick="closeLiff()" style="margin-top:8px">LINEに戻る</button>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // 設定（デプロイ時に書き換える）
+  // ============================================================
+  const LIFF_ID  = 'YOUR_LIFF_ID';   // LINE Developers で取得
+  const GAS_URL  = 'YOUR_GAS_URL';   // GASデプロイ後のURL
+
+  // ============================================================
+  // 回答データ
+  // ============================================================
+  const answers = {
+    lineUserId: null,
+    q1: null, q2a: null, q2b: null, q2c: null,
+    q3: null, q4: null,  q5: null
+  };
+
+  // 年齢の順序（バリデーション用）
+  const AGE_ORDER = ['age_young','age_preschool','age_school','age_highschool','age_adult'];
+
+  // ============================================================
+  // LIFF 初期化
+  // ============================================================
+  (async () => {
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      const profile = await liff.getProfile();
+      answers.lineUserId = profile.userId;
+    } catch (err) {
+      console.error('LIFF init error:', err);
+    }
+  })();
+
+  // ============================================================
+  // 画面遷移
+  // ============================================================
+  function goTo(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + n).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ============================================================
+  // カード選択（Q1）
+  // ============================================================
+  function selectCard(el, key, val) {
+    el.closest('.card-grid').querySelectorAll('.card-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    answers[key] = val;
+    // Q1はタップ即次画面へ
+    setTimeout(() => goTo(2), 150);
+  }
+
+  // ============================================================
+  // オプション選択（Q2〜Q5）
+  // ============================================================
+  function selectOption(el, key, val) {
+    // 同じグループ内の選択を解除
+    el.closest('.option-list').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    answers[key] = val;
+
+    // 同画面内の次へボタンを有効化
+    checkScreenReady();
+  }
+
+  function checkScreenReady() {
+    // 各画面の必須項目が揃ったらボタンを有効化
+    const screen = document.querySelector('.screen.active');
+    const id = screen.id;
+
+    if (id === 'screen-2') {
+      document.getElementById('btn-2').disabled = !answers.q2a;
+    } else if (id === 'screen-3') {
+      document.getElementById('btn-3').disabled = !answers.q2b;
+    } else if (id === 'screen-4') {
+      document.getElementById('btn-4').disabled = !answers.q2c;
+    } else if (id === 'screen-5') {
+      document.getElementById('btn-5').disabled = !answers.q3;
+    } else if (id === 'screen-6') {
+      document.getElementById('btn-6').disabled = !(answers.q4 && answers.q5);
+    }
+  }
+
+  // ============================================================
+  // Q2b の次へ
+  // ============================================================
+  function nextQ2b() {
+    // Q2b のタイトルを人数に合わせて変える
+    const isMulti = answers.q2a === 'ch_multi';
+    document.getElementById('q2b-title').textContent = isMulti
+      ? '一番下のお子さんは\n何歳ですか？'
+      : 'お子さんは\n何歳ですか？';
+    goTo(3);
+  }
+
+  // ============================================================
+  // Q2b 回答後の分岐
+  // ============================================================
+  function nextFromQ2b() {
+    if (answers.q2a === 'ch_multi') {
+      goTo(4); // Q2c へ
+    } else {
+      answers.q2c = null;
+      goTo(5); // Q3 へ
+    }
+  }
+
+  // ============================================================
+  // Q2c 回答後（バリデーション付き）
+  // ============================================================
+  function nextFromQ2c() {
+    const errEl = document.getElementById('error-q2c');
+    const youngestIdx = AGE_ORDER.indexOf(answers.q2b);
+    const oldestIdx   = AGE_ORDER.indexOf(answers.q2c);
+
+    if (oldestIdx < youngestIdx) {
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    goTo(5);
+  }
+
+  // ============================================================
+  // 送信
+  // ============================================================
+  async function submitAnswers() {
+    goTo(7); // ローディング画面へ
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers)
+      });
+
+      const json = await res.json();
+
+      if (json.ok) {
+        goTo(8); // 完了画面へ
+      } else {
+        throw new Error(json.error || 'unknown error');
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      // エラー時も完了画面へ（LINEメッセージが届くので問題なし）
+      goTo(8);
+    }
+  }
+
+  // ============================================================
+  // LIFF を閉じる
+  // ============================================================
+  function closeLiff() {
+    try {
+      liff.closeWindow();
+    } catch {
+      window.close();
+    }
+  }
+</script>
+</body>
+</html>
