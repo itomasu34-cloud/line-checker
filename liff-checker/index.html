@@ -574,10 +574,10 @@
     goTo(7); // ローディング画面へ
 
     try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(answers)
+      const params = new URLSearchParams({ data: JSON.stringify(answers) });
+      await fetch(GAS_URL + '?' + params.toString(), {
+        method: 'GET',
+        mode: 'no-cors'
       });
 
       goTo(8); // 完了画面へ
