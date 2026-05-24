@@ -404,7 +404,7 @@
   </div>
 
   <div class="q-title">今の働き方を<br>教えてください</div>
-  <div class="option-list">
+  <div class="option-list" style="margin-bottom:24px">
     <div class="option-btn" onclick="selectOption(this,'q5','work_full')">
       <span class="option-emoji">💼</span>
       <div class="option-text"><div class="option-label">正社員・フルタイム</div></div>
@@ -416,6 +416,18 @@
     <div class="option-btn" onclick="selectOption(this,'q5','work_none')">
       <span class="option-emoji">🏠</span>
       <div class="option-text"><div class="option-label">現在働いていない</div></div>
+    </div>
+  </div>
+
+  <div class="q-title">お住まいの都道府県を<br>教えてください</div>
+  <div class="option-list">
+    <div class="option-btn" onclick="selectOption(this,'q6','pref_tokyo')">
+      <span class="option-emoji">🗼</span>
+      <div class="option-text"><div class="option-label">東京都</div></div>
+    </div>
+    <div class="option-btn" onclick="selectOption(this,'q6','pref_other')">
+      <span class="option-emoji">🗾</span>
+      <div class="option-text"><div class="option-label">その他の都道府県</div></div>
     </div>
   </div>
   <button class="next-btn" id="btn-6" disabled onclick="submitAnswers()">診断結果を見る →</button>
@@ -453,7 +465,7 @@
   const answers = {
     lineUserId: null,
     q1: null, q2a: null, q2b: null, q2c: null,
-    q3: null, q4: null,  q5: null
+    q3: null, q4: null,  q5: null, q6: null
   };
 
   // 年齢の順序（バリデーション用）
@@ -523,7 +535,7 @@
     } else if (id === 'screen-5') {
       document.getElementById('btn-5').disabled = !answers.q3;
     } else if (id === 'screen-6') {
-      document.getElementById('btn-6').disabled = !(answers.q4 && answers.q5);
+      document.getElementById('btn-6').disabled = !(answers.q4 && answers.q5 && answers.q6);
     }
   }
 
