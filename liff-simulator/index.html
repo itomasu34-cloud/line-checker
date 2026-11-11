@@ -241,6 +241,24 @@ input[type=range]::-webkit-slider-thumb {
 .next-btn { background: var(--mint); }
 .next-btn:active { background: #A5E8D6; }
 
+/* ── 今のままと比べると ── */
+.cur-box { background: var(--brand); border: 2px solid var(--ink); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.cur-box .cur-h { font-size: 12px; font-weight: 700; }
+.cur-box .cur-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px; font-size: 13.5px; }
+.cur-box .cur-num { font-size: 20px; font-weight: 800; }
+.cur-box .cur-sub { font-size: 12px; color: var(--ink-2); }
+.cmp-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 13.5px; }
+.cmp-row.up   { background: #EAF7EE; } .cmp-row.up .cmp-v   { color: #0F6B2F; }
+.cmp-row.down { background: #FCECEC; } .cmp-row.down .cmp-v { color: #A32D2D; }
+.cmp-row.same { background: #F1EFE8; } .cmp-row.same .cmp-v { color: #5F5E5A; }
+.cmp-v { font-weight: 700; white-space: nowrap; }
+.cmp-sw { display: inline-block; width: 14px; border-top-width: 3px; vertical-align: middle; margin-right: 6px; }
+
+/* ── 相談するときに聞くと良いこと ── */
+.ask-list { list-style: none; padding: 0; margin: 0; }
+.ask-list li { font-size: 13.5px; line-height: 1.7; padding: 6px 0; border-bottom: 1px dashed var(--line, #E5E0D5); }
+.ask-list li:last-child { border-bottom: none; }
+
 /* ── 出口（結果のあとの案内：主な案内1つ＋小さなリンク）── */
 .exit-card { background: var(--mint-l); }
 .exit-lead { font-size: 13.5px; line-height: 1.75; margin: 0 0 12px; }
@@ -627,8 +645,6 @@ input[type=range]::-webkit-slider-thumb {
   <div class="nen-box" id="nenBox"></div>
 </div>
 
-<div id="exitNow"></div>
-
 <div class="card" style="background:var(--brand-l)">
   <div class="lbl">次のステップへ</div>
   <p style="font-size:13.5px;line-height:1.7;margin:0 0 4px">ここまでで「今の手取り」が分かりました。<br>
@@ -735,6 +751,8 @@ input[type=range]::-webkit-slider-thumb {
   <p class="graph-note" id="fGraphNote"></p>
 </div>
 
+<div class="card" id="curCompare"></div>
+
 <div class="card">
   <div class="lbl">老後の年金月額（65歳〜）</div>
   <div id="pensionBars"></div>
@@ -748,10 +766,6 @@ input[type=range]::-webkit-slider-thumb {
   <div class="graph-guide" id="scTextSummary"></div>
 </div>
 
-<div class="card">
-  <div class="lbl">あなたの年表（お金のイベント）</div>
-  <ul class="tl-list" id="timeline"></ul>
-</div>
 
 <div class="card">
   <details class="premise">
@@ -765,6 +779,7 @@ input[type=range]::-webkit-slider-thumb {
       <li>シナリオA・Cは国民年金＋国保、シナリオB・Dは社会保険（健保＋厚生年金）加入で計算。A・Cの免除は申請済み、B・Dは週20時間以上働いて社保に入れる前提</li>
       <li>児童扶養手当は末子が18歳になる年度末まで。養育費は子が18歳まで受け取る前提</li>
       <li>昇給・転職・再婚・物価・制度改正は織り込んでいません</li>
+      <li>90歳までで比べるのは、女性の半数が90歳まで生きるためです（令和6年簡易生命表：女性の平均寿命87.13年・寿命中位数90.04年）。長生きするほど、年金の差が大きく効きます</li>
     </ul>
   </details>
 </div>
@@ -775,7 +790,6 @@ input[type=range]::-webkit-slider-thumb {
     <li class="act-item"><div class="act-num">1</div><div class="act-text"><strong>ねんきんネットで実際の記録を確認</strong>「これまでの年金」を正確にすると、このシミュレーションの精度が上がります。マイナポータルから無料で見られます。</div></li>
     <li class="act-item"><div class="act-num">2</div><div class="act-text"><strong>免除を受けた期間の追納を検討</strong>10年以内なら追納できます（2年以内は加算なし）。追納すると老後の基礎年金が満額に近づきます。</div></li>
   </ul>
-  <div id="exitFuture"></div>
 </div>
 
 <div class="card" style="background:var(--brand-l)">
@@ -798,7 +812,7 @@ input[type=range]::-webkit-slider-thumb {
 
 <div class="sc-note">
   <strong>あなたの全体まとめ</strong><br>
-  「いま」と「これから」の結果を1枚にまとめます。スクショして保存しておけます。
+  「いま」と「これから」の結果を1枚にまとめます。スクショして保存しておけます。<br>条件を変えたいときは、上の「いま」「これから」を押せば、いつでも戻れます。
 </div>
 
 <div id="sumContent"></div>
@@ -1074,7 +1088,7 @@ function findOptimal(data) {
 // シナリオは「収入（抑える/稼ぐ）×年金（国民年金/厚生年金）」の2軸4象限でMECEに構成する。
 // cfg = {
 //   key: 'A'|'B'|'C'|'D',     表示用キー
-//   incomeMode: 'cap'|'target',   cap=非課税ラインに抑える / target=目標年収まで稼ぐ
+//   incomeMode: 'cap'|'target'|'current',   cap=非課税ラインに抑える / target=目標年収まで稼ぐ / current=今の年収のまま（2026-11-12追加）
 //   pension: 'kokumin'|'kousei',  kokumin=国民年金・国保 / kousei=社会保険（厚生年金）
 //   targetInc,                incomeMode='target' の年収（万円）
 //   parentAge, childAges: [], aliM, pref,
@@ -1102,7 +1116,8 @@ function projectScenario(cfg) {
     var kokoCnt  = ages.filter(function(a) { return a >= 16 && a <= 18; }).length;
     var youngest = ages.length ? Math.min.apply(null, ages) : 99;
 
-    var inc      = (cfg.incomeMode === 'cap') ? yearRule(year).hikazeiLine : cfg.targetInc;
+    var inc      = (cfg.incomeMode === 'cap') ? yearRule(year).hikazeiLine
+                 : (cfg.incomeMode === 'current') ? cfg.curInc : cfg.targetInc;
     var workType = (cfg.pension === 'kousei') ? 'employee' : 'self';
     var aliM     = (eligible > 0) ? cfg.aliM : 0;
 
@@ -1165,6 +1180,18 @@ function buildScenarios(input) {
     mk('D', 'target', 'kousei')
   ];
 }
+
+// 「今のまま」：今の年収を65歳まで続けた場合（2026-11-12追加）。年金は今の働き方で決める（会社員＝厚生年金、それ以外＝国民年金）
+// 4シナリオのグラフには入れず、「今のままと比べると」のカードでだけ使う
+function buildCurrentScenario(input, curPension) {
+  var cfg = {};
+  for (var k in input) cfg[k] = input[k];
+  cfg.key = 'NOW'; cfg.incomeMode = 'current'; cfg.pension = curPension || 'kokumin';
+  return projectScenario(cfg);
+}
+// 今のままとの差の区分（±50万円未満は「ほぼ同じ」）
+var CUR_SAME_BAND = 50;
+function diffClass(diff) { return Math.abs(diff) < CUR_SAME_BAND ? 'same' : (diff > 0 ? 'up' : 'down'); }
 
 // シナリオの累積額を年齢で引く（rows＋post合成）
 function cumAtAge(sc, age) {
@@ -1705,8 +1732,8 @@ function showResults() {
   if (S.childAge === 'C') flNow.push('kyoiku');
   lastNow.st = stNow; lastNow.fl = flNow;
   track('result', 'now', stNow, flNow.join(','));
-  // STEP 1は途中なので、大きなボタンは出さず小さなリンクだけ（主な案内はSTEP 3のまとめで大きく出す）
-  document.getElementById('exitNow').innerHTML = renderExitCompact(pickExit(stNow, flNow, inc), 'now');
+  // 案内（出口）は最後のまとめでだけ出す。STEP 1を計算し直したら「これから」も計算し直す
+  if (lastFuture) futureStale = true;
 
   // ── 国民年金カード（自営・無職のみ。入力の「申請している？」に応じて出し分け）
   var nenCard = document.getElementById('nenCard');
@@ -1759,19 +1786,43 @@ function readChildAges() {
   return ages;
 }
 
-function showFutureResults() {
+// 「これから」の入力を読む（「いま」の条件 S も引き継ぐ）
+function readFutureInput() {
   var parentAge = Math.min(Math.max(Number(document.getElementById('fParentAge').value) || 35, 18), 59);
   var kouseiY   = Math.min(Math.max(Number(document.getElementById('fKouseiY').value) || 0, 0), parentAge - 18);
-  var childAges = readChildAges();
-
-  var input = {
-    parentAge: parentAge, childAges: childAges,
+  return {
+    parentAge: parentAge, childAges: readChildAges(),
     aliM: S.aliM, pref: S.pref,
     payHist: F.payHist, kouseiPastY: kouseiY,
     curInc: S.income, targetInc: F.targetInc
   };
-
+}
+// 「これから」の計算結果（画面に描かない）。まとめの再計算と showFutureResults の両方で使う
+function computeFutureData(input) {
   var scenarios = buildScenarios(input);
+  var cmp = compareCum(scenarios[3], scenarios[0]);
+  var byCash = scenarios.slice().sort(function(a, b) {
+    return b.rows[b.rows.length - 1].cum - a.rows[a.rows.length - 1].cum;
+  });
+  var fl = (lastNow && lastNow.fl) ? lastNow.fl.slice() : [];
+  if (byCash[0].type === 'C' || byCash[0].type === 'D') fl.push('kasegu');
+  if (input.payHist !== 'full') fl.push('nenkin');
+  var ages = input.childAges;
+  var youngest = ages.length ? Math.min.apply(null, ages) : 99;
+  var oldest   = ages.length ? Math.max.apply(null, ages) : 0;
+  if ((oldest >= 12 || (youngest < 19 && 18 - youngest <= 5)) && fl.indexOf('kyoiku') === -1) fl.push('kyoiku');
+  var current = buildCurrentScenario(input, S.workType === 'employee' ? 'kousei' : 'kokumin');
+  return { input: input, scenarios: scenarios, current: current, cmpDA: cmp.type, beDA: (cmp.type === 'cross') ? cmp.age : null, fl: fl };
+}
+
+function showFutureResults() {
+  futureStale = false;
+  var input = readFutureInput();
+  var parentAge = input.parentAge;
+  var childAges = input.childAges;
+  var fd = computeFutureData(input);
+
+  var scenarios = fd.scenarios;
   var scA = scenarios[0], scB = scenarios[1], scC = scenarios[2], scD = scenarios[3];
   var line0 = yearRule(CURRENT_INCOME_YEAR).hikazeiLine;
 
@@ -1820,6 +1871,7 @@ function showFutureResults() {
   }
   noteText += ' Bは、手取りを非課税水準に保ちながら将来の年金を厚くする「中間の道」です。';
   document.getElementById('fGraphNote').textContent = noteText;
+  document.getElementById('curCompare').innerHTML = renderCurCompare(fd);
 
   // ── 年金バー
   var maxP = 0.1;
@@ -1870,33 +1922,14 @@ function showFutureResults() {
   document.getElementById('scTextSummary').innerHTML = sumHTML;
 
   // ── まとめタブ用に保持
-  lastFuture = { input: input, scenarios: scenarios, beDA: beDA, cmpDA: cmpDA.type };
+  lastFuture = fd;
   markStepDone('tabBtnFuture');
 
   // ── 計測：「これから」の目印。状態（st）は「いま」の結果を引き継ぐ
-  var flF = (lastNow && lastNow.fl) ? lastNow.fl.slice() : [];
-  if (byCash[0].type === 'C' || byCash[0].type === 'D') flF.push('kasegu');
-  if (F.payHist !== 'full') flF.push('nenkin');
-  var youngestF = childAges.length ? Math.min.apply(null, childAges) : 99;
-  var oldestF   = childAges.length ? Math.max.apply(null, childAges) : 0;
-  if ((oldestF >= 12 || (youngestF < 19 && 18 - youngestF <= 5)) && flF.indexOf('kyoiku') === -1) flF.push('kyoiku');
+  var flF = fd.fl;
   track('result', 'future', (lastNow && lastNow.st) || '', flF.join(','));
-  lastFuture.fl = flF;
-  // 「これから」では主な案内は出さず、目印に合う小さなリンクだけ（結果が主役）
-  // STEP 2で新しく分かった目印（稼ぐが有利・年金の記録など）を先に使う。STEP 1で出したリンクの繰り返しを避ける
-  var flPrev = (lastNow && lastNow.fl) || [];
-  var flNew = flF.filter(function(x) { return flPrev.indexOf(x) === -1; });
-  var subF = pickExit((lastNow && lastNow.st) || '', flNew, S.income).sub ||
-             pickExit((lastNow && lastNow.st) || '', flF, S.income).sub;
-  document.getElementById('exitFuture').innerHTML = subF ? renderSubLink(subF, 'future') : '';
+  // 案内（出口）は最後のまとめでだけ出す（2026-11-12 実機テストを受けて）
 
-  // ── 年表
-  var tl = buildTimeline(input);
-  var tlHTML = '';
-  tl.forEach(function(e) {
-    tlHTML += '<li class="tl-item"><span class="tl-year">' + e.year + '年</span><span>' + e.text + '</span></li>';
-  });
-  document.getElementById('timeline').innerHTML = tlHTML;
 
   window.scrollTo(0, 0);
 }
@@ -1911,8 +1944,14 @@ function switchTab(tab) {
   document.getElementById('tabBtnNow').classList.toggle('on', tab === 'now');
   document.getElementById('tabBtnFuture').classList.toggle('on', tab === 'future');
   document.getElementById('tabBtnSummary').classList.toggle('on', tab === 'summary');
-  if (tab === 'future') { updateInheritBox(); prefillChildAges(); }
-  if (tab === 'summary') renderSummary();
+  if (tab === 'future') {
+    updateInheritBox(); prefillChildAges();
+    if (futureStale && lastFuture) showFutureResults();   // 「いま」の条件が変わっていたら計算し直す
+  }
+  if (tab === 'summary') {
+    if (futureStale && lastFuture) { prefillChildAges(); lastFuture = computeFutureData(readFutureInput()); }
+    renderSummary();
+  }
   if (tab !== 'now') track('step', tab);
   window.scrollTo(0, 0);
 }
@@ -1933,6 +1972,7 @@ function markStepDone(id) {
 // ============================================================
 var lastNow = null;      // showResults の結果を保持
 var lastFuture = null;   // showFutureResults の結果を保持
+var futureStale = false; // 「いま」を計算し直したあと、「これから」がまだ古いまま
 
 function renderSummary() {
   var el = document.getElementById('sumContent');
@@ -1981,6 +2021,12 @@ function renderSummary() {
     html += '<li>現役中（65歳まで）の手取り合計が多いのは<strong style="color:' + SC_STYLE[byCash[0].type].color + '">' + SC_STYLE[byCash[0].type].label + '</strong></li>';
     html += '<li>老後の年金月額が多いのは<strong style="color:' + SC_STYLE[byPen[0].type].color + '">' + SC_STYLE[byPen[0].type].label + '</strong>（' + fmt1(byPen[0].pensionM) + '万円/月。最少とは月' + fmt1(byPen[0].pensionM - byPen[3].pensionM) + '万円差）</li>';
     html += '<li>90歳までの合計では<strong style="color:' + SC_STYLE[by90[0].type].color + '">' + SC_STYLE[by90[0].type].label + '</strong>が最大（約' + fmtManInt(by90[0].cumAt90) + '）</li>';
+    if (f.current) {
+      var top = curCompareRows(f)[0];
+      if (diffClass(top.diff) === 'up') html += '<li>今のまま（年収' + f.input.curInc + '万円）より、<strong style="color:' + SC_STYLE[top.sc.type].color + '">' + SC_STYLE[top.sc.type].label + '</strong>のほうが90歳までで<strong>約' + top.diff.toLocaleString() + '万円多い</strong></li>';
+      else if (diffClass(top.diff) === 'down') html += '<li>今のまま（年収' + f.input.curInc + '万円）が、4つの働き方のどれよりも90歳までの合計が多い</li>';
+      else html += '<li>4つの働き方のどれに変えても、今のまま（年収' + f.input.curInc + '万円）と大きくは変わりません</li>';
+    }
     if (f.cmpDA === 'lead') html += '<li>「稼ぐ＋厚生年金」は<strong>最初の年から</strong>「抑える＋国民年金」より累積の手取りが多い</li>';
     else if (f.beDA) html += '<li>「稼ぐ＋厚生年金」が「抑える＋国民年金」を累積で追い抜くのは<strong>約' + f.beDA + '歳</strong></li>';
     if (f.input.childAges.length) {
@@ -1992,13 +2038,92 @@ function renderSummary() {
     html += '<div class="card" style="color:var(--ink-2)">「これから」タブでまだ計算していません。計算すると、将来の比較の結論がここに入ります。</div>';
   }
 
-  // ── 次の一歩（出口：主な案内1つ＋小さなリンク。13_simulator-exit-design.md §1）
+  // ── 年表（「これから」から移した）
+  if (lastFuture) {
+    var tl = buildTimeline(lastFuture.input);
+    if (tl.length) {
+      html += '<div class="card"><div class="lbl">あなたの年表（お金のイベント）</div><ul class="tl-list">';
+      tl.forEach(function(e) {
+        html += '<li class="tl-item"><span class="tl-year">' + e.year + '年</span><span>' + e.text + '</span></li>';
+      });
+      html += '</ul></div>';
+    }
+  }
+
+  // ── 相談するときに聞くと良いこと（結果から作る）
   if (lastNow) {
     var flS = (lastFuture && lastFuture.fl) ? lastFuture.fl : (lastNow.fl || []);
+    var qs = buildAskList(lastNow, lastFuture, flS);
+    if (qs.length) {
+      html += '<div class="card"><div class="lbl">相談するときに聞くと良いこと（あなたの結果から）</div><ul class="ask-list">';
+      qs.forEach(function(q) { html += '<li>□ ' + q + '</li>'; });
+      html += '</ul><p class="bk-note">このまとめ画面をスクショしておくと、相談のときに今の状況を伝えやすくなります。</p></div>';
+    }
+    // ── 次の一歩（出口：主な案内1つ＋小さなリンク。13_simulator-exit-design.md §1）
     html += renderExit(pickExit(lastNow.st, flS, lastNow.inc), lastNow.st, 'summary');
   }
 
+  // ── 条件を変えて戻る
+  html += '<button class="back-btn" onclick="backToInput(\'now\')">← 「いま」の条件を変える</button>';
+  if (lastFuture) html += '<button class="back-btn" onclick="backToInput(\'future\')">← 「これから」の条件を変える</button>';
+
   el.innerHTML = html;
+}
+
+// 「今のままと比べると」カード。差の大きい順。増える＝緑↑・減る＝赤↓・±50万円未満＝灰「ほぼ同じ」
+var SC_SWATCH = { A: ['#1baf7a', 'solid'], B: ['#1baf7a', 'dashed'], C: ['#2a78d6', 'solid'], D: ['#2a78d6', 'dashed'] };
+function curCompareRows(fd) {
+  var cur = fd.current.cumAt90;
+  return fd.scenarios.map(function(sc) { return { sc: sc, diff: Math.round(sc.cumAt90 - cur) }; })
+    .sort(function(a, b) { return b.diff - a.diff; });
+}
+function renderCurCompare(fd) {
+  if (!fd.current) return '';
+  var c = fd.current, pen = (S.workType === 'employee') ? '厚生年金' : '国民年金';
+  var h = '<div class="lbl">今のままと比べると（90歳までの合計）</div>' +
+    '<div class="cur-box"><div class="cur-h">いまのあなた（このまま続けた場合）</div>' +
+    '<div class="cur-row"><span>年収' + S.income + '万円・' + pen + '</span><span class="cur-num">約' + fmtManInt(c.cumAt90) + '</span></div>' +
+    '<div class="cur-sub">年金 月' + fmt1(c.pensionM) + '万円</div></div>' +
+    '<div style="font-size:12px;color:var(--ink-3);margin-bottom:6px">働き方を変えると</div>';
+  curCompareRows(fd).forEach(function(r) {
+    var cls = diffClass(r.diff), sw = SC_SWATCH[r.sc.type], label = SC_STYLE[r.sc.type].label;
+    var v = cls === 'same' ? '＝ ほぼ同じ（' + (r.diff >= 0 ? '+' : '−') + Math.abs(r.diff).toLocaleString() + '万円）'
+          : (cls === 'up' ? '↑ +' : '↓ −') + Math.abs(r.diff).toLocaleString() + '万円';
+    h += '<div class="cmp-row ' + cls + '"><span><span class="cmp-sw" style="border-top-color:' + sw[0] + ';border-top-style:' + sw[1] + '"></span>' + label + '</span><span class="cmp-v">' + v + '</span></div>';
+  });
+  h += '<p class="bk-note">差が±' + CUR_SAME_BAND + '万円未満のときは「ほぼ同じ」。今のままは、今の年収を65歳まで続けた場合の概算です（国民年金の方は免除を申請した前提）。</p>';
+  return h;
+}
+
+// まとめから、各タブの入力画面に戻る
+function backToInput(tab) {
+  switchTab(tab);
+  if (tab === 'now') {
+    document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('inputScreen').style.display  = 'block';
+  } else {
+    document.getElementById('fResultScreen').style.display = 'none';
+    document.getElementById('fInputScreen').style.display  = 'block';
+  }
+  window.scrollTo(0, 0);
+}
+
+// 相談するときに聞くと良いこと。結果の状態（st）と目印（fl）から作る。個別の金額の断定はしない
+function buildAskList(n, f, fl) {
+  var q = [];
+  if (n.st === 'gyaku' || n.st === 'near') q.push('年収を非課税ライン（' + n.line + '万円）に抑えるか、超えて働くか。手当・保育料・医療費の変わり方も含めて');
+  if (n.st === 'over') q.push('収入が増えた分を、どう残すか（教育費の積み立て・老後の備え）');
+  if (n.st === 'hikazei') q.push('今の収入で、教育費と老後のお金をどう準備していくか');
+  if (fl.indexOf('kasegu') !== -1) q.push('収入を増やすとき、社会保険（厚生年金）に入る働き方を選ぶか');
+  if (fl.indexOf('kyoiku') !== -1) q.push('子どもの進学までに、教育費をいつまでにいくら準備するか');
+  if (fl.indexOf('nenkin') !== -1) q.push('年金の免除・未納の期間を、追納するかどうか');
+  if (fl.indexOf('noali') !== -1) q.push('養育費がない前提で、もしものときの備え（保険）をどうするか');
+  if (f && f.input.childAges.length) {
+    var y = Math.min.apply(null, f.input.childAges);
+    if (y < 19) q.push((CURRENT_INCOME_YEAR + (18 - y)) + '年に児童扶養手当が終わったあとの家計をどうするか');
+  }
+  q.push('いま入っている保険が、今の家計と子どもの年齢に合っているか');
+  return q;
 }
 
 // 「いま」タブから引き継ぐ条件の表示
@@ -2028,7 +2153,7 @@ function updateInheritBox() {
   var prefLabel = S.pref === 'tokyo' ? '東京都' : '東京都以外';
   var aliLabel  = S.aliM > 0 ? '月' + S.aliM + '万円' : 'なし';
   document.getElementById('fInherit').innerHTML =
-    '今の年収：<strong>' + S.income + '万円</strong>（過去の厚生年金の報酬の代用にも使います）<br>' +
+    '今の年収：<strong>' + S.income + '万円</strong>（「今のまま」の計算と、過去の厚生年金の報酬の代用に使います）<br>' +
     '養育費：<strong>' + aliLabel + '</strong>／都道府県：<strong>' + prefLabel + '</strong>';
 }
 
@@ -2189,12 +2314,6 @@ function renderExit(ex, st, p, note) {
     (ex.sub ? renderSubLink(ex.sub, p) : '') +
     (note ? '<p class="exit-note">' + note + '</p>' : '') +
     '</div>';
-}
-// 途中の画面用：大きなボタンなし。主な案内を1行のリンクで（PR表記つき）
-function renderExitCompact(ex, p) {
-  var L = EXIT_LINKS[ex.main];
-  return '<p class="exit-sub" style="margin:4px 16px 0">結果に合わせた案内：<a' + exitAttrs(ex.main, p) + '>' + L.label + '</a>' +
-    (L.pr ? '（PR）' : '') + '</p>';
 }
 // ===EXIT-END===
 
