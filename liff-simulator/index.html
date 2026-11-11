@@ -254,6 +254,29 @@ input[type=range]::-webkit-slider-thumb {
 .cmp-v { font-weight: 700; white-space: nowrap; }
 .cmp-sw { display: inline-block; width: 14px; border-top-width: 3px; vertical-align: middle; margin-right: 6px; }
 
+/* ── シナリオ別サマリー（行カード）── */
+.sr { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; padding: 9px 10px; border-radius: 9px; margin-bottom: 6px; }
+.sr-nm { font-size: 13px; font-weight: 700; }
+.sr-sub { font-size: 11px; color: var(--ink-3); grid-column: 1; }
+.sr-big { font-size: 16px; font-weight: 800; text-align: right; grid-row: 1 / 3; grid-column: 2; line-height: 1.2; white-space: nowrap; }
+.sr-big small { display: block; font-size: 11px; font-weight: 400; color: var(--ink-3); }
+.sr.now { background: var(--brand); border: 2px solid var(--ink); }
+.sr.now .sr-big { font-size: 21px; }
+.sr.now .sr-sub { color: var(--ink-2); }
+.sr.up { background: #EAF7EE; } .sr.up .sr-big { color: #0F6B2F; }
+.sr.best { border: 2px solid #1D9E75; }
+.sr.down { background: #FCECEC; } .sr.down .sr-big { color: #A32D2D; font-size: 15px; }
+.sr.same { background: #F1EFE8; } .sr.same .sr-big { color: #5F5E5A; font-size: 15px; }
+.sr-badge { display: inline-block; font-size: 10.5px; font-weight: 700; background: #0F6B2F; color: #fff; border-radius: 5px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+.sr.now .sr-badge { background: var(--ink); }
+/* ── 相談リスト ── */
+.ask-h { font-size: 15px; font-weight: 800; margin: 0 0 2px; }
+.ask-hs { font-size: 12px; color: var(--ink-3); margin: 0 0 10px; }
+.ask-it { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1.5px solid #E5E0D5; border-radius: 10px; margin-bottom: 8px; background: #fff; }
+.ask-bx { flex: 0 0 20px; height: 20px; border: 2px solid var(--ink); border-radius: 5px; margin-top: 1px; }
+.ask-it b { display: block; font-size: 14px; font-weight: 700; line-height: 1.45; }
+.ask-it span { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
 /* ── 相談するときに聞くと良いこと ── */
 .ask-list { list-style: none; padding: 0; margin: 0; }
 .ask-list li { font-size: 13.5px; line-height: 1.7; padding: 6px 0; border-bottom: 1px dashed var(--line, #E5E0D5); }
@@ -751,7 +774,6 @@ input[type=range]::-webkit-slider-thumb {
   <p class="graph-note" id="fGraphNote"></p>
 </div>
 
-<div class="card" id="curCompare"></div>
 
 <div class="card">
   <div class="lbl">老後の年金月額（65歳〜）</div>
@@ -760,8 +782,8 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div class="card">
-  <div class="lbl">シナリオ別サマリー</div>
-  <table class="sc-table" id="scTable"></table>
+  <div class="lbl">シナリオ別サマリー（90歳までの合計で比べる）</div>
+  <div id="scRows"></div>
   <p class="bk-note" id="scTableNote"></p>
   <div class="graph-guide" id="scTextSummary"></div>
 </div>
@@ -1871,7 +1893,6 @@ function showFutureResults() {
   }
   noteText += ' Bは、手取りを非課税水準に保ちながら将来の年金を厚くする「中間の道」です。';
   document.getElementById('fGraphNote').textContent = noteText;
-  document.getElementById('curCompare').innerHTML = renderCurCompare(fd);
 
   // ── 年金バー
   var maxP = 0.1;
@@ -1893,19 +1914,11 @@ function showFutureResults() {
   document.getElementById('pensionNote').textContent =
     '基礎年金＋厚生年金の合計（現在の制度・金額ベースの概算）。しまの棒＝厚生年金に入る働き方（B・D）で、上乗せは報酬比例部分。しまのない棒（A・C）の差は免除期間の反映率と収入によるものです。';
 
-  // ── サマリーテーブル
-  var tblHTML = '<tr><th>シナリオ</th><th>65歳までの<br>累積手取り</th><th>年金<br>月額</th><th>90歳時点<br>累積</th></tr>';
-  scenarios.forEach(function(s) {
-    var st = SC_STYLE[s.type];
-    var cum65 = s.rows.length ? s.rows[s.rows.length - 1].cum : 0;
-    tblHTML += '<tr><td style="color:' + st.color + '">' + st.label + '</td>' +
-      '<td>' + fmtManInt(cum65) + '</td>' +
-      '<td>' + fmt1(s.pensionM) + '万</td>' +
-      '<td>' + fmtManInt(s.cumAt90) + '</td></tr>';
-  });
-  document.getElementById('scTable').innerHTML = tblHTML;
+  // ── シナリオ別サマリー（いまのあなた＝基準、4つの働き方は今のままとの差が主役）
+  document.getElementById('scRows').innerHTML = renderScRows(fd);
   document.getElementById('scTableNote').textContent =
-    '累積手取り＝給与手取り＋手当＋免除等の節約分の合計。生活費は引いていません。';
+    '手取り＝給与手取り＋手当＋免除等の節約分の合計（生活費は引いていません）。差が±' + CUR_SAME_BAND + '万円未満は「ほぼ同じ」。いまのあなたは、今の年収を65歳まで続けた場合の概算です' +
+    (S.workType === 'employee' ? '。' : '（国民年金は免除を申請した前提）。');
 
   // ── テキストでの要約（表が苦手な人向け）
   var by90   = scenarios.slice().sort(function(a, b) { return b.cumAt90 - a.cumAt90; });
@@ -1913,10 +1926,7 @@ function showFutureResults() {
   var byCash = scenarios.slice().sort(function(a, b) {
     return b.rows[b.rows.length - 1].cum - a.rows[a.rows.length - 1].cum;
   });
-  var sumHTML = '<div class="gg-title">📝 ことばでまとめると</div><ul>';
-  sumHTML += '<li>現役の間（65歳まで）に手元に残るお金は<strong style="color:' + SC_STYLE[byCash[0].type].color + '">' + SC_STYLE[byCash[0].type].label + '</strong>がいちばん多い（' + fmtManInt(byCash[0].rows[byCash[0].rows.length - 1].cum) + '）</li>';
-  sumHTML += '<li>老後の年金は<strong style="color:' + SC_STYLE[byPen[0].type].color + '">' + SC_STYLE[byPen[0].type].label + '</strong>がいちばん多く月' + fmt1(byPen[0].pensionM) + '万円。いちばん少ない' + SC_STYLE[byPen[3].type].label + '（月' + fmt1(byPen[3].pensionM) + '万円）とは<strong>月' + fmt1(byPen[0].pensionM - byPen[3].pensionM) + '万円の差</strong></li>';
-  sumHTML += '<li>90歳まで生きた場合の合計では<strong style="color:' + SC_STYLE[by90[0].type].color + '">' + SC_STYLE[by90[0].type].label + '</strong>が最大（約' + fmtManInt(by90[0].cumAt90) + '。2位と約' + fmtManInt(by90[0].cumAt90 - by90[1].cumAt90) + '差）</li>';
+  var sumHTML = '<div class="gg-title">📝 ことばでまとめると</div><ul>' + nowSummaryLines(fd);
   sumHTML += '<li>B（抑える×厚生年金）は、手取りを非課税水準に保ったまま年金を月' + fmt1(scB.pensionM) + '万円（Aより＋' + fmt1(scB.pensionM - scA.pensionM) + '万円）にできる中間の道</li>';
   sumHTML += '</ul>';
   document.getElementById('scTextSummary').innerHTML = sumHTML;
@@ -2053,14 +2063,17 @@ function renderSummary() {
   // ── 相談するときに聞くと良いこと（結果から作る）
   if (lastNow) {
     var flS = (lastFuture && lastFuture.fl) ? lastFuture.fl : (lastNow.fl || []);
-    var qs = buildAskList(lastNow, lastFuture, flS);
+    var ex = pickExit(lastNow.st, flS, lastNow.inc), forFp = (ex.main === 'fp');
+    var qs = buildAskList(lastNow, lastFuture, flS, forFp);
     if (qs.length) {
-      html += '<div class="card"><div class="lbl">相談するときに聞くと良いこと（あなたの結果から）</div><ul class="ask-list">';
-      qs.forEach(function(q) { html += '<li>□ ' + q + '</li>'; });
-      html += '</ul><p class="bk-note">このまとめ画面をスクショしておくと、相談のときに今の状況を伝えやすくなります。</p></div>';
+      html += '<div class="card"><p class="ask-h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</p>' +
+        '<p class="ask-hs">あなたの結果から選びました</p>';
+      qs.forEach(function(q) { html += '<div class="ask-it"><i class="ask-bx"></i><div><b>' + q.h + '</b><span>' + q.s + '</span></div></div>'; });
+      if (forFp) html += '<p class="bk-note">このまとめ画面をスクショしておくと、相談のときに今の状況を伝えやすくなります。</p>';
+      html += '</div>';
     }
     // ── 次の一歩（出口：主な案内1つ＋小さなリンク。13_simulator-exit-design.md §1）
-    html += renderExit(pickExit(lastNow.st, flS, lastNow.inc), lastNow.st, 'summary');
+    html += renderExit(ex, lastNow.st, 'summary');
   }
 
   // ── 条件を変えて戻る
@@ -2077,21 +2090,41 @@ function curCompareRows(fd) {
   return fd.scenarios.map(function(sc) { return { sc: sc, diff: Math.round(sc.cumAt90 - cur) }; })
     .sort(function(a, b) { return b.diff - a.diff; });
 }
-function renderCurCompare(fd) {
-  if (!fd.current) return '';
+function scName(type) {
+  var sw = SC_SWATCH[type];
+  return '<span class="cmp-sw" style="border-top-color:' + sw[0] + ';border-top-style:' + sw[1] + '"></span>' + SC_STYLE[type].label;
+}
+function cum65Of(sc) { return sc.rows.length ? sc.rows[sc.rows.length - 1].cum : 0; }
+// シナリオ別サマリーの行カード
+function renderScRows(fd) {
   var c = fd.current, pen = (S.workType === 'employee') ? '厚生年金' : '国民年金';
-  var h = '<div class="lbl">今のままと比べると（90歳までの合計）</div>' +
-    '<div class="cur-box"><div class="cur-h">いまのあなた（このまま続けた場合）</div>' +
-    '<div class="cur-row"><span>年収' + S.income + '万円・' + pen + '</span><span class="cur-num">約' + fmtManInt(c.cumAt90) + '</span></div>' +
-    '<div class="cur-sub">年金 月' + fmt1(c.pensionM) + '万円</div></div>' +
-    '<div style="font-size:12px;color:var(--ink-3);margin-bottom:6px">働き方を変えると</div>';
-  curCompareRows(fd).forEach(function(r) {
-    var cls = diffClass(r.diff), sw = SC_SWATCH[r.sc.type], label = SC_STYLE[r.sc.type].label;
-    var v = cls === 'same' ? '＝ ほぼ同じ（' + (r.diff >= 0 ? '+' : '−') + Math.abs(r.diff).toLocaleString() + '万円）'
-          : (cls === 'up' ? '↑ +' : '↓ −') + Math.abs(r.diff).toLocaleString() + '万円';
-    h += '<div class="cmp-row ' + cls + '"><span><span class="cmp-sw" style="border-top-color:' + sw[0] + ';border-top-style:' + sw[1] + '"></span>' + label + '</span><span class="cmp-v">' + v + '</span></div>';
+  var rows = curCompareRows(fd);
+  var best = rows[0], curBest = diffClass(best.diff) !== 'up';
+  var h = '<div class="sr now"><span class="sr-nm">いまのあなた' + (diffClass(best.diff) === 'down' ? '<span class="sr-badge">いちばん多い</span>' : '') + '</span>' +
+    '<span class="sr-big">約' + fmtManInt(c.cumAt90) + '<small>基準</small></span>' +
+    '<span class="sr-sub">年収' + S.income + '万円・' + pen + '／65歳まで ' + fmtManInt(cum65Of(c)) + '／年金 月' + fmt1(c.pensionM) + '万円</span></div>';
+  rows.forEach(function(r, i) {
+    var cls = diffClass(r.diff);
+    var v = cls === 'same' ? '＝ ほぼ同じ' : (cls === 'up' ? '↑ +' : '↓ −') + Math.abs(r.diff).toLocaleString() + '万円';
+    var top = (i === 0 && cls === 'up');
+    h += '<div class="sr ' + cls + (top ? ' best' : '') + '"><span class="sr-nm">' + scName(r.sc.type) + (top ? '<span class="sr-badge">いちばん増える</span>' : '') + '</span>' +
+      '<span class="sr-big">' + v + '<small>合計 ' + fmtManInt(r.sc.cumAt90) + '</small></span>' +
+      '<span class="sr-sub">65歳まで ' + fmtManInt(cum65Of(r.sc)) + '／年金 月' + fmt1(r.sc.pensionM) + '万円</span></div>';
   });
-  h += '<p class="bk-note">差が±' + CUR_SAME_BAND + '万円未満のときは「ほぼ同じ」。今のままは、今の年収を65歳まで続けた場合の概算です（国民年金の方は免除を申請した前提）。</p>';
+  return h;
+}
+// 「ことばでまとめると」の今のまま基準の行
+function nowSummaryLines(fd) {
+  var c = fd.current, rows = curCompareRows(fd);
+  var ups = rows.filter(function(r) { return diffClass(r.diff) === 'up'; });
+  var downs = rows.filter(function(r) { return diffClass(r.diff) === 'down'; });
+  var b = function(t) { return '<strong style="color:' + SC_STYLE[t].color + '">' + SC_STYLE[t].label + '</strong>'; };
+  var h = '<li>今のまま（年収' + S.income + '万円）なら、90歳までで<strong>約' + fmtManInt(c.cumAt90) + '</strong>、年金は月' + fmt1(c.pensionM) + '万円</li>';
+  if (ups.length === 1) h += '<li>今のままより増えるのは' + b(ups[0].sc.type) + 'だけで、<strong>約' + ups[0].diff.toLocaleString() + '万円多い</strong></li>';
+  else if (ups.length > 1) h += '<li>今のままより増えるのは' + ups.map(function(r) { return b(r.sc.type); }).join('・') + '。いちばん増えるのは' + b(ups[0].sc.type) + 'で、<strong>約' + ups[0].diff.toLocaleString() + '万円多い</strong></li>';
+  else if (diffClass(rows[0].diff) === 'down') h += '<li>今のままが、4つの働き方のどれよりも90歳までの合計が多い</li>';
+  else h += '<li>4つの働き方のどれに変えても、今のままより大きくは増えません</li>';
+  if (downs.length) { var w = downs[downs.length - 1]; h += '<li>いちばん減るのは' + b(w.sc.type) + 'で、<strong>約' + Math.abs(w.diff).toLocaleString() + '万円少ない</strong></li>'; }
   return h;
 }
 
@@ -2109,20 +2142,22 @@ function backToInput(tab) {
 }
 
 // 相談するときに聞くと良いこと。結果の状態（st）と目印（fl）から作る。個別の金額の断定はしない
-function buildAskList(n, f, fl) {
+// forFp＝主な案内がFP相談のとき（保険など、FPに聞くのが向いている項目も入れる）
+function buildAskList(n, f, fl, forFp) {
   var q = [];
-  if (n.st === 'gyaku' || n.st === 'near') q.push('年収を非課税ライン（' + n.line + '万円）に抑えるか、超えて働くか。手当・保育料・医療費の変わり方も含めて');
-  if (n.st === 'over') q.push('収入が増えた分を、どう残すか（教育費の積み立て・老後の備え）');
-  if (n.st === 'hikazei') q.push('今の収入で、教育費と老後のお金をどう準備していくか');
-  if (fl.indexOf('kasegu') !== -1) q.push('収入を増やすとき、社会保険（厚生年金）に入る働き方を選ぶか');
-  if (fl.indexOf('kyoiku') !== -1) q.push('子どもの進学までに、教育費をいつまでにいくら準備するか');
-  if (fl.indexOf('nenkin') !== -1) q.push('年金の免除・未納の期間を、追納するかどうか');
-  if (fl.indexOf('noali') !== -1) q.push('養育費がない前提で、もしものときの備え（保険）をどうするか');
+  var add = function(h, s) { q.push({ h: h, s: s }); };
+  if (n.st === 'gyaku' || n.st === 'near') add('非課税ライン（' + n.line + '万円）に抑えるか、超えて働くか', '手当・保育料・医療費の変わり方も含めて');
+  if (n.st === 'over') add('増えた収入の残し方', '教育費の積み立てと老後の備えに、どう分けるか');
+  if (n.st === 'hikazei') add('教育費と老後のお金の準備', '今の収入で、何から準備していくか');
+  if (fl.indexOf('kasegu') !== -1) add('厚生年金に入る働き方を選ぶか', '収入を増やすとき、社会保険に入るかで年金が変わる');
+  if (fl.indexOf('kyoiku') !== -1) add('教育費をいつまでにいくら準備するか', '子どもの進学の時期に合わせて');
+  if (fl.indexOf('nenkin') !== -1) add('年金の免除・未納の期間を追納するか', '10年以内なら追納できる');
+  if (forFp && fl.indexOf('noali') !== -1) add('もしものときの備え（保険）', '養育費がない前提で、何に入っておくか');
   if (f && f.input.childAges.length) {
     var y = Math.min.apply(null, f.input.childAges);
-    if (y < 19) q.push((CURRENT_INCOME_YEAR + (18 - y)) + '年に児童扶養手当が終わったあとの家計をどうするか');
+    if (y < 19) add((CURRENT_INCOME_YEAR + (18 - y)) + '年からの家計', '児童扶養手当が終わったあと、どう回すか');
   }
-  q.push('いま入っている保険が、今の家計と子どもの年齢に合っているか');
+  if (forFp) add('いまの保険の見直し', '今の家計と子どもの年齢に合っているか');
   return q;
 }
 
