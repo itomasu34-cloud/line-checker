@@ -241,6 +241,22 @@ input[type=range]::-webkit-slider-thumb {
 .next-btn { background: var(--mint); }
 .next-btn:active { background: #A5E8D6; }
 
+/* ── 出口（結果のあとの案内：主な案内1つ＋小さなリンク）── */
+.exit-card { background: var(--mint-l); }
+.exit-lead { font-size: 13.5px; line-height: 1.75; margin: 0 0 12px; }
+.exit-main {
+  display: block; text-align: center; text-decoration: none;
+  padding: 14px; background: var(--brand); color: var(--ink);
+  border: 2.5px solid var(--ink); border-radius: var(--radius);
+  font-size: 16px; font-weight: 800; box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+.exit-main:active { background: var(--brand-d); box-shadow: 0 0 0 var(--ink); transform: translate(3px, 3px); }
+.exit-pr  { font-size: 11px; color: var(--ink-3); margin: 8px 0 0; text-align: center; }
+.exit-sub { font-size: 12.5px; color: var(--ink-2); margin: 12px 0 0; line-height: 1.6; }
+.exit-sub a { color: var(--ink); }
+.exit-note { font-size: 12px; color: var(--ink-3); margin: 10px 0 0; line-height: 1.6; }
+
 /* ── Result ── */
 #resultScreen { display: none; }
 
@@ -557,7 +573,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <button id="calcBtn" class="calc-btn">▶ 手取りを計算する</button>
-<p class="privacy-note">🔒 入力内容はこの画面内だけで計算され、外部に送信・保存されません。</p>
+<p class="privacy-note">🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。</p>
 
 </div><!-- /inputScreen -->
 
@@ -568,7 +584,7 @@ input[type=range]::-webkit-slider-thumb {
 <div class="res-hdr">
   <h2 id="resCond"></h2>
   <div class="res-total">約¥<span id="resTotal">—</span><span class="unit">万円 / 月</span></div>
-  <div class="res-sub">実質月手取りの目安（概算・給与＋手当＋節約効果）</div>
+  <div class="res-sub">実質月手取りの目安（概算・給与＋手当＋保育料や年金保険料の軽減）</div>
 </div>
 
 <div class="card" style="background:var(--brand-l)">
@@ -584,7 +600,7 @@ input[type=range]::-webkit-slider-thumb {
 <div class="card">
   <div class="lbl">月手取り内訳</div>
   <table class="bk-table" id="bkTable"></table>
-  <p class="bk-note">※給与手取りは社保・所得税・住民税の概算控除後。保育料節約は東京23区水準の参考値。<br>※「給与（社保あり）」は社会保険加入（週20時間以上）前提。「パート（社保なし）」は国保・国民年金で計算します。自営業の所得は給与の控除式による概算です（経費の実態で変わります）。</p>
+  <p class="bk-note">※給与手取りは、社保・所得税・住民税を概算で引いたあとの額です。保育料の軽減は、0〜2歳児クラスの国の基準（月3万円前後）との差の目安です。実際の額は市区町村で違います。<br>※「給与（社保あり）」は社会保険加入（週20時間以上）前提。「パート（社保なし）」は国保・国民年金で計算します。自営業の所得は給与の控除式による概算です（経費の実態で変わります）。</p>
 </div>
 
 <div class="opt-box" id="optBox"></div>
@@ -611,11 +627,13 @@ input[type=range]::-webkit-slider-thumb {
   <div class="nen-box" id="nenBox"></div>
 </div>
 
+<div id="exitNow"></div>
+
 <div class="card" style="background:var(--brand-l)">
   <div class="lbl">次のステップへ</div>
   <p style="font-size:13.5px;line-height:1.7;margin:0 0 4px">ここまでで「今の手取り」が分かりました。<br>
   でも、<strong>今のままでいいのか</strong>は将来まで見ないと決められません。<br>
-  次は、働き方4パターンの<strong>老後の年金まで</strong>を比べます。</p>
+  次は働き方4パターンで、<strong>老後の年金まで</strong>を比べます。</p>
 </div>
 <button id="toStep2Btn" class="calc-btn next-btn">STEP 2「これから」を見る →</button>
 <button id="backBtn" class="back-btn">← 条件を変えて計算しなおす</button>
@@ -636,7 +654,7 @@ input[type=range]::-webkit-slider-thumb {
 <div class="sc-note">
   <strong>「非課税に抑える」は本当に得？</strong><br>
   働き方を「収入（抑える／稼ぐ）×年金（国民年金／厚生年金）」の4パターンに分けて、手当の終わり・老後の年金まで含めて比較します。<br>
-  🔒 入力した内容（年齢・年収など）はこの画面の中だけで計算され、外部に送信・保存されません。
+  🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。
 </div>
 
 <div class="card">
@@ -648,13 +666,14 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div class="card">
-  <div class="lbl">子どもの年齢（全員・最大3人）</div>
+  <div class="lbl">子どもの年齢（全員・最大4人）</div>
   <div class="child-rows">
     <div class="child-row"><span class="cr-lbl">1人目</span><input type="number" class="num-in" id="fChild1" value="5" min="0" max="22"><span class="unit">歳</span></div>
     <div class="child-row"><span class="cr-lbl">2人目</span><input type="number" class="num-in" id="fChild2" placeholder="—" min="0" max="22"><span class="unit">歳（いなければ空欄）</span></div>
     <div class="child-row"><span class="cr-lbl">3人目</span><input type="number" class="num-in" id="fChild3" placeholder="—" min="0" max="22"><span class="unit">歳（いなければ空欄）</span></div>
     <div class="child-row"><span class="cr-lbl">4人目</span><input type="number" class="num-in" id="fChild4" placeholder="—" min="0" max="22"><span class="unit">歳（いなければ空欄）</span></div>
   </div>
+  <p id="fChildHint" style="display:none;font-size:12px;color:var(--ink-2);margin-top:10px;line-height:1.5;background:var(--yellow-soft, #FFF6CC);padding:8px 10px;border-radius:8px"></p>
   <p style="font-size:12px;color:var(--ink-3);margin-top:10px;line-height:1.5">5人以上の場合は、年齢の低いお子さんから4人まで入力してください（手当の加算額は3人目以降同額のため、大きくはずれません）。</p>
 </div>
 
@@ -687,7 +706,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <button id="fCalcBtn" class="calc-btn">▶ 将来をシミュレーションする</button>
-<p class="privacy-note">🔒 入力内容はこの画面内だけで計算され、外部に送信・保存されません。</p>
+<p class="privacy-note">🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。</p>
 
 </div><!-- /fInputScreen -->
 
@@ -697,11 +716,11 @@ input[type=range]::-webkit-slider-thumb {
 
 <div class="res-hdr">
   <h2 id="fResCond"></h2>
-  <div class="res-total" style="font-size:24px;line-height:1.5">3つの働き方で見る<br>あなたの累積手取りと年金</div>
+  <div class="res-total" style="font-size:24px;line-height:1.5">4つの働き方で見る<br>あなたの累積手取りと年金</div>
 </div>
 
 <div class="card" style="background:var(--brand-l)">
-  <p style="font-size:12.5px;color:var(--ink-2);line-height:1.6;margin:0">※すべて<strong>概算</strong>です。令和8年度の制度・金額がこの先も続く前提（現在価値ベース）で、物価上昇・制度改正・昇給は織り込んでいません。「金額」ではなく「構造の違い」を見るためのシミュレーションです。</p>
+  <p style="font-size:12.5px;color:var(--ink-2);line-height:1.6;margin:0">※すべて<strong>概算</strong>です。令和8年度の制度・金額がこの先も続く前提（現在価値ベース）で、物価上昇・制度改正・昇給は織り込んでいません。「金額」ではなく「働き方による差の出方」を見るためのシミュレーションです。</p>
 </div>
 
 <div class="card">
@@ -757,6 +776,7 @@ input[type=range]::-webkit-slider-thumb {
     <li class="act-item"><div class="act-num">2</div><div class="act-text"><strong>免除を受けた期間の追納を検討</strong>10年以内なら追納できます（2年以内は加算なし）。追納すると老後の基礎年金が満額に近づきます。</div></li>
     <li class="act-item"><div class="act-num">3</div><div class="act-text"><strong>迷ったらLINEで質問を</strong>この結果画面のスクショを添えてもらえると、状況に合わせた制度の情報をお返しできます。</div></li>
   </ul>
+  <div id="exitFuture"></div>
 </div>
 
 <div class="card" style="background:var(--brand-l)">
@@ -799,13 +819,34 @@ input[type=range]::-webkit-slider-thumb {
 
 // 所得年ごとの税制パラメータ（kojoMin=給与所得控除の最低保障・hikazeiLine=ひとり親非課税の給与収入ライン）
 // 2026・2027年所得は令和8年度税制改正大綱の+5万円特例で74万円→ライン209万円。2028年〜は特例終了。
+// hitoriS/hitoriJ＝ひとり親控除（所得税/住民税）。所得税38万は令和9年分〜、住民税33万は令和10年度分〜（＝2027年所得〜）
+//   出典：総務省 税制調査会資料 2026-10-06（261006_4-2.pdf）・国交省 報道発表 2026-11-06
 var YEAR_RULES = {
-  2025: { kojoMin: 65, hikazeiLine: 204 },
-  2026: { kojoMin: 74, hikazeiLine: 209 },
-  2027: { kojoMin: 74, hikazeiLine: 209 },
-  def:  { kojoMin: 69, hikazeiLine: 204 }
+  2025: { kojoMin: 65, hikazeiLine: 204, hitoriS: 35, hitoriJ: 30 },
+  2026: { kojoMin: 74, hikazeiLine: 209, hitoriS: 35, hitoriJ: 30 },
+  2027: { kojoMin: 74, hikazeiLine: 209, hitoriS: 38, hitoriJ: 33 },
+  def:  { kojoMin: 69, hikazeiLine: 204, hitoriS: 38, hitoriJ: 33 }
 };
 function yearRule(y) { return YEAR_RULES[y] || YEAR_RULES.def; }
+
+// 所得税の基礎控除（万円）。合計所得 sogo と所得年で決まる（住民税は43万で据え置き）
+//   出典：財務省「令和8年度税制改正の大綱の概要」（本則58→62万、加算＝R8・R9は489万以下42万/超5万、R10〜は132万以下37万）
+//   2025年分は令和7年度改正の段階制（95/88/68/63/58）
+function shotokuKiso(sogo, year) {
+  if (year <= 2025) {
+    if (sogo <= 132) return 95;
+    if (sogo <= 336) return 88;
+    if (sogo <= 489) return 68;
+    if (sogo <= 655) return 63;
+    return 58;
+  }
+  if (year <= 2027) {
+    if (sogo <= 489) return 104;
+    if (sogo <= 655) return 67;
+    return 62;
+  }
+  return sogo <= 132 ? 99 : 62;
+}
 
 // 「いま」タブが対象とする所得年（毎年更新：2027年になったら 2027 に変更）
 var CURRENT_INCOME_YEAR = 2026;
@@ -826,9 +867,13 @@ var K = {
   FUYO_STOP_L0:   208,      // 扶養0人の一部支給限度額（＝これ以上で不支給）
   FUYO_PER_DEP:   38,
   IKUSEI:      1.35,        // 万円/月 東京都児童育成手当
+  HOIKU_BASE:     3.0,      // 万円/月 0〜2歳の保育料・国の基準の標準的な額の目安（所得割48,600〜97,000円未満の階層・標準時間）
+  HOIKU_HITORI:   0.9,      // 万円/月 ひとり親世帯等・所得割77,101円未満の第1子の上限（施行令4条2項）
+  HOIKU_HITORI_L: 7.7101,   // 万円   上の軽減が使える市町村民税所得割の上限
   HIKA_MAX:    135,         // 万円   非課税合計所得ライン（ひとり親特例・地方税法295条）
   // 国民年金免除：所得ライン（万円・ひとり親子1人目安）と免除割合
   NEN_LINES:  [102, 126, 166, 206],
+  NEN_HITORI: 135,          // 万円 ひとり親は前年所得135万円以下なら全額免除（日本年金機構「年金制度説明会資料」2026・国民年金法施行令）
   NEN_LABELS: ['全額免除', '3/4免除', '半額免除', '1/4免除'],
   NEN_RATIO:  [1, 0.75, 0.5, 0.25],
   NEN_FUTURE_LABEL: ['1/2', '5/8', '3/4', '7/8'],
@@ -865,6 +910,9 @@ function isHikazei(inc, year) {
 // 国民年金免除段階（自営・無職のみ）
 function nenkinExempt(inc, year) {
   var sogo = sogoShotoku(inc, year);
+  if (sogo <= K.NEN_HITORI) {
+    return { label: K.NEN_LABELS[0], saving: K.PENSION_M * K.NEN_RATIO[0], idx: 0 };
+  }
   for (var i = 0; i < K.NEN_LINES.length; i++) {
     if (sogo <= K.NEN_LINES[i]) {
       return { label: K.NEN_LABELS[i], saving: K.PENSION_M * K.NEN_RATIO[i], idx: i };
@@ -938,11 +986,12 @@ function simulate(inc, o) {
   var shakaiY = shakaiM * 12;
 
   // --- 住民税（月額・万円）---
-  var juminKajo = Math.max(sogo - 43 - 30 - shakaiY, 0); // 基礎控除43+ひとり親30(住民税)
+  var yr = yearRule(year);
+  var juminKajo = Math.max(sogo - 43 - yr.hitoriJ - shakaiY, 0); // 基礎控除43+ひとり親(住民税)
   var juminM    = hikaze ? 0 : (juminKajo * 0.10 + (juminKajo > 0 ? 0.5 : 0)) / 12;
 
   // --- 所得税（月額・万円）---
-  var shotokuKajo = Math.max(sogo - 48 - 35 - shakaiY, 0); // 基礎控除48+ひとり親35(所得税)
+  var shotokuKajo = Math.max(sogo - shotokuKiso(sogo, year) - yr.hitoriS - shakaiY, 0); // 基礎控除(年別)+ひとり親(所得税)
   var shotokuM = 0;
   if (shotokuKajo > 0) {
     var tax;
@@ -960,8 +1009,17 @@ function simulate(inc, o) {
 
   var nenkinSaving = (nenkin && nenApplied) ? nenkin.saving : 0;
 
-  // 保育料節約：0〜3歳・非課税世帯は保育料無料（課税時との差額概算 月3万）
-  var hoiku = (o.childBand === 'A' && hikaze) ? 3.0 : 0;
+  // 保育料の軽減（0〜2歳児クラス）＝「国の基準の標準的な額（月3万）」との差。課税・非課税の差を正しく出すための値
+  //   非課税＝0円／ひとり親で市町村民税所得割7.7101万円未満＝第1子は上限0.9万・第2子以降0円（子ども・子育て支援法施行令4条2項・14条）
+  //   東京都＝区市町村の第1子無償化（2025年9月〜・所得制限なし）を都が支援 → 0円とみなす
+  var hoiku = 0;
+  if (o.childBand === 'A') {
+    var hoikuCost;
+    if (hikaze || o.pref === 'tokyo')           hoikuCost = 0;
+    else if (juminKajo * 0.06 < K.HOIKU_HITORI_L) hoikuCost = (o.childCnt >= 2) ? 0 : K.HOIKU_HITORI;
+    else                                          hoikuCost = K.HOIKU_BASE;
+    hoiku = K.HOIKU_BASE - hoikuCost;
+  }
 
   // 東京都児童育成手当（所得306万以下・月1.35万）
   var ts     = calcTeateSoto(inc, o.aliM, year);
@@ -1118,15 +1176,23 @@ function cumAtAge(sc, age) {
   return null;
 }
 
-// x が y を累積で追い抜く年齢（なければ null）
-function findBreakEven(x, y) {
+// x と y の累積の関係。{ type: 'lead'（最初の年からxが多い）| 'cross'（途中でxが追い抜く）| 'never'（90歳までyが上）, age }
+function compareCum(x, y) {
   var start = x.rows.length ? x.rows[0].age : 65;
+  var behind = false;
   for (var age = start; age <= 90; age++) {
     var cx = cumAtAge(x, age), cy = cumAtAge(y, age);
     if (cx == null || cy == null) continue;
-    if (cx > cy) return age;
+    if (cx > cy) return behind ? { type: 'cross', age: age } : { type: 'lead', age: age };
+    behind = true;
   }
-  return null;
+  return { type: 'never', age: null };
+}
+
+// x が y を累積で「追い抜く」年齢。最初の年から x が多い場合と、追い抜かない場合は null
+function findBreakEven(x, y) {
+  var c = compareCum(x, y);
+  return c.type === 'cross' ? c.age : null;
 }
 
 // お金のイベント年表を生成
@@ -1136,7 +1202,7 @@ function buildTimeline(input) {
   input.childAges.forEach(function(a, idx) {
     var nth = (idx + 1) + '人目';
     if (a < 16) ev.push({ year: y0 + (16 - a), text: nth + 'が高校進学ごろ。授業料は就学支援金で実質無償（所得制限なし）。教科書代等の「奨学給付金」（年14〜15万円）は非課税世帯のみ' });
-    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」＝非課税世帯なら授業料全額免除＋給付奨学金（判定は進学前年までの所得）' });
+    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」があり、非課税世帯なら授業料の全額免除と給付奨学金を受けられます（判定は進学前年までの所得）' });
   });
   if (input.childAges.length) {
     var youngest = Math.min.apply(null, input.childAges);
@@ -1256,7 +1322,7 @@ function drawChart(canvas, data, curInc, optInc, zoneEnd) {
   // 非課税の上限（＝手取りの山・ミント）
   var optD = null;
   data.forEach(function(d){ if (d.inc === optInc) optD = d; });
-  if (optD) marker(optD, C.mint, '上限');
+  if (optD) marker(optD, C.mint, 'ライン');
 
   // 現在地（ブランド黄）
   var roundedCur = Math.round(curInc / 5) * 5;
@@ -1461,12 +1527,12 @@ function showResults() {
   var tInfo  = document.getElementById('taxInfo');
   if (r.hikaze) {
     tBadge.innerHTML = '<span class="tax-badge hika">非課税世帯です（住民税0円）</span>';
-    tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ≦ 非課税ライン135万円<br>' +
+    tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ≦ 非課税の基準（合計所得135万円）<br>' +
       '住民税がかからないだけでなく、保育料・高額療養費・各種給付が有利になる世帯区分です。';
   } else {
     tBadge.innerHTML = '<span class="tax-badge kaze">課税世帯です（住民税がかかります）</span>';
-    tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ＞ 非課税ライン135万円<br>' +
-      '非課税ラインは合計所得135万円（給与なら年収約' + line + '万円）。ここを境に住民税や一部の給付が切り替わります。どう働くかは、家計やこの先の収入計画しだいです。';
+    tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ＞ 非課税の基準（合計所得135万円）<br>' +
+      '非課税の基準は合計所得135万円で、給与なら年収約' + line + '万円（非課税ライン）です。ここを境に住民税や一部の給付が切り替わります。どう働くかは家計やこの先の収入計画しだいです。';
   }
 
   // ── 内訳テーブル
@@ -1489,7 +1555,7 @@ function showResults() {
   else if (r.nenkin && !r.nenkinApplied && r.nenkin.idx < 4) {
     rows += tr('　※年金免除を申請すると', '月＋' + fmt1(r.nenkin.saving) + '万円の余地', '');
   }
-  if (r.hoiku  > 0.05)       rows += tr('＋ 保育料無償化（節約概算）', fmtMan(r.hoiku), 'plus');
+  if (r.hoiku  > 0.05)       rows += tr('＋ 保育料の軽減（概算）', fmtMan(r.hoiku), 'plus');
   if (r.ikusei > 0.05)       rows += tr('＋ 東京都児童育成手当', fmtMan(r.ikusei), 'plus');
   if (r.kokoShien > 0.05)    rows += tr('＋ 高校就学支援金（月換算）', fmtMan(r.kokoShien), 'plus');
   if (S.aliM > 0)            rows += tr('　※養育費（受取）', fmtMan(S.aliM) + '/月 ※手当計算に影響', '');
@@ -1503,17 +1569,17 @@ function showResults() {
     optBox.innerHTML = '<div class="opt-lbl">📍 非課税のまま増やせる上限</div>' +
       '<div class="opt-val">' + line + '万円（月' + fmt1(lineTotal) + '万円）</div>' +
       '<div class="opt-desc">今の年収からあと' + (line - inc) + '万円増やしても非課税のままです' +
-      (up > 0.05 ? '（上限まで増やすと月＋' + fmt1(up) + '万円）' : '') + '。<br>年収を維持する・増やす、どちらを選ぶかはあなた次第です。</div>';
+      (up > 0.05 ? '（非課税ラインまで増やすと月＋' + fmt1(up) + '万円）' : '') + '。<br>年収を維持する・増やす、どちらを選ぶかはあなた次第です。</div>';
   } else if (crossInc === null || inc < crossInc) {
     optBox.innerHTML = '<div class="opt-lbl">📊 手取りの目安</div>' +
       '<div class="opt-val">' + line + '万円のとき 月' + fmt1(lineTotal) + '万円</div>' +
-      '<div class="opt-desc">今の年収帯は、非課税上限' + line + '万円で止めた場合より手取りが少なくなりがちです。<br>' +
+      '<div class="opt-desc">今の年収帯は、非課税ライン' + line + '万円で止めた場合より手取りが少なくなりがちです。<br>' +
       (crossInc ? '約' + crossInc + '万円を超えると、再び' + line + '万円のときを上回ります。' : 'このシミュレーション範囲（350万円まで）では、' + line + '万円のときを再び上回りません。') +
       '<br>年収を維持する・増やす、どちらを選ぶかはあなた次第です。</div>';
   } else {
     optBox.innerHTML = '<div class="opt-lbl">📊 手取りの目安</div>' +
       '<div class="opt-val">逆転ゾーンを抜けています</div>' +
-      '<div class="opt-desc">今の年収は、非課税上限' + line + '万円のとき（月' + fmt1(lineTotal) + '万円）を上回っています。<br>ここから先は、稼ぐほど手取りも増えていきます。</div>';
+      '<div class="opt-desc">今の年収は、非課税ライン' + line + '万円のとき（月' + fmt1(lineTotal) + '万円）を上回っています。<br>ここから先は、稼ぐほど手取りも増えていきます。</div>';
   }
 
   // ── 逆転ゾーン警告（実際の回復点crossIncと連動させ、帯・文言・条件を一致させる）
@@ -1525,9 +1591,9 @@ function showResults() {
       ? '（' + line + '〜約' + crossInc + '万円）'
       : '（' + line + '万円〜このシミュレーション範囲全体）';
     revBox.innerHTML = '<div class="rev-title">⚠️ 逆転ゾーン' + zoneLabel + 'に入っています</div>' +
-      '<div class="rev-desc">年収' + line + '万円を超えた途端に住民税が発生し、手当・免除が減るため、<br>' +
+      '<div class="rev-desc">年収' + line + '万円を超えた途端に住民税がかかり始め、手当・免除が減るため、<br>' +
       'この帯では手取りが「' + line + '万円で止めた場合（月' + fmt1(lineTotal) + '万円）」を下回りがちです。<br>' +
-      'どう働くかは、家計・この先のキャリア・将来の年金まで含めて決めること。「これから」タブで将来まで比較できます。</div>';
+      'どう働くかは、家計・この先のキャリア・将来の年金まで含めて決めてください。「これから」タブで将来まで比較できます。</div>';
   } else {
     revCard.style.display = 'none';
   }
@@ -1542,7 +1608,7 @@ function showResults() {
 
   document.getElementById('legend').innerHTML =
     '<div class="leg-item"><div class="leg-dot" style="background:' + C.brand + '"></div> 現在の年収（今）</div>' +
-    '<div class="leg-item"><div class="leg-dot" style="background:' + C.mint + '"></div> 非課税の上限（手取りの山）</div>' +
+    '<div class="leg-item"><div class="leg-dot" style="background:' + C.mint + '"></div> 非課税ラインちょうどの年収（手取りの山）</div>' +
     '<div class="leg-item"><div class="leg-rect"></div> 逆転ゾーン</div>' +
     '<div class="leg-item"><div class="leg-line"></div> 非課税ライン（' + line + '万）</div>';
 
@@ -1556,7 +1622,7 @@ function showResults() {
     (inc < 100 ? '<li>※グラフの表示は100万円〜のため現在地の●は範囲外ですが、数字は下に出ています</li>' : '') +
     '<li>横軸＝年収、縦軸＝手当や節約分も入れた<strong>実質の月手取り</strong>です</li>' +
     '<li>いまのあなた：年収<strong>' + inc + '万円</strong> → 月<strong>' + fmt1(r.total) + '万円</strong>（黄色い●「今」）</li>' +
-    '<li>非課税の上限：年収<strong>' + line + '万円</strong> → 月<strong>' + fmt1(lineTotal) + '万円</strong>（ミントの●「上限」）</li>' +
+    '<li>非課税ラインちょうど：年収<strong>' + line + '万円</strong> → 月<strong>' + fmt1(lineTotal) + '万円</strong>（ミントの●「ライン」）</li>' +
     '<li>たとえば年収<strong>250万円</strong>まで増やすと → 月<strong>' + fmt1(t250) + '万円</strong></li>' +
     '</ul><div class="gg-concl">' +
     (lineTotal > t250
@@ -1570,13 +1636,13 @@ function showResults() {
   if (!r.hikaze) {
     actions.push({
       title: '非課税ラインを知っておく',
-      desc:  '給与約' + line + '万円を境に、住民税や一部の給付が変わります。どう働くかの判断材料に。迷ったらFPに相談を。'
+      desc:  '給与約' + line + '万円を境に、住民税や一部の給付が変わります。どう働くかを決めるときの材料にしてください。迷ったらFPに相談してください。'
     });
   }
   if (r.fuyo > 0.05) {
     actions.push({
       title: '児童扶養手当の申請（未申請の場合）',
-      desc:  '市区町村の窓口へ。申請月の翌月から支給開始。必要書類：戸籍・通帳・所得証明。'
+      desc:  '市区町村の窓口で申請します。申請した月の翌月分から支給されます。必要書類：戸籍・通帳・所得証明。'
     });
   }
   if (r.nenkin && r.nenkin.idx < 4) {
@@ -1587,8 +1653,8 @@ function showResults() {
       });
     } else {
       actions.push({
-        title: '国民年金免除の更新（毎年7月）',
-        desc:  '免除は毎年7月に更新申請が必要です。忘れると未納扱いになります。余裕ができたら10年以内の追納も検討を。'
+        title: '国民年金免除の続け方（7月から翌年6月の1年ごと）',
+        desc:  '全額免除の方は、申請のときに翌年度も続けて審査してもらう希望を出しておけば、毎年の申請はいりません。一部免除（3/4・半額・1/4）の方は、毎年度申請し直してください。申請しないまま払わないと未納になります。余裕ができたら、10年以内なら追納もできます。'
       });
     }
   }
@@ -1613,7 +1679,7 @@ function showResults() {
   // ひとり親控除（年末調整）
   actions.push({
     title: 'ひとり親控除の確認（年末調整 / 確定申告）',
-    desc:  '所得税35万円・住民税30万円の控除。給与の方は年末調整で申告を。見落としがちです。'
+    desc:  '所得税35万円・住民税30万円の控除です。給与の方は年末調整で申告してください。見落としがちです。'
   });
 
   var actHTML = '';
@@ -1632,6 +1698,16 @@ function showResults() {
   };
   markStepDone('tabBtnNow');
 
+  // ── 計測：結果の状態（st）と目印（fl）。金額は送らない（13_simulator-exit-design.md §1・§2）
+  var stNow = r.hikaze ? ((line - inc) <= 30 ? 'near' : 'hikazei')
+                       : ((crossInc === null || inc < crossInc) ? 'gyaku' : 'over');
+  var flNow = ['w_' + S.workType, 'c_' + S.childAge];
+  if (!(S.aliM > 0)) flNow.push('noali');
+  if (S.childAge === 'C') flNow.push('kyoiku');
+  lastNow.st = stNow; lastNow.fl = flNow;
+  track('result', 'now', stNow, flNow.join(','));
+  document.getElementById('exitNow').innerHTML = renderExit(pickExit(stNow, flNow, inc), stNow, 'now');
+
   // ── 国民年金カード（自営・無職のみ。入力の「申請している？」に応じて出し分け）
   var nenCard = document.getElementById('nenCard');
   var nenBox  = document.getElementById('nenBox');
@@ -1647,7 +1723,7 @@ function showResults() {
         '<div class="nen-lv">申請中：「' + r.nenkin.label + '」の目安</div>' +
         '<div class="nen-detail">月' + fmt1(r.nenkinSaving) + '万円の節約 → 年' + fmt1(r.nenkinSaving * 12) + '万円の負担軽減。<br>' +
         '免除期間は将来の年金に約<strong>' + K.NEN_FUTURE_LABEL[r.nenkin.idx] + '</strong>反映されます（未納だと0）。<br>' +
-        '毎年7月に更新が必要。10年以内なら追納も可能（2年以内は加算なし）。老後への影響は「これから」タブで確認できます。</div>';
+        '全額免除は申請時に希望すれば翌年度も続けて審査され、一部免除は毎年度の申請が必要です。10年以内なら追納もできます（2年以内は加算なし）。老後への影響は「これから」タブで確認できます。</div>';
     } else {
       nenBox.innerHTML =
         '<div class="nen-lv">未申請（全額支払い中）</div>' +
@@ -1727,12 +1803,17 @@ function showFutureResults() {
   document.getElementById('fLegend').innerHTML = legHTML;
 
   // 損益分岐の説明文
-  var beDA = findBreakEven(scD, scA);
+  var cmpDA = compareCum(scD, scA);
+  var beDA  = (cmpDA.type === 'cross') ? cmpDA.age : null;
   var noteText;
-  if (beDA) {
+  if (cmpDA.type === 'lead') {
+    noteText = 'この条件では、最初の年からD（稼ぐ＋厚生年金）の累積がA（抑える＋国民年金）を上回ります' +
+      (scD.cumAt90 > scA.cumAt90 ? '（90歳時点でもDが多い）。' : '。ただし90歳時点ではAが上回ります。') +
+      '手当が減る分より、収入が増える分のほうが大きいためです。';
+  } else if (beDA) {
     noteText = 'D（稼ぐ＋厚生年金）がA（抑える＋国民年金）を累積で追い抜くのは約' + beDA + '歳。' +
       (beDA <= 70 ? '意外と早く逆転します。' : '長生きするほどDが有利になります。') +
-      '手当がある間は「抑える」が強く、手当終了と年金開始で構図が変わるのがポイントです。';
+      '手当がある間は「抑える」ほうが手取りが多く、手当が終わるころと年金が始まるころに、どちらが多いかが変わります。';
   } else {
     var diff = Math.round(scA.cumAt90 - scD.cumAt90);
     noteText = 'この条件では、90歳までA（抑える＋国民年金）の累積が上回ります（90歳時点で約' + diff.toLocaleString() + '万円差）。ただし昇給・厚生年金の期間次第で結果は変わります。';
@@ -1758,7 +1839,7 @@ function showFutureResults() {
   });
   document.getElementById('pensionBars').innerHTML = barsHTML;
   document.getElementById('pensionNote').textContent =
-    '基礎年金＋厚生年金の合計（現在の制度・金額ベースの概算）。しまの棒＝厚生年金に入る働き方（B・D）で、上乗せは報酬比例部分。ベタの棒（A・C）の差は免除期間の反映率と収入によるものです。';
+    '基礎年金＋厚生年金の合計（現在の制度・金額ベースの概算）。しまの棒＝厚生年金に入る働き方（B・D）で、上乗せは報酬比例部分。しまのない棒（A・C）の差は免除期間の反映率と収入によるものです。';
 
   // ── サマリーテーブル
   var tblHTML = '<tr><th>シナリオ</th><th>65歳までの<br>累積手取り</th><th>年金<br>月額</th><th>90歳時点<br>累積</th></tr>';
@@ -1789,8 +1870,25 @@ function showFutureResults() {
   document.getElementById('scTextSummary').innerHTML = sumHTML;
 
   // ── まとめタブ用に保持
-  lastFuture = { input: input, scenarios: scenarios, beDA: beDA };
+  lastFuture = { input: input, scenarios: scenarios, beDA: beDA, cmpDA: cmpDA.type };
   markStepDone('tabBtnFuture');
+
+  // ── 計測：「これから」の目印。状態（st）は「いま」の結果を引き継ぐ
+  var flF = (lastNow && lastNow.fl) ? lastNow.fl.slice() : [];
+  if (byCash[0].type === 'C' || byCash[0].type === 'D') flF.push('kasegu');
+  if (F.payHist !== 'full') flF.push('nenkin');
+  var youngestF = childAges.length ? Math.min.apply(null, childAges) : 99;
+  var oldestF   = childAges.length ? Math.max.apply(null, childAges) : 0;
+  if ((oldestF >= 12 || (youngestF < 19 && 18 - youngestF <= 5)) && flF.indexOf('kyoiku') === -1) flF.push('kyoiku');
+  track('result', 'future', (lastNow && lastNow.st) || '', flF.join(','));
+  lastFuture.fl = flF;
+  // 「これから」では主な案内は出さず、目印に合う小さなリンクだけ（結果が主役）
+  // STEP 2で新しく分かった目印（稼ぐが有利・年金の記録など）を先に使う。STEP 1で出したリンクの繰り返しを避ける
+  var flPrev = (lastNow && lastNow.fl) || [];
+  var flNew = flF.filter(function(x) { return flPrev.indexOf(x) === -1; });
+  var subF = pickExit((lastNow && lastNow.st) || '', flNew, S.income).sub ||
+             pickExit((lastNow && lastNow.st) || '', flF, S.income).sub;
+  document.getElementById('exitFuture').innerHTML = subF ? renderSubLink(subF, 'future') : '';
 
   // ── 年表
   var tl = buildTimeline(input);
@@ -1813,8 +1911,9 @@ function switchTab(tab) {
   document.getElementById('tabBtnNow').classList.toggle('on', tab === 'now');
   document.getElementById('tabBtnFuture').classList.toggle('on', tab === 'future');
   document.getElementById('tabBtnSummary').classList.toggle('on', tab === 'summary');
-  if (tab === 'future') updateInheritBox();
+  if (tab === 'future') { updateInheritBox(); prefillChildAges(); }
   if (tab === 'summary') renderSummary();
+  if (tab !== 'now') track('step', tab);
   window.scrollTo(0, 0);
 }
 document.getElementById('tabBtnNow').addEventListener('click', function() { switchTab('now'); });
@@ -1849,11 +1948,11 @@ function renderSummary() {
     var n = lastNow;
     html += '<div class="card"><div class="lbl">いまのあなた</div><ul class="sc-defs">';
     html += '<li>年収<strong>' + n.inc + '万円</strong>・実質月手取り<strong>約' + fmt1(n.r.total) + '万円</strong>（手当・節約込み）</li>';
-    html += '<li>住民税は<strong>' + (n.r.hikaze ? '非課税世帯' : '課税世帯') + '</strong>（合計所得' + fmt1(n.r.sogo) + '万円／ライン135万円）</li>';
+    html += '<li>住民税は<strong>' + (n.r.hikaze ? '非課税世帯' : '課税世帯') + '</strong>（合計所得' + fmt1(n.r.sogo) + '万円／非課税の基準135万円）</li>';
     if (n.inc > n.line && (n.crossInc === null || n.inc < n.crossInc)) {
-      html += '<li>⚠️ <strong>逆転ゾーン</strong>：非課税上限' + n.line + '万円のとき（月' + fmt1(n.lineTotal) + '万円）より手取りが少なくなりがちな帯にいます</li>';
+      html += '<li>⚠️ <strong>逆転ゾーン</strong>：非課税ライン' + n.line + '万円のとき（月' + fmt1(n.lineTotal) + '万円）より手取りが少なくなりがちな帯にいます</li>';
     } else if (n.inc <= n.line) {
-      html += '<li>非課税のまま、あと<strong>' + (n.line - n.inc) + '万円</strong>は年収を増やせます（上限' + n.line + '万円で月' + fmt1(n.lineTotal) + '万円）</li>';
+      html += '<li>非課税のまま、あと<strong>' + (n.line - n.inc) + '万円</strong>は年収を増やせます（非課税ライン' + n.line + '万円で月' + fmt1(n.lineTotal) + '万円）</li>';
     } else {
       html += '<li>逆転ゾーンは抜けています。ここからは稼ぐほど手取りも増えます</li>';
     }
@@ -1867,7 +1966,7 @@ function renderSummary() {
       html += '</ul></div>';
     }
   } else {
-    html += '<div class="card" style="color:var(--ink-2)">「いま」タブが未実行です。実行すると現状の判定がここに入ります。</div>';
+    html += '<div class="card" style="color:var(--ink-2)">「いま」タブでまだ計算していません。計算すると、今の判定がここに入ります。</div>';
   }
 
   // ── これからのまとめ
@@ -1882,29 +1981,50 @@ function renderSummary() {
     html += '<li>現役中（65歳まで）の手取り合計が多いのは<strong style="color:' + SC_STYLE[byCash[0].type].color + '">' + SC_STYLE[byCash[0].type].label + '</strong></li>';
     html += '<li>老後の年金月額が多いのは<strong style="color:' + SC_STYLE[byPen[0].type].color + '">' + SC_STYLE[byPen[0].type].label + '</strong>（' + fmt1(byPen[0].pensionM) + '万円/月。最少とは月' + fmt1(byPen[0].pensionM - byPen[3].pensionM) + '万円差）</li>';
     html += '<li>90歳までの合計では<strong style="color:' + SC_STYLE[by90[0].type].color + '">' + SC_STYLE[by90[0].type].label + '</strong>が最大（約' + fmtManInt(by90[0].cumAt90) + '）</li>';
-    if (f.beDA) html += '<li>「稼ぐ＋厚生年金」が「抑える＋国民年金」を累積で追い抜くのは<strong>約' + f.beDA + '歳</strong></li>';
+    if (f.cmpDA === 'lead') html += '<li>「稼ぐ＋厚生年金」は<strong>最初の年から</strong>「抑える＋国民年金」より累積の手取りが多い</li>';
+    else if (f.beDA) html += '<li>「稼ぐ＋厚生年金」が「抑える＋国民年金」を累積で追い抜くのは<strong>約' + f.beDA + '歳</strong></li>';
     if (f.input.childAges.length) {
       var yng = Math.min.apply(null, f.input.childAges);
       if (yng < 19) html += '<li>📅 <strong>' + (CURRENT_INCOME_YEAR + (18 - yng)) + '年</strong>に末子18歳で児童扶養手当が終了。ここが働き方の切り替え時期の目安</li>';
     }
     html += '</ul></div>';
   } else {
-    html += '<div class="card" style="color:var(--ink-2)">「これから」タブが未実行です。実行すると将来比較の結論がここに入ります。</div>';
+    html += '<div class="card" style="color:var(--ink-2)">「これから」タブでまだ計算していません。計算すると、将来の比較の結論がここに入ります。</div>';
   }
 
-  // ── 次の一歩（相談導線）
-  html += '<div class="card" style="background:var(--mint)">' +
-    '<div class="lbl">この結果を持って、次の一歩へ</div>' +
-    '<p style="font-size:13.5px;line-height:1.8;margin:0">' +
-    '📩 <strong>この画面をスクショして、LINEのトークにそのまま送ってください。</strong><br>' +
-    'あなたの状況で使える制度や、窓口での聞き方を無料でお返しします。<br><br>' +
-    '「働き方をどうするか」「保険や教育費まで含めた全体設計」まで考えたい場合は、' +
-    'FPの無料相談も案内できます。トークで「<strong>FP</strong>」と送ってください。</p></div>';
+  // ── 次の一歩（出口：主な案内1つ＋小さなリンク。13_simulator-exit-design.md §1）
+  if (lastNow) {
+    var flS = (lastFuture && lastFuture.fl) ? lastFuture.fl : (lastNow.fl || []);
+    html += renderExit(pickExit(lastNow.st, flS, lastNow.inc), lastNow.st, 'summary',
+      'この画面をスクショしてLINEのトークに送ると、あなたの状況で使える制度の情報をお返しします。');
+  }
 
   el.innerHTML = html;
 }
 
 // 「いま」タブから引き継ぐ条件の表示
+// 「いま」タブの子どもの条件（最年少の年齢帯・人数）を「これから」の年齢欄に入れる。
+// 年齢欄を自分で直したあとは上書きしない。上の子の年齢は分からないので2歳差の仮の値を入れ、そう伝える。
+var childAgesEdited = false;
+['fChild1', 'fChild2', 'fChild3', 'fChild4'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', function() { childAgesEdited = true; });
+});
+function prefillChildAges() {
+  if (childAgesEdited) return;
+  var youngest = { A: 1, B: 8, C: 15, E: 19 }[S.childAge];
+  var n = Math.min(Math.max(S.childCnt || 1, 1), 3);
+  var ids = ['fChild1', 'fChild2', 'fChild3', 'fChild4'];
+  ids.forEach(function(id, i) {
+    // 1人目＝いちばん上。最年少が最後の欄に来るように並べる
+    document.getElementById(id).value = (i < n) ? Math.min(youngest + 2 * (n - 1 - i), 22) : '';
+  });
+  var hint = document.getElementById('fChildHint');
+  var bandLabel = { A: '0〜3歳', B: '4歳〜小学生', C: '中学〜高校生', E: '18歳以上' }[S.childAge];
+  hint.innerHTML = '「いま」の条件（いちばん下の子が' + bandLabel + '・' + (S.childCnt >= 3 ? '3人以上' : S.childCnt + '人') + '）から仮の年齢を入れています。' +
+    (n >= 2 ? '上のお子さんは2歳差の仮の年齢です。' : '') + '実際の年齢に直すと、手当の終わる年などが正確になります。';
+  hint.style.display = 'block';
+}
+
 function updateInheritBox() {
   var prefLabel = S.pref === 'tokyo' ? '東京都' : '東京都以外';
   var aliLabel  = S.aliM > 0 ? '月' + S.aliM + '万円' : 'なし';
@@ -1993,6 +2113,137 @@ document.getElementById('toStep2Btn').addEventListener('click', function() { swi
 document.getElementById('toStep3Btn').addEventListener('click', function() { switchTab('summary'); });
 
 // ============================================================
+//  出口（結果ごとの案内：13_simulator-exit-design.md §1）
+//  主な案内1つ＋小さなリンク1つまで。判定は画面の中で行い、金額は送らない。
+//  リンクはクリックの直前に trackUrl で作る（LIFFのuidが後から入っても付くように）
+// ============================================================
+// ===EXIT-START===
+// c＝n8n /webhook/r のmapのキー。null＝まだ公開していない（公開したら c を入れて、n8nのmapにも足す）
+// url＝計測を通さない外部リンク（公的機関など）
+var EXIT_LINKS = {
+  fp:        { c: 'fp',      pr: true, label: 'FPの無料相談を見てみる' },
+  note:      { c: 'note',    label: '無料noteを読む' },
+  yoikuhi:   { c: 'yoikuhi', label: '養育費のnote' },
+  manabi:    { c: 'manabi',  label: '学び直しと給付金のnote' },
+  pos:       { c: null,      label: '有料note「働き方のポジション戦略」' },
+  kyoikumap: { c: null,      label: '有料note「教育費まるごとマップ」' },
+  nenkin:    { url: 'https://www.nenkin.go.jp/n_net/', label: 'ねんきんネットで年金の記録を見る（日本年金機構）' }
+};
+// 結果の状態（st）ごとの主な案内と補助リンク
+var EXIT_BY_ST = {
+  gyaku:   { main: 'fp',   sub: 'pos' },
+  near:    { main: 'pos',  sub: null },
+  over:    { main: 'fp',   sub: 'kyoikumap' },
+  hikazei: { main: 'note', sub: null }
+};
+// 目印（fl）が付いたときの補助リンク。上ほど優先
+var EXIT_FLAG_SUB = [['noali', 'yoikuhi'], ['kasegu', 'manabi'], ['kyoiku', 'kyoikumap'], ['nenkin', 'nenkin']];
+var EXIT_FP_MIN_INC = 100;   // FPの却下条件「世帯年収100万円以下」には出さない
+
+function exitReady(k) { var L = EXIT_LINKS[k]; return !!(L && (L.c || L.url)); }
+
+function pickExit(st, fl, inc) {
+  fl = fl || [];
+  var row = EXIT_BY_ST[st] || EXIT_BY_ST.hikazei;
+  var main = row.main;
+  if (main === 'fp' && !(inc > EXIT_FP_MIN_INC)) main = 'note';
+  if (!exitReady(main)) main = 'note';          // 有料noteが未公開のあいだは無料noteで代える
+  var sub = null;
+  for (var i = 0; i < EXIT_FLAG_SUB.length; i++) {
+    var f = EXIT_FLAG_SUB[i];
+    if (fl.indexOf(f[0]) !== -1 && exitReady(f[1]) && f[1] !== main) { sub = f[1]; break; }
+  }
+  if (!sub && row.sub && exitReady(row.sub) && row.sub !== main) sub = row.sub;
+  return { main: main, sub: sub };
+}
+
+// 主な案内の前に置く一言（状態と飛び先の組み合わせで選ぶ）
+var EXIT_LEAD = {
+  'gyaku_fp':   '非課税ラインを少し超えたこの帯は、働き方の決め方で手取りが変わりやすいところです。保険や教育費まで含めて考えたいときは、FPに無料で相談できます。',
+  'over_fp':    '逆転ゾーンは抜けています。ここからは、増えた分をどう残すか（保険・教育費・貯金）を考える時期です。FPに無料で相談できます。',
+  'near_pos':   '非課税ラインまで、あと少しです。超えるか、とどまるかの決め方をまとめました。',
+  'near_note':  '非課税ラインまで、あと少しです。非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
+  'hikazei_note': '非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
+  'note':       '使える制度を、動く順番でまとめた無料noteがあります。'
+};
+
+function exitHref(k, p) {
+  var L = EXIT_LINKS[k];
+  if (L.url) return L.url;
+  return (typeof trackUrl === 'function') ? trackUrl(L.c, p) : '#';
+}
+function exitAttrs(k, p) {
+  var L = EXIT_LINKS[k];
+  return ' href="' + exitHref(k, p) + '" target="_blank" rel="noopener"' + (L.c ? ' data-c="' + L.c + '" data-p="' + p + '"' : '');
+}
+function renderSubLink(k, p) {
+  return '<p class="exit-sub">あわせて読む：<a' + exitAttrs(k, p) + '>' + EXIT_LINKS[k].label + '</a>' +
+    (EXIT_LINKS[k].pr ? '（PR）' : '') + '</p>';
+}
+function renderExit(ex, st, p, note) {
+  var L = EXIT_LINKS[ex.main];
+  var lead = EXIT_LEAD[st + '_' + ex.main] || EXIT_LEAD[ex.main] || '';
+  return '<div class="card exit-card"><div class="lbl">次の一歩</div>' +
+    (lead ? '<p class="exit-lead">' + lead + '</p>' : '') +
+    '<a class="exit-main"' + exitAttrs(ex.main, p) + '>' + L.label + ' →</a>' +
+    (L.pr ? '<p class="exit-pr">PR｜外部のサービスのページに移動します</p>' : '') +
+    (ex.sub ? renderSubLink(ex.sub, p) : '') +
+    (note ? '<p class="exit-note">' + note + '</p>' : '') +
+    '</div>';
+}
+// ===EXIT-END===
+
+// 案内リンクは押した瞬間に、今の状態（st・fl・uid）を付けたn8n中継のURLにする
+document.addEventListener('click', function(e) {
+  var a = e.target.closest ? e.target.closest('a[data-c]') : null;
+  if (a) a.href = trackUrl(a.getAttribute('data-c'), a.getAttribute('data-p'));
+}, true);
+
+// ============================================================
+//  計測（全施策共通の決まり：13_simulator-exit-design.md §2）
+//  送るのは区分だけ（t/ev/p/st/fl/v/src と端末ごとの乱数ID）。入力した金額・年齢は送らない
+// ============================================================
+var TRACK = {
+  // 出来事（分母）は診断チェッカーのGASへ直接送る。GASが順番待ちして1件ずつ書く（n8nのシート追記は同時に来ると上書きし合った）
+  E: 'https://script.google.com/macros/s/AKfycbzuShJi9Bde07hoOH9JM8CpzfWMzwcbfOEzK_vfSxoAXaEnVbCHXRwig5D3bZ-axtIB/exec?log=e',
+  R: 'https://primary-production-1f703.up.railway.app/webhook/r',   // 案内のクリック（分子）
+  t: 'sim', sid: '', uid: '', src: '', v: '', st: '', fl: ''
+};
+(function() {
+  try {
+    var v = localStorage.getItem('miku_sid');
+    if (!v) { v = Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4); localStorage.setItem('miku_sid', v); }
+    TRACK.sid = v;
+  } catch (e) { TRACK.sid = 'x' + Math.random().toString(36).slice(2, 12); }
+  try {
+    var m = location.search.match(/[?&]src=([A-Za-z0-9_,\-]+)/); if (m) TRACK.src = m[1].slice(0, 40);
+    var mv = location.search.match(/[?&]v=([A-Za-z0-9_,\-]+)/); if (mv) TRACK.v = mv[1].slice(0, 40);
+  } catch (e) {}
+})();
+function _trackQs(o) {
+  return Object.keys(o).filter(function(k) { return o[k] !== '' && o[k] != null; })
+    .map(function(k) { return k + '=' + encodeURIComponent(o[k]); }).join('&');
+}
+// 出来事を1件送る。失敗しても画面の動きには影響させない
+function track(ev, p, st, fl) {
+  if (st != null) TRACK.st = st;
+  if (fl != null) TRACK.fl = fl;
+  try {
+    // GASは送り元のブラウザの種類を受け取れないので、ua として一緒に送る（ボット除外に使う）
+    // 端末ごとの番号は sd で送る（GASは sid という名前を受け付けない）
+    var url = TRACK.E + '&' + _trackQs({ t: TRACK.t, ev: ev, p: p || '', sd: TRACK.sid, uid: TRACK.uid,
+      st: TRACK.st, fl: TRACK.fl, v: TRACK.v, src: TRACK.src, ua: (navigator.userAgent || '').slice(0, 300) });
+    if (window.fetch) fetch(url, { mode: 'no-cors', keepalive: true }).catch(function() {});
+    else (new Image()).src = url;
+  } catch (e) {}
+}
+// 案内リンク（n8n中継）に、今の状態を付けたURLを作る。c＝飛び先のキー（n8nのmap）
+function trackUrl(c, p) {
+  return TRACK.R + '?' + _trackQs({ c: c, uid: TRACK.uid, t: TRACK.t, p: p || '', st: TRACK.st, fl: TRACK.fl, v: TRACK.v, src: TRACK.src });
+}
+track('open', 'now');
+
+// ============================================================
 //  LIFF INIT
 //  ↓ シミュレーター用の LIFF ID を LINE Developers で作成後、ここを書き換える
 // ============================================================
@@ -2006,7 +2257,14 @@ var LIFF_ID = 'YOUR_SIMULATOR_LIFF_ID';
     console.log('LIFF ID未設定：通常のWebページとして動作します');
     return;
   }
-  liff.init({ liffId: LIFF_ID }).catch(function(e) {
+  liff.init({ liffId: LIFF_ID }).then(function() {
+    // LINEの中で開いたときだけ、clicks と同じ変換をしたuidを付ける（GAS _uidTok と同じ）
+    if (liff.isLoggedIn && liff.isLoggedIn()) {
+      return liff.getProfile().then(function(pr) {
+        TRACK.uid = btoa(pr.userId).replace(/[+/=]/g, '').substring(0, 12);
+      });
+    }
+  }).catch(function(e) {
     console.log('LIFF init skipped (outside LINE):', e.message);
   });
 })();
