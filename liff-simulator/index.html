@@ -614,7 +614,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <button id="calcBtn" class="calc-btn">▶ 手取りを計算する</button>
-<p class="privacy-note">🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。</p>
+<p class="privacy-note">🔒 計算はこの画面の中で行うので、入力した金額や年齢はこちらには届きません。利用状況の記録については、<a href="https://miku-single-navi.notion.site/368ab34d9ebd8052aeb6f0d1635aeaad" target="_blank" rel="noopener" style="color:inherit">プライバシーポリシー</a>をご覧ください。</p>
 
 </div><!-- /inputScreen -->
 
@@ -633,7 +633,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div class="card">
-  <div class="lbl">あなたの住民税の判定</div>
+  <div class="lbl">あなたの住民税の目安</div>
   <div id="taxBadge"></div>
   <div id="taxInfo"  class="tax-info"></div>
 </div>
@@ -659,7 +659,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div class="card">
-  <div class="lbl">今すぐ動くべき申請</div>
+  <div class="lbl">確かめておきたい申請</div>
   <ul class="act-list" id="actList"></ul>
 </div>
 
@@ -693,7 +693,7 @@ input[type=range]::-webkit-slider-thumb {
 <div class="sc-note">
   <strong>「非課税に抑える」は本当に得？</strong><br>
   働き方を「収入（抑える／稼ぐ）×年金（国民年金／厚生年金）」の4パターンに分けて、手当の終わり・老後の年金まで含めて比較します。<br>
-  🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。
+  🔒 計算はこの画面の中で行うので、入力した金額や年齢はこちらには届きません。利用状況の記録については、<a href="https://miku-single-navi.notion.site/368ab34d9ebd8052aeb6f0d1635aeaad" target="_blank" rel="noopener" style="color:inherit">プライバシーポリシー</a>をご覧ください。
 </div>
 
 <div class="card">
@@ -745,7 +745,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <button id="fCalcBtn" class="calc-btn">▶ 将来をシミュレーションする</button>
-<p class="privacy-note">🔒 計算はこの画面の中で行い、入力した金額や年齢はこちらには届きません。</p>
+<p class="privacy-note">🔒 計算はこの画面の中で行うので、入力した金額や年齢はこちらには届きません。利用状況の記録については、<a href="https://miku-single-navi.notion.site/368ab34d9ebd8052aeb6f0d1635aeaad" target="_blank" rel="noopener" style="color:inherit">プライバシーポリシー</a>をご覧ください。</p>
 
 </div><!-- /fInputScreen -->
 
@@ -783,6 +783,7 @@ input[type=range]::-webkit-slider-thumb {
 
 <div class="card">
   <div class="lbl">シナリオ別サマリー（90歳までの合計で比べる）</div>
+  <p class="bk-note" style="margin:0 0 10px">※ 令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。</p>
   <div id="scRows"></div>
   <p class="bk-note" id="scTableNote"></p>
   <div class="graph-guide" id="scTextSummary"></div>
@@ -1250,7 +1251,7 @@ function buildTimeline(input) {
   input.childAges.forEach(function(a, idx) {
     var nth = (idx + 1) + '人目';
     if (a < 16) ev.push({ year: y0 + (16 - a), text: nth + 'が高校進学ごろ。授業料は就学支援金で実質無償（所得制限なし）。教科書代等の「奨学給付金」（年14〜15万円）は非課税世帯のみ' });
-    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」があり、非課税世帯なら授業料の全額免除と給付奨学金を受けられます（判定は進学前年までの所得）' });
+    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」があり、非課税世帯なら授業料の全額免除と給付奨学金の対象になる目安です（成績などの要件もあります。所得は進学前年までで見ます）' });
   });
   if (input.childAges.length) {
     var youngest = Math.min.apply(null, input.childAges);
@@ -1574,11 +1575,11 @@ function showResults() {
   var tBadge = document.getElementById('taxBadge');
   var tInfo  = document.getElementById('taxInfo');
   if (r.hikaze) {
-    tBadge.innerHTML = '<span class="tax-badge hika">非課税世帯です（住民税0円）</span>';
+    tBadge.innerHTML = '<span class="tax-badge hika">非課税世帯の目安です（住民税0円）</span>';
     tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ≦ 非課税の基準（合計所得135万円）<br>' +
-      '住民税がかからないだけでなく、保育料・高額療養費・各種給付が有利になる世帯区分です。';
+      '住民税がかからないだけでなく、保育料や高額療養費の負担が軽くなり、各種の給付も受けやすくなることが多い世帯区分です。';
   } else {
-    tBadge.innerHTML = '<span class="tax-badge kaze">課税世帯です（住民税がかかります）</span>';
+    tBadge.innerHTML = '<span class="tax-badge kaze">課税世帯の目安です（住民税がかかります）</span>';
     tInfo.innerHTML  = '合計所得 <strong>' + fmt1(r.sogo) + '万円</strong> ＞ 非課税の基準（合計所得135万円）<br>' +
       '非課税の基準は合計所得135万円で、給与なら年収約' + line + '万円（非課税ライン）です。ここを境に住民税や一部の給付が切り替わります。どう働くかは家計やこの先の収入計画しだいです。';
   }
@@ -1627,7 +1628,7 @@ function showResults() {
   } else {
     optBox.innerHTML = '<div class="opt-lbl">📊 手取りの目安</div>' +
       '<div class="opt-val">逆転ゾーンを抜けています</div>' +
-      '<div class="opt-desc">今の年収は、非課税ライン' + line + '万円のとき（月' + fmt1(lineTotal) + '万円）を上回っています。<br>ここから先は、稼ぐほど手取りも増えていきます。</div>';
+      '<div class="opt-desc">今の年収は、非課税ライン' + line + '万円のとき（月' + fmt1(lineTotal) + '万円）を上回っています。<br>この計算では、ここから先は稼ぐほど手取りも増えていきます。</div>';
   }
 
   // ── 逆転ゾーン警告（実際の回復点crossIncと連動させ、帯・文言・条件を一致させる）
@@ -1674,8 +1675,8 @@ function showResults() {
     '<li>たとえば年収<strong>250万円</strong>まで増やすと → 月<strong>' + fmt1(t250) + '万円</strong></li>' +
     '</ul><div class="gg-concl">' +
     (lineTotal > t250
-      ? '→ この条件では「250万円稼ぐ」より「' + line + '万円で非課税」のほうが月' + fmt1(lineTotal - t250) + '万円多くなります。'
-      : '→ この条件では250万円まで増やせば、' + line + '万円のときより月' + fmt1(t250 - lineTotal) + '万円多くなります。') +
+      ? '→ この条件では「250万円稼ぐ」より「' + line + '万円で非課税」のほうが月' + fmt1(lineTotal - t250) + '万円多くなる計算です。'
+      : '→ この条件では250万円まで増やせば、' + line + '万円のときより月' + fmt1(t250 - lineTotal) + '万円多くなる計算です。') +
     '</div>';
   document.getElementById('graphGuide').innerHTML = guideHTML;
 
@@ -1690,14 +1691,14 @@ function showResults() {
   if (r.fuyo > 0.05) {
     actions.push({
       title: '児童扶養手当の申請（未申請の場合）',
-      desc:  '市区町村の窓口で申請します。申請した月の翌月分から支給されます。必要書類：戸籍・通帳・所得証明。'
+      desc:  '市区町村の窓口で申請します。申請した月の翌月分から支給されます。必要な書類（戸籍・通帳・所得証明など）は、市区町村で確かめてください。'
     });
   }
   if (r.nenkin && r.nenkin.idx < 4) {
     if (!r.nenkinApplied) {
       actions.push({
         title: '国民年金「' + r.nenkin.label + '」を申請できます（未申請の方）',
-        desc:  'あなたの所得なら「' + r.nenkin.label + '」の対象の目安です。年金事務所または市区町村窓口で申請すると、月' + fmt1(r.nenkin.saving) + '万円の支払いが減ります。'
+        desc:  'あなたの所得なら「' + r.nenkin.label + '」の対象の目安です。年金事務所または市区町村窓口で申請すると、月' + fmt1(r.nenkin.saving) + '万円ほど支払いが減る目安です。'
       });
     } else {
       actions.push({
@@ -1721,7 +1722,7 @@ function showResults() {
   if (S.pref === 'tokyo' && r.ikusei > 0) {
     actions.push({
       title: '東京都・児童育成手当の申請',
-      desc:  '月13,500円。区市町村の窓口で申請。所得306万円以下が対象です。'
+      desc:  '月13,500円。区市町村の窓口で申請。所得306万円以下が対象の目安です。'
     });
   }
   // ひとり親控除（年末調整）
@@ -1776,7 +1777,7 @@ function showResults() {
     } else {
       nenBox.innerHTML =
         '<div class="nen-lv">未申請（全額支払い中）</div>' +
-        '<div class="nen-detail">あなたの所得なら「<strong>' + r.nenkin.label + '</strong>」の対象の目安です。申請すると月' + fmt1(r.nenkin.saving) + '万円支払いが軽くなり、' +
+        '<div class="nen-detail">あなたの所得なら「<strong>' + r.nenkin.label + '</strong>」の対象の目安です。申請すると月' + fmt1(r.nenkin.saving) + '万円ほど支払いが軽くなる目安で、' +
         '免除期間も将来の年金に約<strong>' + K.NEN_FUTURE_LABEL[r.nenkin.idx] + '</strong>反映されます（未納だと0）。<br>' +
         '同じ「払わない」でも、免除と未納は将来が大きく違います。申請は年金事務所または市区町村窓口へ。</div>';
     }
@@ -1880,18 +1881,18 @@ function showFutureResults() {
   var beDA  = (cmpDA.type === 'cross') ? cmpDA.age : null;
   var noteText;
   if (cmpDA.type === 'lead') {
-    noteText = 'この条件では、最初の年からD（稼ぐ＋厚生年金）の累積がA（抑える＋国民年金）を上回ります' +
+    noteText = 'この条件では、最初の年からD（稼ぐ＋厚生年金）の累積がA（抑える＋国民年金）を上回る計算です' +
       (scD.cumAt90 > scA.cumAt90 ? '（90歳時点でもDが多い）。' : '。ただし90歳時点ではAが上回ります。') +
       '手当が減る分より、収入が増える分のほうが大きいためです。';
   } else if (beDA) {
     noteText = 'D（稼ぐ＋厚生年金）がA（抑える＋国民年金）を累積で追い抜くのは約' + beDA + '歳。' +
-      (beDA <= 70 ? '意外と早く逆転します。' : '長生きするほどDが有利になります。') +
+      (beDA <= 70 ? '思ったより早く逆転する計算です。' : '長生きするほどDのほうが多くなる計算です。') +
       '手当がある間は「抑える」ほうが手取りが多く、手当が終わるころと年金が始まるころに、どちらが多いかが変わります。';
   } else {
     var diff = Math.round(scA.cumAt90 - scD.cumAt90);
-    noteText = 'この条件では、90歳までA（抑える＋国民年金）の累積が上回ります（90歳時点で約' + diff.toLocaleString() + '万円差）。ただし昇給・厚生年金の期間次第で結果は変わります。';
+    noteText = 'この条件では、90歳までA（抑える＋国民年金）の累積が上回る計算です（90歳時点で約' + diff.toLocaleString() + '万円差）。ただし昇給・厚生年金の期間次第で結果は変わります。';
   }
-  noteText += ' Bは、手取りを非課税水準に保ちながら将来の年金を厚くする「中間の道」です。';
+  noteText += ' Bは、手取りを非課税水準に保ちながら、厚生年金で将来の年金を厚くする組み合わせです。';
   document.getElementById('fGraphNote').textContent = noteText;
 
   // ── 年金バー
@@ -1927,7 +1928,7 @@ function showFutureResults() {
     return b.rows[b.rows.length - 1].cum - a.rows[a.rows.length - 1].cum;
   });
   var sumHTML = '<div class="gg-title">📝 ことばでまとめると</div><ul>' + nowSummaryLines(fd);
-  sumHTML += '<li>B（抑える×厚生年金）は、手取りを非課税水準に保ったまま年金を月' + fmt1(scB.pensionM) + '万円（Aより＋' + fmt1(scB.pensionM - scA.pensionM) + '万円）にできる中間の道</li>';
+  sumHTML += '<li>B（抑える×厚生年金）は、手取りを非課税水準に保ったまま年金を月' + fmt1(scB.pensionM) + '万円（Aより＋' + fmt1(scB.pensionM - scA.pensionM) + '万円）にできる組み合わせ</li>';
   sumHTML += '</ul>';
   document.getElementById('scTextSummary').innerHTML = sumHTML;
 
@@ -2002,21 +2003,21 @@ function renderSummary() {
     if (n.inc > n.line && (n.crossInc === null || n.inc < n.crossInc)) {
       html += '<li>⚠️ <strong>逆転ゾーン</strong>：非課税ライン' + n.line + '万円のとき（月' + fmt1(n.lineTotal) + '万円）より手取りが少なくなりがちな帯にいます</li>';
     } else if (n.inc <= n.line) {
-      html += '<li>非課税のまま、あと<strong>' + (n.line - n.inc) + '万円</strong>は年収を増やせます（非課税ライン' + n.line + '万円で月' + fmt1(n.lineTotal) + '万円）</li>';
+      html += '<li>非課税のまま、あと<strong>' + (n.line - n.inc) + '万円</strong>は年収を増やせる計算です（非課税ライン' + n.line + '万円で月' + fmt1(n.lineTotal) + '万円）</li>';
     } else {
-      html += '<li>逆転ゾーンは抜けています。ここからは稼ぐほど手取りも増えます</li>';
+      html += '<li>逆転ゾーンは抜けています。この計算では、ここからは稼ぐほど手取りも増えます</li>';
     }
     html += '</ul></div>';
 
     if (n.actionTitles && n.actionTitles.length) {
-      html += '<div class="card"><div class="lbl">今すぐ動くべき申請</div><ul class="act-list">';
+      html += '<div class="card"><div class="lbl">確かめておきたい申請</div><ul class="act-list">';
       n.actionTitles.slice(0, 3).forEach(function(t, i) {
         html += '<li class="act-item"><div class="act-num">' + (i + 1) + '</div><div class="act-text">' + t + '</div></li>';
       });
       html += '</ul></div>';
     }
   } else {
-    html += '<div class="card" style="color:var(--ink-2)">「いま」タブでまだ計算していません。計算すると、今の判定がここに入ります。</div>';
+    html += '<div class="card" style="color:var(--ink-2)">「いま」タブでまだ計算していません。計算すると、今の結果がここに入ります。</div>';
   }
 
   // ── これからのまとめ
@@ -2027,7 +2028,7 @@ function renderSummary() {
     var byCash = f.scenarios.slice().sort(function(a, b) {
       return b.rows[b.rows.length - 1].cum - a.rows[a.rows.length - 1].cum;
     });
-    html += '<div class="card"><div class="lbl">これから（働き方4パターンの結論）</div><ul class="sc-defs">';
+    html += '<div class="card"><div class="lbl">これから（働き方4パターンの比較）</div><ul class="sc-defs">';
     html += '<li>現役中（65歳まで）の手取り合計が多いのは<strong style="color:' + SC_STYLE[byCash[0].type].color + '">' + SC_STYLE[byCash[0].type].label + '</strong></li>';
     html += '<li>老後の年金月額が多いのは<strong style="color:' + SC_STYLE[byPen[0].type].color + '">' + SC_STYLE[byPen[0].type].label + '</strong>（' + fmt1(byPen[0].pensionM) + '万円/月。最少とは月' + fmt1(byPen[0].pensionM - byPen[3].pensionM) + '万円差）</li>';
     html += '<li>90歳までの合計では<strong style="color:' + SC_STYLE[by90[0].type].color + '">' + SC_STYLE[by90[0].type].label + '</strong>が最大（約' + fmtManInt(by90[0].cumAt90) + '）</li>';
@@ -2043,9 +2044,9 @@ function renderSummary() {
       var yng = Math.min.apply(null, f.input.childAges);
       if (yng < 19) html += '<li>📅 <strong>' + (CURRENT_INCOME_YEAR + (18 - yng)) + '年</strong>に末子18歳で児童扶養手当が終了。ここが働き方の切り替え時期の目安</li>';
     }
-    html += '</ul></div>';
+    html += '</ul><p class="bk-note">※ 令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。</p></div>';
   } else {
-    html += '<div class="card" style="color:var(--ink-2)">「これから」タブでまだ計算していません。計算すると、将来の比較の結論がここに入ります。</div>';
+    html += '<div class="card" style="color:var(--ink-2)">「これから」タブでまだ計算していません。計算すると、将来の比較がここに入ります。</div>';
   }
 
   // ── 年表（「これから」から移した）
@@ -2065,6 +2066,8 @@ function renderSummary() {
     var flS = (lastFuture && lastFuture.fl) ? lastFuture.fl : (lastNow.fl || []);
     var ex = pickExit(lastNow.st, flS, lastNow.inc), forFp = (ex.main === 'fp');
     var qs = buildAskList(lastNow, lastFuture, flS, forFp);
+    // FPが主な案内のときは「次の一歩」を先に出し、そのあとに相談で聞くと良いこと。ほかは相談リスト→次の一歩の順
+    if (forFp) html += renderExit(ex, lastNow.st, 'summary');
     if (qs.length) {
       html += '<div class="card"><p class="ask-h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</p>' +
         '<p class="ask-hs">あなたの結果から選びました</p>';
@@ -2073,7 +2076,7 @@ function renderSummary() {
       html += '</div>';
     }
     // ── 次の一歩（出口：主な案内1つ＋小さなリンク。13_simulator-exit-design.md §1）
-    html += renderExit(ex, lastNow.st, 'summary');
+    if (!forFp) html += renderExit(ex, lastNow.st, 'summary');
   }
 
   // ── 条件を変えて戻る
@@ -2319,7 +2322,7 @@ function pickExit(st, fl, inc) {
 // 主な案内の前に置く一言（状態と飛び先の組み合わせで選ぶ）
 var EXIT_LEAD = {
   'gyaku_fp':   '非課税ラインを少し超えたこの帯は、働き方の決め方で手取りが変わりやすいところです。保険や教育費まで含めて考えたいときは、FPに無料で相談できます。',
-  'over_fp':    '逆転ゾーンは抜けています。ここからは、増えた分をどう残すか（保険・教育費・貯金）を考える時期です。FPに無料で相談できます。',
+  'over_fp':    '逆転ゾーンは抜けています。ここからは、増えた分をどう残すか（保険・教育費・貯金）を考えておきたい時期です。FPに無料で相談できます。',
   'near_pos':   '非課税ラインまで、あと少しです。超えるか、とどまるかの決め方をまとめました。',
   'near_note':  '非課税ラインまで、あと少しです。非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
   'hikazei_note': '非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
