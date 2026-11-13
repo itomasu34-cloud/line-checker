@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>手取りシミュレーター | ひとり親向け</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
 <!--
@@ -33,8 +34,25 @@ button,select,input{font-family:inherit;color:inherit}
 .prog-t{font-size:13px;font-weight:700;margin-top:6px}
 .body{padding:16px 16px 40px}
 [hidden]{display:none!important}
-.intro{text-align:center;padding:4px 0 14px}
+.intro{text-align:center;padding:4px 0 10px}
 .intro b{display:inline-block;font-size:20px;font-weight:700;background:var(--white);border:2px solid var(--ink);border-radius:999px;padding:8px 18px;box-shadow:var(--shadow)}
+.sim-lead{font-size:14px;line-height:1.7;color:var(--ink);margin:0 2px 8px;text-align:left}
+.sim-lead b{font-weight:700}
+.assume-note{font-size:12px;line-height:1.6;color:var(--ink-2);margin:0 2px 14px;text-align:left}
+/* STEP1 冒頭のミント統合カード */
+.mint-hero{background:#EAF7F0;border:1.5px solid #C0E8D6;border-radius:12px;padding:12px 14px 10px;margin:0 0 14px}
+.mint-hero .lead{font-size:14.5px;line-height:1.6;color:#0f6e56;font-weight:700;text-align:left}
+.mint-hero .lead details.i summary{border-color:#0f6e56;color:#0f6e56}
+.mint-hero .steps{font-size:12px;line-height:1.5;color:#0f6e56;margin-top:6px;padding-top:6px;border-top:1px dashed #C0E8D6;text-align:left;font-weight:700;opacity:.85}
+/* 結果画面「いまの月の手取り」の .one を左寄せに（ⓘが中央に浮く問題を解消） */
+.hero .one{text-align:left}
+/* 「稼ぐときの年収」の前提注記（枠の最下部に薄く・ただし枠内であることを視認できる区切り） */
+.tgt-sub{font-size:11.5px;line-height:1.5;color:var(--ink-3);margin-top:10px;padding-top:8px;border-top:1px dashed rgba(15,138,95,.35);font-weight:400;text-align:left}
+/* 5パターン比較カードの外枠（同じグループであることを示す） */
+.cmp-wrap{background:#FFFBEA;border:1px solid #EFE2B0;border-radius:12px;padding:12px 12px 10px;margin:0 0 16px}
+.cmp-wrap #rows{margin:0}
+.cmp-wrap .sr:last-of-type{margin-bottom:0}
+.cmp-foot{font-size:11.5px;line-height:1.5;color:var(--ink-3);margin-top:10px;padding-top:8px;border-top:1px dashed #E8D8A5;font-weight:700;text-align:left;display:flex;align-items:center;gap:6px}
 .q{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
 .q h3{font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
@@ -134,6 +152,11 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
 .pbar{height:100%;border-radius:6px}
 .small{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:6px}
 .back{display:block;width:100%;text-align:center;font-size:15px;font-weight:700;border:2px solid var(--soft);border-radius:12px;padding:13px;background:var(--white);margin-top:12px;cursor:pointer}
+/* 全体を画像で保存ボタン */
+.save{display:block;width:100%;text-align:center;font-size:16px;font-weight:700;border:2px solid var(--ink);border-radius:12px;padding:14px;background:var(--brand);color:var(--ink);margin-top:20px;cursor:pointer;box-shadow:var(--shadow)}
+.save:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.save:disabled{opacity:.6;cursor:wait}
+.save-note{font-size:11.5px;line-height:1.5;color:var(--ink-3);text-align:center;margin-top:8px;padding:0 4px}
 </style>
 </head>
 <body>
@@ -147,19 +170,23 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
 
   <!-- ===== STEP 1 ===== -->
   <section id="scr1">
-    <div class="intro"><b>3分で完結　3ステップ</b></div>
-    <div class="q"><h3>年収 <details class="i"><summary>i</summary><span class="pop">給与なら額面（税金や社会保険料を引く前）の1年分、自営業なら売上から経費を引いた所得です。</span></details></h3>
+    <div class="mint-hero">
+      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果の画面はスクショで保存できます。</span></details></div>
+      <div class="steps">⏱ 3分で完結　3ステップで分かる</div>
+    </div>
+    <p class="assume-note">※ 2026年時点の制度で試算</p>
+    <div class="q"><h3>年収 <details class="i"><summary>i</summary><span class="pop">勤めの人：税金や社会保険料を引く前の、1年分の給料の総額。<br>自営業の人：1年間の売上から、仕事にかかったお金を引いた金額。</span></details></h3>
       <div class="big"><span id="incV">180</span><small> 万円</small></div>
       <input type="range" id="inc" min="0" max="600" step="5" value="180">
       <div class="ticks"><span>0</span><span>200万</span><span>400万</span><span>600万</span></div>
     </div>
-    <div class="q"><h3>働き方 <details class="i"><summary>i</summary><span class="pop">週20時間以上働いて、健康保険と厚生年金に入っていれば「社保あり」です。</span></details></h3>
+    <div class="q"><h3>働き方 <details class="i"><summary>i</summary><span class="pop">会社の健康保険と厚生年金（会社員が入る、国民年金より多くもらえる年金）に入っていれば「社保あり」です。週20時間以上働いていると入れることが多いです。</span></details></h3>
       <div class="btns" data-grp="workType">
         <div class="b on" data-v="employee">勤め・社保あり</div><div class="b" data-v="part">パート・社保なし</div>
         <div class="b" data-v="self">自営業</div><div class="b" data-v="none">いまは無職</div>
       </div>
     </div>
-    <div class="q" id="nenQ" hidden><h3>国民年金の免除を申請していますか <details class="i"><summary>i</summary><span class="pop">申請していると、そのぶん保険料の支払いが減ります。分からなければ「していない」で大丈夫です。</span></details></h3>
+    <div class="q" id="nenQ" hidden><h3>国民年金の免除を申請していますか <details class="i"><summary>i</summary><span class="pop">役所に「払うのがつらい」と届け出て、国民年金の支払いが減らしてもらえている状態のことです。分からなければ「していない」で大丈夫です。</span></details></h3>
       <div class="btns" data-grp="nenApplied"><div class="b" data-v="yes">している</div><div class="b on" data-v="no">していない</div></div>
     </div>
     <div class="q"><h3>お子さんの年齢</h3>
@@ -169,7 +196,7 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
       <div class="btns" data-grp="ali"><div class="b on" data-v="no">もらっていない</div><div class="b" data-v="yes">もらっている</div></div>
       <div class="sub-in" id="aliIn" hidden>月 <select id="aliAmt"></select> 万円くらい</div>
     </div>
-    <div class="q"><h3>住まい <details class="i"><summary>i</summary><span class="pop">東京都には独自の手当（児童育成手当）があり、保育料の扱いも違うため分けています。</span></details></h3>
+    <div class="q"><h3>住まい <details class="i"><summary>i</summary><span class="pop">東京都だけの手当（児童育成手当：月1.35万円ほど）があり、保育園代の計算も違うので、東京都かそれ以外で分けています。</span></details></h3>
       <div class="btns" data-grp="pref"><div class="b on" data-v="other">東京都以外</div><div class="b" data-v="tokyo">東京都</div></div>
     </div>
     <button class="cta" id="toS2">次へ →</button>
@@ -183,12 +210,12 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
       <input type="range" id="age" min="18" max="59" step="1" value="35">
       <div class="ticks"><span>18</span><span>40</span><span>59</span></div>
     </div>
-    <div class="q"><h3>年金はこれまで… <details class="i"><summary>i</summary><span class="pop">20歳から今までの国民年金・厚生年金のことです。正確な記録は「ねんきんネット」で見られます。分からなければ「よく分からない」で大丈夫です。</span></details></h3>
+    <div class="q"><h3>年金はこれまで… <details class="i"><summary>i</summary><span class="pop">20歳から今までの、年金の支払い状況のことです。正確な記録は「ねんきんネット」というサイトで見られます。覚えていなければ「よく分からない」で大丈夫です。</span></details></h3>
       <div class="btns c1" data-grp="payHist">
         <div class="b on" data-v="full">だいたい払ってきた</div><div class="b" data-v="partial">免除・未納が数年ある</div><div class="b" data-v="unknown">よく分からない</div>
       </div>
     </div>
-    <div class="q"><h3>そのうち会社員だった期間 <details class="i"><summary>i</summary><span class="pop">厚生年金に入って働いていた期間のだいたいの合計です。</span></details></h3>
+    <div class="q"><h3>そのうち会社員だった期間 <details class="i"><summary>i</summary><span class="pop">会社員として、会社の健康保険・厚生年金に入って働いていた期間の合計です（だいたいでOK）。</span></details></h3>
       <div class="btns" data-grp="kouseiY">
         <div class="b on" data-v="0">なし</div><div class="b" data-v="5">5年くらい</div>
         <div class="b" data-v="10">10年くらい</div><div class="b" data-v="20">20年以上</div>
@@ -602,20 +629,22 @@ function findBreakEven(x, y) {
 }
 
 // お金のイベント年表を生成
+// 「第1子＝一番上の子」になるよう、年齢の降順で並べ替えてから N 人目ラベルを付ける（2026-11-13 修正）
 function buildTimeline(input) {
   var ev = [];
   var y0 = CURRENT_INCOME_YEAR;
-  input.childAges.forEach(function(a, idx) {
+  var sortedAges = input.childAges.slice().sort(function(a, b) { return b - a; });
+  sortedAges.forEach(function(a, idx) {
     var nth = (idx + 1) + '人目';
-    if (a < 16) ev.push({ year: y0 + (16 - a), text: nth + 'が高校進学ごろ。授業料は就学支援金で実質無償（所得制限なし）。教科書代等の「奨学給付金」（年14〜15万円）は非課税世帯のみ' });
-    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」があり、非課税世帯なら授業料の全額免除と給付奨学金の対象になる目安です（成績などの要件もあります。所得は進学前年までで見ます）' });
+    if (a < 16) ev.push({ year: y0 + (16 - a), text: nth + 'が高校進学ごろ。授業料は国からお金が出る「就学支援金」で実質ゼロ円になります（年収の制限なし）。教科書代などがもらえる「奨学給付金」（年14〜15万円）は、住民税がかからない家庭だけが対象です。' });
+    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度の終わりで児童扶養手当がもらえなくなります。大学や専門学校に進むなら、「修学支援新制度」で授業料が全額タダ＋返さなくていい奨学金がもらえる可能性があります（住民税がかからない家庭が目安。成績の条件もあります）。' });
   });
   if (input.childAges.length) {
     var youngest = Math.min.apply(null, input.childAges);
-    if (youngest < 19) ev.push({ year: y0 + (18 - youngest), text: '末子18歳の年度末で児童扶養手当が完全に終了。ここから先は「手当込みの手取り」が使えなくなる転換点' });
+    if (youngest < 19) ev.push({ year: y0 + (18 - youngest), text: '一番下の子が18歳の年度末で、児童扶養手当が完全に終わります。これまでの「手当込みの手取り」がなくなる、大きな切り替わりの時期です。' });
   }
-  ev.push({ year: 2028, text: '非課税ラインの特例が終了（209万円→204万円）。ライン際で調整している場合は要注意' });
-  ev.push({ year: y0 + (65 - input.parentAge), text: 'あなたが65歳。年金受給開始（金額は上のシナリオ比較を参照）' });
+  ev.push({ year: 2028, text: '税金がかからないラインの特例が終わります（209万円→204万円に下がる）。ギリギリで調整している人は要注意。' });
+  ev.push({ year: y0 + (65 - input.parentAge), text: 'あなたが65歳。年金をもらい始める年です（月いくらかは上の比較を見てください）。' });
   ev.sort(function(a, b) { return a.year - b.year; });
   return ev;
 }
@@ -942,7 +971,7 @@ function show(n) {
     document.getElementById('scr' + i).hidden = (i !== n);
     document.getElementById('pg' + i).classList.toggle('on', i <= n);
   });
-  document.getElementById('pgT').textContent = ['', 'STEP 1 / 3　いまのこと', 'STEP 2 / 3　これまでの年金', 'STEP 3 / 3　まとめ（スクショで保存できます）'][n];
+  document.getElementById('pgT').textContent = ['', 'STEP 1 / 3　いまのこと', 'STEP 2 / 3　これまでの年金', 'STEP 3 / 3　まとめ'][n];
   document.getElementById('ttl').textContent = (n === 3) ? 'あなたの結果' : '手取りシミュレーター';
   window.scrollTo(0, 0);
 }
@@ -1032,18 +1061,18 @@ function heroParts(n) {
   if (n.st === 'gyaku') {
     d = n.lineTotal - n.r.total;
     return { chip: '逆転ゾーン', one: '非課税ライン（' + line + '万円）で止めた場合より、月' + fmt1(Math.max(d, 0)) + '万円少なめ',
-      pop: '年収が非課税ラインを超えると、住民税がかかり、手当や保育料の軽減が減るため、手取りが増えにくい帯です。' +
-        (n.crossInc ? 'この条件では、年収約' + n.crossInc + '万円を超えると、' + line + '万円のときを上回る計算です。' : '') };
+      pop: '年収がこのラインを超えると、住民税（お住まいの市区町村に払う税金）がかかり始めます。さらに、児童扶養手当や保育園代の割引が少しずつ減るので、収入が増えても手取りが思ったほど増えない時期に入ります。' +
+        (n.crossInc ? 'この条件だと、年収約' + n.crossInc + '万円を超えたあたりで、' + line + '万円のときの手取りを超える計算です。' : '') };
   }
   if (n.st === 'over') {
     d = n.r.total - n.lineTotal;
     return { chip: '非課税ラインの上', one: '非課税ライン（' + line + '万円）のときより、月' + fmt1(Math.max(d, 0)) + '万円多い計算です',
-      pop: '逆転ゾーン（非課税ラインを超えて、手取りが一時的に増えにくい帯）は抜けています。この計算では、ここから先は稼ぐほど手取りも増えていきます。' };
+      pop: '収入が増えても手取りが増えにくい時期は、もう抜けています。ここから先は、稼いだ分だけ手取りも増えていく計算です。' };
   }
   if (n.st === 'near') return { chip: '非課税ラインの手前', one: 'あと' + (line - n.inc) + '万円で、非課税ライン（' + line + '万円）です',
-    pop: '住民税が非課税になる上限の年収です（2026・2027年の収入は' + line + '万円）。超えると住民税がかかり、手当や保育料の軽減が減ることがあります。' };
+    pop: '年収がここまでなら、住民税（お住まいの市区町村に払う税金）がかかりません（2026・2027年の収入ベース）。このラインを超えると住民税が始まって、手当や保育園代の割引も少しずつ減ります。' };
   return { chip: '住民税 非課税', one: '非課税のまま、あと' + Math.max(line - n.inc, 0) + '万円は年収を増やせる計算です',
-    pop: '住民税が非課税の世帯は、保育料や高額療養費の負担が軽くなり、各種の給付も受けやすくなることが多い区分です。非課税ラインは' + line + '万円（2026・2027年の収入）です。' };
+    pop: '住民税がかからない世帯は、保育園代や病院代の負担が軽くなり、使える手当も多くなります。ラインは年収' + line + '万円まで（2026・2027年の収入）です。' };
 }
 
 // ── 90歳までの比較の行
@@ -1142,12 +1171,16 @@ function showResult() {
   html += '<div class="hero"><div class="k">いまの月の手取り（目安）</div><div class="v">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
     '<div class="chip ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + ' ' + info(hp.pop) + '</div></div>';
 
-  html += '<div class="sec-t">90歳までの手取りの合計 ' + info('令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。<br>「いまのまま」は、今の年収を65歳まで続けた場合です。手取りは給与の手取り＋手当＋免除で減る支払いの合計で、生活費は引いていません。差が50万円未満なら「ほぼ同じ」としています。') + '</div>';
-  html += '<div class="tgt"><div class="tgt-h">「稼ぐ」ときの年収 ' + info('「稼ぐ」の2つの働き方で使う年収です。最初は今の年収＋50万円にしてあります。動かすと、下の金額がすぐ計算し直されます。') + '</div>' +
+  html += '<div class="sec-t">90歳までの手取りの合計 ' + info('どうやって計算しているか：<br>・今の制度や金額が、この先もずっと変わらないと仮定しています<br>・給料アップや物の値段の上がり下がりは入れていません<br>・「いまのまま」＝今の年収のまま65歳まで働いた場合<br><br>「手取り」は、給料の手取り＋もらえる手当＋年金免除で払わずに済むお金の合計です。食費・家賃などの生活費は引いていません。<br>差が50万円より小さければ「ほぼ同じ」と表示しています。<br><br>実際にもらえる金額を当てるものではなく、働き方による差を見るためのものです。') + '</div>';
+  html += '<p class="sim-lead">下のスライダーで「稼ぐときの年収」を動かすと、<b>いまのまま／抑える＋厚生年金／抑える＋国民年金／稼ぐ＋厚生年金／稼ぐ＋国民年金</b>の5パターンで、90歳までに手に入るお金（手取り＋年金）の合計を比較できます。</p>';
+  html += '<div class="tgt"><div class="tgt-h">「稼ぐときの年収」</div>' +
     '<div class="tgt-v"><span id="tgtV">' + targetInc() + '</span><small> 万円</small><span class="tgt-d" id="tgtD"></span></div>' +
     '<input type="range" id="tgt" min="100" max="600" step="10" value="' + targetInc() + '">' +
-    '<div class="ticks"><span>100万</span><span>350万</span><span>600万</span></div></div>';
-  html += '<div id="rows">' + renderRows(fd) + '</div>';
+    '<div class="ticks"><span>100万</span><span>350万</span><span>600万</span></div>' +
+    '<div class="tgt-sub">※ この年収で65歳まで働く前提です。初めは「今＋50万円」が入っています。</div>' +
+    '</div>';
+  html += '<div class="cmp-wrap"><div id="rows">' + renderRows(fd) + '</div>' +
+    '<div class="cmp-foot"><span>5パターンの前提</span>' + info('5パターンの中身：<br>・「いまのまま」＝今の年収のまま65歳まで働く<br>・「抑える＋厚生年金」＝税金がかからないライン（2026・2027年は年収209万円）までに収入をおさえて、会社の社会保険に入って働く<br>・「抑える＋国民年金」＝税金がかからないラインまでに収入をおさえて、自営やパートで国民年金に入って働く<br>・「稼ぐ＋厚生年金」＝このスライダーで決めた年収で、会社の社会保険に入って65歳まで働く<br>・「稼ぐ＋国民年金」＝このスライダーで決めた年収で、自営やパートで国民年金に入って65歳まで働く<br><br>いずれも65歳で引退、90歳まで生きる前提。給料アップや物の値段の上下は入れていません。') + '</div></div>';
 
   var ex = pickExit(n.st, fd.fl, n.inc), forFp = (ex.main === 'fp' || ex.main === 'setsu');
   var qs = buildAskList(n, fd, fd.fl, forFp);
@@ -1155,7 +1188,7 @@ function showResult() {
   if (qs.length) {
     ask = '<div class="ask"><div class="h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
     qs.slice(0, forFp ? 4 : 3).forEach(function(q) { ask += '<div class="it"><i class="bx"></i><span>' + q.h + '</span></div>'; });
-    if (forFp) ask += '<p class="note">この画面をスクショしておくと、相談のときに伝えやすくなります。</p>';
+    if (forFp) ask += '<p class="note">📷 この部分はスクショで保存しておくと、FP相談のときに便利です。（下の「全体を画像で保存」ボタンでもOK）</p>';
     ask += '</div>';
   }
   html += forFp ? renderFpCard(ex, 'summary') + ask : ask + renderExit(ex, n.st, 'summary');
@@ -1176,6 +1209,8 @@ function showResult() {
     tl.forEach(function(e) { html += '<div class="tl"><b>' + e.year + '年</b><span>' + e.text + '</span></div>'; });
     html += '</div></details>';
   }
+  html += '<button class="save" id="saveBtn" type="button">📷 全体を画像で保存</button>';
+  html += '<p class="save-note">※ 長いページ全体を1枚のPNGとして保存します。環境によっては新しいタブで開きます（長押しで「写真に保存」できます）。</p>';
   html += '<button class="back" id="backEdit">← 条件を変える</button>';
 
   document.getElementById('res').innerHTML = html;
@@ -1203,6 +1238,97 @@ function bindResult() {
   document.getElementById('fChartNow').addEventListener('toggle', function(e) { if (e.target.open) drawNow(); });
   document.getElementById('fChartFut').addEventListener('toggle', function(e) { if (e.target.open) drawFut(); });
   document.getElementById('backEdit').addEventListener('click', function() { show(1); });
+  var sb = document.getElementById('saveBtn');
+  if (sb) sb.addEventListener('click', saveFullShot);
+}
+
+// ============================================================
+//  フルページ画像保存（html2canvasでscr3全体を1枚のPNGに）
+//  iOS/LIFFのダウンロード制約に対応するため、Web Share APIが使えるときは共有シートを優先
+// ============================================================
+function saveFullShot() {
+  var el = document.getElementById('scr3');
+  var btn = document.getElementById('saveBtn');
+  if (!el) { return; }
+  if (typeof html2canvas === 'undefined') {
+    alert('画像保存機能を読み込み中です。少し待ってからもう一度押してください。');
+    return;
+  }
+  var origLabel = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '保存中…（10〜20秒）'; btn.disabled = true; }
+
+  // 1) すべての <details> を一時的に開く（元の状態は記録しておき、撮影後に戻す）
+  //    対象は #scr3 内の .fold（「使えるかもしれない制度」「月の手取りの内訳」「年収と手取りのグラフ」「90歳までの推移と年金」「あなたの年表」）
+  //    加えてⓘモーダル（details.i）も開くと内容が全て写るが、中身がかぶって読みづらくなるので .fold のみを対象にする
+  var detailsNodes = el.querySelectorAll('details.fold');
+  var prevOpen = [];
+  detailsNodes.forEach(function(d) {
+    prevOpen.push({ el: d, open: d.open });
+    d.open = true;
+  });
+  // グラフが .fold open時に初めて描かれる仕様のため、明示的に再描画をキック
+  try { if (typeof drawNow === 'function') drawNow(); } catch(e) {}
+  try { if (typeof drawFut === 'function') drawFut(); } catch(e) {}
+
+  var y = window.scrollY;
+  window.scrollTo(0, 0);
+  try { track('event', 'save_shot'); } catch(e) {}
+
+  // 2) レイアウト確定を2回のrAFで待つ（details開閉直後は高さが未確定なため）
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      html2canvas(el, { scale: 2, backgroundColor: '#FFFCF2', useCORS: true, logging: false, windowWidth: el.scrollWidth, windowHeight: el.scrollHeight })
+        .then(function(canvas) {
+          // 3) 元の open/close 状態に戻す
+          prevOpen.forEach(function(p) { p.el.open = p.open; });
+          window.scrollTo(0, y);
+
+          canvas.toBlob(function(blob) {
+            if (!blob) throw new Error('blob null');
+            var fname = 'tedori-sim-' + new Date().toISOString().slice(0,10) + '.png';
+            if (navigator.canShare) {
+              try {
+                var file = new File([blob], fname, { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) {
+                  navigator.share({ files: [file], title: '手取りシミュレーター結果' })
+                    .catch(function() { fallbackDownload(blob, fname); })
+                    .finally(function() { if (btn) { btn.textContent = origLabel; btn.disabled = false; } });
+                  return;
+                }
+              } catch (e) { /* 次へフォールバック */ }
+            }
+            fallbackDownload(blob, fname);
+            if (btn) { btn.textContent = origLabel; btn.disabled = false; }
+          }, 'image/png');
+        })
+        .catch(function(err) {
+          // 失敗時も必ず元に戻す
+          prevOpen.forEach(function(p) { p.el.open = p.open; });
+          window.scrollTo(0, y);
+          console.error('html2canvas error:', err);
+          alert('画像の作成に失敗しました。端末のスクショ機能でお試しください。');
+          if (btn) { btn.textContent = origLabel; btn.disabled = false; }
+        });
+    });
+  });
+}
+function fallbackDownload(blob, fname) {
+  var url = URL.createObjectURL(blob);
+  // iOSのSafari・LIFF内ブラウザでは download 属性が効かない場合があるため、新規タブで開くパスも用意
+  var a = document.createElement('a');
+  a.href = url; a.download = fname; a.rel = 'noopener';
+  // iOSだけ検出して新規タブで開く
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    var w = window.open(url, '_blank');
+    if (!w) {
+      // ポップアップがブロックされた場合、クリック済みタブのlocation置き換えを試みる
+      location.href = url;
+    }
+  } else {
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  setTimeout(function() { URL.revokeObjectURL(url); }, 20000);
 }
 function drawNow() {
   var n = lastNow;
