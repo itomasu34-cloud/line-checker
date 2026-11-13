@@ -152,11 +152,39 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
 .pbar{height:100%;border-radius:6px}
 .small{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:6px}
 .back{display:block;width:100%;text-align:center;font-size:15px;font-weight:700;border:2px solid var(--soft);border-radius:12px;padding:13px;background:var(--white);margin-top:12px;cursor:pointer}
-/* 全体を画像で保存ボタン */
+/* 結果レポート（1枚の画像） */
+#rep{position:absolute;left:-10000px;top:0;width:390px;background:var(--paper);padding:18px 16px 16px;color:var(--ink);font-size:14px;line-height:1.55}
+#rep .rh{background:var(--brand);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+#rep .rh b{display:block;font-size:20px;line-height:1.35}
+#rep .rh span{font-size:12px;color:var(--ink-2)}
+#rep .rs{background:var(--white);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:10px}
+#rep .rt{font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:4px}
+#rep .cl{display:flex;font-size:13px;padding:2px 0;border-bottom:1px dashed var(--soft)} #rep .cl:last-child{border-bottom:0}
+#rep .cl span{flex:0 0 104px;color:var(--ink-2)} #rep .cl b{flex:1}
+#rep .hv{font-size:34px;font-weight:700;line-height:1.2} #rep .hv small{font-size:15px}
+#rep .rc{display:inline-block;font-size:12px;font-weight:700;padding:1px 10px;border-radius:99px;border:1.5px solid var(--ink);background:var(--mint);margin:2px 0 4px}
+#rep .rc.gyaku{background:var(--crit-l)} #rep .rc.over{background:var(--brand-l)}
+#rep .one{font-size:13px}
+#rep table{width:100%;border-collapse:collapse;font-size:13px}
+#rep td{padding:5px 4px;border-bottom:1px solid var(--soft);vertical-align:middle}
+#rep tr:last-child td{border-bottom:0}
+#rep td.v{text-align:right;font-weight:700;font-size:15px;white-space:nowrap}
+#rep td.p{text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap}
+#rep tr.up td.v{color:var(--teal)} #rep tr.down td.v{color:var(--crit)}
+#rep tr.best td{background:var(--mint-l)}
+#rep .rq{display:flex;gap:8px;font-size:14px;padding:3px 0} #rep .rq i{flex:0 0 14px;height:14px;border:2px solid var(--ink);border-radius:3px;margin-top:4px}
+#rep .tip{font-size:13px;color:var(--teal);font-weight:700;margin-top:6px}
+#rep .rf{font-size:12px;color:var(--ink-3);line-height:1.6;margin-top:4px}
+#repOv{position:fixed;inset:0;background:rgba(26,26,26,.78);z-index:1000;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
+#repOv[hidden]{display:none}
+#repOv .ob{background:var(--paper);border-radius:14px;padding:14px;max-width:420px;margin:0 auto}
+#repOv .on{font-size:15px;font-weight:700;text-align:center;margin:0 0 10px}
+#repOv img{display:block;width:100%;border-radius:8px;border:1px solid var(--soft);-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+/* 結果レポートを作るボタン */
 .save{display:block;width:100%;text-align:center;font-size:16px;font-weight:700;border:2px solid var(--ink);border-radius:12px;padding:14px;background:var(--brand);color:var(--ink);margin-top:20px;cursor:pointer;box-shadow:var(--shadow)}
 .save:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .save:disabled{opacity:.6;cursor:wait}
-.save-note{font-size:11.5px;line-height:1.5;color:var(--ink-3);text-align:center;margin-top:8px;padding:0 4px}
+.save-note{font-size:13px;line-height:1.5;color:var(--ink-3);text-align:center;margin-top:8px;padding:0 4px}
 </style>
 </head>
 <body>
@@ -171,7 +199,7 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
   <!-- ===== STEP 1 ===== -->
   <section id="scr1">
     <div class="mint-hero">
-      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果の画面はスクショで保存できます。</span></details></div>
+      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果は、1枚の画像にまとめて保存できます。</span></details></div>
       <div class="steps">⏱ 3分で完結　3ステップで分かる</div>
     </div>
     <p class="assume-note">※ 2026年時点の制度で試算</p>
@@ -1188,7 +1216,7 @@ function showResult() {
   if (qs.length) {
     ask = '<div class="ask"><div class="h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
     qs.slice(0, forFp ? 4 : 3).forEach(function(q) { ask += '<div class="it"><i class="bx"></i><span>' + q.h + '</span></div>'; });
-    if (forFp) ask += '<p class="note">📷 この部分はスクショで保存しておくと、FP相談のときに便利です。（下の「全体を画像で保存」ボタンでもOK）</p>';
+    if (forFp) ask += '<p class="note">📄 この内容は、いちばん下の「結果を1枚の画像にする」で保存できます。FPに見せると話が早いです。</p>';
     ask += '</div>';
   }
   html += forFp ? renderFpCard(ex, 'summary') + ask : ask + renderExit(ex, n.st, 'summary');
@@ -1209,8 +1237,8 @@ function showResult() {
     tl.forEach(function(e) { html += '<div class="tl"><b>' + e.year + '年</b><span>' + e.text + '</span></div>'; });
     html += '</div></details>';
   }
-  html += '<button class="save" id="saveBtn" type="button">📷 全体を画像で保存</button>';
-  html += '<p class="save-note">※ 長いページ全体を1枚のPNGとして保存します。環境によっては新しいタブで開きます（長押しで「写真に保存」できます）。</p>';
+  html += '<button class="save" id="saveBtn" type="button">📄 結果を1枚の画像にする</button>';
+  html += '<p class="save-note">条件と結果を1枚にまとめます。写真に保存しておけます。</p>';
   html += '<button class="back" id="backEdit">← 条件を変える</button>';
 
   document.getElementById('res').innerHTML = html;
@@ -1239,96 +1267,100 @@ function bindResult() {
   document.getElementById('fChartFut').addEventListener('toggle', function(e) { if (e.target.open) drawFut(); });
   document.getElementById('backEdit').addEventListener('click', function() { show(1); });
   var sb = document.getElementById('saveBtn');
-  if (sb) sb.addEventListener('click', saveFullShot);
+  if (sb) sb.addEventListener('click', makeReport);
 }
 
 // ============================================================
-//  フルページ画像保存（html2canvasでscr3全体を1枚のPNGに）
-//  iOS/LIFFのダウンロード制約に対応するため、Web Share APIが使えるときは共有シートを優先
+//  結果レポート（条件と結果だけを1枚の画像にまとめる）
+//  画面の外に専用のレイアウトを組み、html2canvasで画像にして重ね画面に出す。
+//  保存は画像の長押し、共有シートが使える端末では「共有・保存する」ボタンも出す。
 // ============================================================
-function saveFullShot() {
-  var el = document.getElementById('scr3');
+var WT_LABEL = { employee: '勤め・社保あり', part: 'パート・社保なし', self: '自営業', none: 'いまは無職' };
+var PAY_LABEL = { full: 'だいたい払ってきた', partial: '免除・未納が数年ある', unknown: 'よく分からない' };
+var KOUSEI_LABEL = { 0: 'なし', 5: '5年くらい', 10: '10年くらい', 20: '20年以上' };
+function buildReportHtml() {
+  var n = lastNow, fd = lastFuture, hp = heroParts(n), d = new Date();
+  var ds = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  var ex = pickExit(n.st, fd.fl, n.inc), forFp = (ex.main === 'fp' || ex.main === 'setsu');
+  var qs = buildAskList(n, fd, fd.fl, forFp).slice(0, forFp ? 4 : 3);
+  var cond = [['年収', S.income + '万円'], ['働き方', WT_LABEL[S.workType]]];
+  if (S.workType !== 'employee') cond.push(['年金の免除申請', S.nenApplied === 'yes' ? 'している' : 'していない']);
+  cond.push(['お子さん', S.kids.map(function(a) { return a + '歳'; }).join('・')]);
+  cond.push(['養育費', aliM() > 0 ? '月' + S.aliAmt + '万円' : 'なし']);
+  cond.push(['住まい', S.pref === 'tokyo' ? '東京都' : '東京都以外']);
+  cond.push(['あなたの年齢', S.parentAge + '歳']);
+  cond.push(['国民年金', PAY_LABEL[S.payHist]]);
+  cond.push(['会社員の期間', KOUSEI_LABEL[S.kouseiY]]);
+
+  var h = '<div class="rh"><b>あなたの結果レポート</b><span>手取りシミュレーター（ひとり親向け）｜' + ds + ' 作成</span></div>';
+  h += '<div class="rs"><div class="rt">入力した条件</div>';
+  cond.forEach(function(c) { h += '<div class="cl"><span>' + c[0] + '</span><b>' + c[1] + '</b></div>'; });
+  h += '</div>';
+  h += '<div class="rs"><div class="rt">いまの月の手取り（目安）</div><div class="hv">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
+    '<div class="rc ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + '</div></div>';
+
+  var c = fd.current, rows = curCompareRows(fd);
+  h += '<div class="rs"><div class="rt">90歳までの手取り＋年金の合計（稼ぐときの年収 ' + targetInc() + '万円）</div><table>';
+  h += '<tr><td>いまのまま</td><td class="v">約' + Math.round(c.cumAt90).toLocaleString() + '万</td><td class="p">年金 月' + fmt1(c.pensionM) + '万</td></tr>';
+  rows.forEach(function(r, i) {
+    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up');
+    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万';
+    h += '<tr class="' + cls + (top ? ' best' : '') + '"><td>' + V2NAME[r.sc.type] + '</td><td class="v">' + v + '</td><td class="p">年金 月' + fmt1(r.sc.pensionM) + '万</td></tr>';
+  });
+  h += '</table></div>';
+
+  if (qs.length) {
+    h += '<div class="rs"><div class="rt">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
+    qs.forEach(function(q) { h += '<div class="rq"><i></i><span>' + q.h + '</span></div>'; });
+    if (forFp) h += '<div class="tip">この画像をFPに見せると、話が早く進みます。</div>';
+    h += '</div>';
+  }
+  h += '<div class="rf">※ 令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。</div>';
+  return h;
+}
+function makeReport() {
   var btn = document.getElementById('saveBtn');
-  if (!el) { return; }
-  if (typeof html2canvas === 'undefined') {
-    alert('画像保存機能を読み込み中です。少し待ってからもう一度押してください。');
-    return;
-  }
-  var origLabel = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '保存中…（10〜20秒）'; btn.disabled = true; }
-
-  // 1) すべての <details> を一時的に開く（元の状態は記録しておき、撮影後に戻す）
-  //    対象は #scr3 内の .fold（「使えるかもしれない制度」「月の手取りの内訳」「年収と手取りのグラフ」「90歳までの推移と年金」「あなたの年表」）
-  //    加えてⓘモーダル（details.i）も開くと内容が全て写るが、中身がかぶって読みづらくなるので .fold のみを対象にする
-  var detailsNodes = el.querySelectorAll('details.fold');
-  var prevOpen = [];
-  detailsNodes.forEach(function(d) {
-    prevOpen.push({ el: d, open: d.open });
-    d.open = true;
-  });
-  // グラフが .fold open時に初めて描かれる仕様のため、明示的に再描画をキック
-  try { if (typeof drawNow === 'function') drawNow(); } catch(e) {}
-  try { if (typeof drawFut === 'function') drawFut(); } catch(e) {}
-
-  var y = window.scrollY;
-  window.scrollTo(0, 0);
-  try { track('event', 'save_shot'); } catch(e) {}
-
-  // 2) レイアウト確定を2回のrAFで待つ（details開閉直後は高さが未確定なため）
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      html2canvas(el, { scale: 2, backgroundColor: '#FFFCF2', useCORS: true, logging: false, windowWidth: el.scrollWidth, windowHeight: el.scrollHeight })
-        .then(function(canvas) {
-          // 3) 元の open/close 状態に戻す
-          prevOpen.forEach(function(p) { p.el.open = p.open; });
-          window.scrollTo(0, y);
-
-          canvas.toBlob(function(blob) {
-            if (!blob) throw new Error('blob null');
-            var fname = 'tedori-sim-' + new Date().toISOString().slice(0,10) + '.png';
-            if (navigator.canShare) {
-              try {
-                var file = new File([blob], fname, { type: 'image/png' });
-                if (navigator.canShare({ files: [file] })) {
-                  navigator.share({ files: [file], title: '手取りシミュレーター結果' })
-                    .catch(function() { fallbackDownload(blob, fname); })
-                    .finally(function() { if (btn) { btn.textContent = origLabel; btn.disabled = false; } });
-                  return;
-                }
-              } catch (e) { /* 次へフォールバック */ }
-            }
-            fallbackDownload(blob, fname);
-            if (btn) { btn.textContent = origLabel; btn.disabled = false; }
-          }, 'image/png');
-        })
-        .catch(function(err) {
-          // 失敗時も必ず元に戻す
-          prevOpen.forEach(function(p) { p.el.open = p.open; });
-          window.scrollTo(0, y);
-          console.error('html2canvas error:', err);
-          alert('画像の作成に失敗しました。端末のスクショ機能でお試しください。');
-          if (btn) { btn.textContent = origLabel; btn.disabled = false; }
-        });
-    });
+  if (typeof html2canvas === 'undefined') { alert('画像を作る準備中です。少し待ってから、もう一度押してください。'); return; }
+  var lab = btn.textContent;
+  btn.textContent = '画像を作っています…'; btn.disabled = true;
+  var done = function() { btn.textContent = lab; btn.disabled = false; };
+  var box = document.getElementById('rep');
+  if (!box) { box = document.createElement('div'); box.id = 'rep'; box.setAttribute('aria-hidden', 'true'); document.body.appendChild(box); }
+  box.innerHTML = buildReportHtml();
+  try { track('event', 'save_report'); } catch (e) {}
+  var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  ready.then(function() {
+    return html2canvas(box, { scale: 3, backgroundColor: '#FFFCF2', logging: false });
+  }).then(function(canvas) {
+    showReport(canvas);
+    done();
+  }).catch(function(err) {
+    console.error('report error:', err);
+    alert('画像を作れませんでした。お手数ですが、端末のスクリーンショットをお使いください。');
+    done();
   });
 }
-function fallbackDownload(blob, fname) {
-  var url = URL.createObjectURL(blob);
-  // iOSのSafari・LIFF内ブラウザでは download 属性が効かない場合があるため、新規タブで開くパスも用意
-  var a = document.createElement('a');
-  a.href = url; a.download = fname; a.rel = 'noopener';
-  // iOSだけ検出して新規タブで開く
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIOS) {
-    var w = window.open(url, '_blank');
-    if (!w) {
-      // ポップアップがブロックされた場合、クリック済みタブのlocation置き換えを試みる
-      location.href = url;
-    }
-  } else {
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }
-  setTimeout(function() { URL.revokeObjectURL(url); }, 20000);
+function showReport(canvas) {
+  var ov = document.getElementById('repOv');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'repOv'; document.body.appendChild(ov); }
+  ov.innerHTML = '<div class="ob"><p class="on">画像を長押しして、写真に保存してください</p>' +
+    '<img alt="手取りシミュレーターの結果レポート" src="' + canvas.toDataURL('image/png') + '">' +
+    '<button class="save" id="repShare" type="button" hidden>共有・保存する</button>' +
+    '<button class="back" id="repClose" type="button">閉じる</button></div>';
+  ov.hidden = false;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('repClose').addEventListener('click', function() { ov.hidden = true; document.body.style.overflow = ''; });
+  if (!navigator.canShare) return;
+  canvas.toBlob(function(blob) {
+    if (!blob) return;
+    var d = new Date(), fname = 'tedori-report-' + d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '.png';
+    var file;
+    try { file = new File([blob], fname, { type: 'image/png' }); } catch (e) { return; }
+    if (!navigator.canShare({ files: [file] })) return;
+    var sb = document.getElementById('repShare');
+    sb.hidden = false;
+    sb.addEventListener('click', function() { navigator.share({ files: [file], title: '手取りシミュレーターの結果' }).catch(function() {}); });
+  }, 'image/png');
 }
 function drawNow() {
   var n = lastNow;
