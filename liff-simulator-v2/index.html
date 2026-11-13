@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>手取りシミュレーター | ひとり親向け</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+<!--
+  手取りシミュレーター v2（2026-11-13）
+  ・計算（ENGINE）・出口（EXIT）・計測・LIFFは v1（../liff-simulator/index.html）からそのまま写している。
+    v1 の計算や出口を直したら、ここにも同じ変更を入れること（engine-test.js で両方を確かめる）。
+  ・画面は「入力2画面 → 結果1画面」。くわしい説明は ⓘ と折りたたみに入れる。
+  ・見本：mock.html
+-->
+<style>
+:root{
+  --brand:#FFD93D; --brand-l:#FFF6D6; --mint:#C3F5E7; --mint-l:#EBFBF6; --teal:#0f8a5f;
+  --ink:#1A1A1A; --ink-2:#5C5A55; --ink-3:#7A7568; --paper:#FFFCF2; --soft:#E8E4D9;
+  --crit:#d03b3b; --crit-l:#FDEDE8; --white:#fff; --shadow:3px 3px 0 var(--ink); --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper)}
+body{font-family:'M PLUS Rounded 1c',-apple-system,'Hiragino Sans',sans-serif;color:var(--ink);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+button,select,input{font-family:inherit;color:inherit}
+#app{max-width:480px;margin:0 auto;min-height:100vh}
+.top{background:var(--brand);padding:14px 18px 12px;border-bottom:3px solid var(--ink);position:sticky;top:0;z-index:10}
+.top h1{font-size:18px;font-weight:700}
+.prog{display:flex;gap:6px;margin-top:10px}
+.prog i{flex:1;height:8px;border-radius:4px;background:rgba(0,0,0,.15)}
+.prog i.on{background:var(--ink)}
+.prog-t{font-size:13px;font-weight:700;margin-top:6px}
+.body{padding:16px 16px 40px}
+[hidden]{display:none!important}
+.intro{text-align:center;padding:4px 0 14px}
+.intro b{display:inline-block;font-size:20px;font-weight:700;background:var(--white);border:2px solid var(--ink);border-radius:999px;padding:8px 18px;box-shadow:var(--shadow)}
+.q{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.q h3{font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.btns.c1{grid-template-columns:1fr}
+.b{border:2px solid var(--ink);border-radius:12px;background:var(--white);padding:13px 6px;font-size:16px;font-weight:700;text-align:center;cursor:pointer;line-height:1.3}
+.b.on{background:var(--brand)}
+.big{font-size:32px;font-weight:700;text-align:center}
+.big small{font-size:16px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:5px;margin:16px 0 8px;outline:none;
+  background:linear-gradient(90deg,var(--ink) 0 var(--pct,30%),var(--soft) var(--pct,30%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--brand);border:3px solid var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--brand);border:3px solid var(--ink)}
+.ticks{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3)}
+.kids{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kid{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:12px;background:var(--white);overflow:hidden}
+.kid select{border:0;background:transparent;font-size:16px;font-weight:700;padding:10px 4px 10px 12px;-webkit-appearance:none;appearance:none}
+.kid .x{border:0;border-left:2px solid var(--soft);background:transparent;font-size:15px;padding:10px 10px;cursor:pointer;color:var(--ink-2)}
+.kid-add{border:2px dashed var(--ink-3);border-radius:12px;background:var(--white);font-size:16px;font-weight:700;padding:10px 14px;color:var(--ink-2);cursor:pointer}
+.sub-in{margin-top:10px;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+.sub-in select{font-size:16px;font-weight:700;border:2px solid var(--ink);border-radius:10px;padding:8px 10px;background:var(--white)}
+.cta{display:block;width:100%;border:3px solid var(--ink);border-radius:14px;background:var(--brand);box-shadow:var(--shadow);padding:16px;font-size:18px;font-weight:700;text-align:center;margin-top:6px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.lock{font-size:13px;color:var(--ink-2);text-align:center;margin-top:12px;line-height:1.6}
+.lock a{color:var(--ink)}
+.backlink{display:block;margin:16px auto 0;border:0;background:transparent;font-size:15px;font-weight:700;color:var(--ink-2);cursor:pointer}
+/* ⓘ */
+details.i{display:inline}
+details.i summary{list-style:none;display:inline-flex;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink-3);color:var(--ink-3);font-size:13px;font-weight:700;align-items:center;justify-content:center;cursor:pointer;vertical-align:middle;font-style:normal}
+details.i summary::-webkit-details-marker{display:none}
+details.i[open] summary{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.pop{display:block;margin-top:10px;background:var(--brand-l);border:2px solid var(--ink);border-radius:12px;padding:12px;font-size:14px;font-weight:400;line-height:1.7;color:var(--ink);text-align:left}
+/* 結果 */
+.praise{background:var(--brand-l);border:2px solid var(--ink);border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.praise .ph{font-size:17px;font-weight:700;margin-bottom:8px}
+.praise .pi{display:flex;gap:8px;font-size:15px;line-height:1.6;padding:4px 0}
+.praise .pi span{color:#E0A800;flex:0 0 auto}
+.praise .pf{font-size:14px;color:var(--ink-2);margin-top:6px;font-weight:700}
+.hero{background:var(--white);border:3px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 16px;text-align:center;margin-bottom:16px}
+.hero .k{font-size:15px;font-weight:700;color:var(--ink-2)}
+.hero .v{font-size:42px;font-weight:700;line-height:1.15;margin:4px 0;letter-spacing:.01em}
+.hero .v small{font-size:18px}
+.chip{display:inline-block;font-size:14px;font-weight:700;border:2px solid;border-radius:999px;padding:5px 12px;margin-top:6px}
+.chip.gyaku{border-color:var(--crit);color:var(--crit);background:var(--crit-l)}
+.chip.hikazei,.chip.near{border-color:var(--teal);color:var(--teal);background:var(--mint-l)}
+.chip.over{border-color:var(--ink-2);color:var(--ink-2);background:var(--paper)}
+.one{font-size:15px;line-height:1.7;margin-top:10px;font-weight:700}
+.sec-t{font-size:17px;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tgt{background:var(--mint-l);border:2px solid var(--teal);border-radius:12px;padding:12px 14px 10px;margin-bottom:12px}
+.tgt-h{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tgt-v{font-size:26px;font-weight:700;margin-top:4px}
+.tgt-v small{font-size:15px}
+.tgt-d{font-size:13px;font-weight:700;color:var(--teal);background:#fff;border:1.5px solid var(--teal);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:4px}
+.tgt input[type=range]{background:linear-gradient(90deg,var(--teal) 0 var(--pct,30%),var(--soft) var(--pct,30%))}
+.tgt input[type=range]::-webkit-slider-thumb{background:#fff;border-color:var(--teal)}
+.sr{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;background:var(--white);border:2px solid var(--soft);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.sr .n{font-size:16px;font-weight:700}
+.sr .d{font-size:20px;font-weight:700;text-align:right;white-space:nowrap}
+.sr .s{font-size:13px;color:var(--ink-3);grid-column:1/3}
+.sr.now{background:var(--brand-l);border:2px solid var(--ink)}
+.sr.up .d{color:var(--teal)} .sr.down .d{color:var(--crit)} .sr.same .d{color:var(--ink-3);font-size:16px}
+.sr.best{border:3px solid var(--teal)}
+.badge{display:inline-block;font-size:12px;font-weight:700;background:var(--teal);color:#fff;border-radius:6px;padding:1px 6px;margin-right:6px}
+.fp{background:var(--mint-l);border:3px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 16px;margin:20px 0 16px}
+.fp .h{font-size:18px;font-weight:700;line-height:1.5;margin-bottom:8px}
+.fp p{font-size:15px;line-height:1.75;margin-bottom:12px}
+.fp .pr,.exit-pr{font-size:13px;color:var(--ink-3);text-align:center;margin-top:8px}
+.exit-sub{font-size:14px;margin-top:12px;line-height:1.6}
+.exit-sub a{color:var(--ink);font-weight:700}
+.exit-card{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);padding:16px;margin:16px 0}
+.exit-card .lbl{font-size:16px;font-weight:700;margin-bottom:6px}
+.exit-lead{font-size:15px;line-height:1.75;margin-bottom:12px}
+.exit-main{display:block;border:3px solid var(--ink);border-radius:14px;background:var(--brand);box-shadow:var(--shadow);padding:14px;font-size:17px;font-weight:700;text-align:center;color:var(--ink);text-decoration:none}
+.ask{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.ask .h{font-size:16px;font-weight:700;margin-bottom:6px}
+.it{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed var(--soft);font-size:15px;font-weight:700;line-height:1.5}
+.it:first-of-type{border-top:0}
+.bx{flex:0 0 20px;height:20px;border:2px solid var(--ink);border-radius:5px;margin-top:2px}
+.ask .note{font-size:13px;color:var(--ink-2);margin-top:8px}
+.fold{background:var(--white);border:2px solid var(--soft);border-radius:12px;margin-bottom:10px}
+.fold>summary{list-style:none;padding:14px 16px;font-size:16px;font-weight:700;display:flex;justify-content:space-between;cursor:pointer}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary:after{content:"＋";font-weight:700}
+.fold[open]>summary:after{content:"−"}
+.fold .in{padding:0 16px 14px;font-size:14px;line-height:1.7}
+.mini{width:100%;border-collapse:collapse;font-size:14px}
+.mini td{padding:6px 0;border-bottom:1px solid var(--soft)} .mini td:last-child{text-align:right;font-weight:700}
+.mini tr.sum td{font-size:16px;border-bottom:0;padding-top:10px}
+.act{padding:8px 0;border-top:1px dashed var(--soft)} .act:first-child{border-top:0}
+.act b{display:block;font-size:15px}
+.tl{padding:6px 0;border-top:1px dashed var(--soft);display:flex;gap:10px} .tl:first-child{border-top:0}
+.tl b{flex:0 0 52px}
+.chart-wrap{margin:4px 0 8px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2);margin-top:6px}
+.leg i{display:inline-block;width:18px;border-top:3px solid;vertical-align:middle;margin-right:4px}
+.pbar-row{display:grid;grid-template-columns:120px 1fr auto;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.pbar-track{height:12px;background:var(--soft);border-radius:6px;overflow:hidden}
+.pbar{height:100%;border-radius:6px}
+.small{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:6px}
+.back{display:block;width:100%;text-align:center;font-size:15px;font-weight:700;border:2px solid var(--soft);border-radius:12px;padding:13px;background:var(--white);margin-top:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <h1 id="ttl">手取りシミュレーター</h1>
+    <div class="prog"><i id="pg1" class="on"></i><i id="pg2"></i><i id="pg3"></i></div>
+    <div class="prog-t" id="pgT">STEP 1 / 3　いまのこと</div>
+  </div>
+  <div class="body">
+
+  <!-- ===== STEP 1 ===== -->
+  <section id="scr1">
+    <div class="intro"><b>3分で完結　3ステップ</b></div>
+    <div class="q"><h3>年収 <details class="i"><summary>i</summary><span class="pop">給与なら額面（税金や社会保険料を引く前）の1年分、自営業なら売上から経費を引いた所得です。</span></details></h3>
+      <div class="big"><span id="incV">180</span><small> 万円</small></div>
+      <input type="range" id="inc" min="0" max="600" step="5" value="180">
+      <div class="ticks"><span>0</span><span>200万</span><span>400万</span><span>600万</span></div>
+    </div>
+    <div class="q"><h3>働き方 <details class="i"><summary>i</summary><span class="pop">週20時間以上働いて、健康保険と厚生年金に入っていれば「社保あり」です。</span></details></h3>
+      <div class="btns" data-grp="workType">
+        <div class="b on" data-v="employee">勤め・社保あり</div><div class="b" data-v="part">パート・社保なし</div>
+        <div class="b" data-v="self">自営業</div><div class="b" data-v="none">いまは無職</div>
+      </div>
+    </div>
+    <div class="q" id="nenQ" hidden><h3>国民年金の免除を申請していますか <details class="i"><summary>i</summary><span class="pop">申請していると、そのぶん保険料の支払いが減ります。分からなければ「していない」で大丈夫です。</span></details></h3>
+      <div class="btns" data-grp="nenApplied"><div class="b" data-v="yes">している</div><div class="b on" data-v="no">していない</div></div>
+    </div>
+    <div class="q"><h3>お子さんの年齢</h3>
+      <div class="kids" id="kids"></div>
+    </div>
+    <div class="q"><h3>養育費</h3>
+      <div class="btns" data-grp="ali"><div class="b on" data-v="no">もらっていない</div><div class="b" data-v="yes">もらっている</div></div>
+      <div class="sub-in" id="aliIn" hidden>月 <select id="aliAmt"></select> 万円くらい</div>
+    </div>
+    <div class="q"><h3>住まい <details class="i"><summary>i</summary><span class="pop">東京都には独自の手当（児童育成手当）があり、保育料の扱いも違うため分けています。</span></details></h3>
+      <div class="btns" data-grp="pref"><div class="b on" data-v="other">東京都以外</div><div class="b" data-v="tokyo">東京都</div></div>
+    </div>
+    <button class="cta" id="toS2">次へ →</button>
+    <p class="lock">🔒 計算はこの画面の中で行うので、入力した金額や年齢はこちらには届きません。利用状況の記録については、<a href="https://miku-single-navi.notion.site/368ab34d9ebd8052aeb6f0d1635aeaad" target="_blank" rel="noopener">プライバシーポリシー</a>をご覧ください。</p>
+  </section>
+
+  <!-- ===== STEP 2 ===== -->
+  <section id="scr2" hidden>
+    <div class="q"><h3>あなたの年齢</h3>
+      <div class="big"><span id="ageV">35</span><small> 歳</small></div>
+      <input type="range" id="age" min="18" max="59" step="1" value="35">
+      <div class="ticks"><span>18</span><span>40</span><span>59</span></div>
+    </div>
+    <div class="q"><h3>年金はこれまで… <details class="i"><summary>i</summary><span class="pop">20歳から今までの国民年金・厚生年金のことです。正確な記録は「ねんきんネット」で見られます。分からなければ「よく分からない」で大丈夫です。</span></details></h3>
+      <div class="btns c1" data-grp="payHist">
+        <div class="b on" data-v="full">だいたい払ってきた</div><div class="b" data-v="partial">免除・未納が数年ある</div><div class="b" data-v="unknown">よく分からない</div>
+      </div>
+    </div>
+    <div class="q"><h3>そのうち会社員だった期間 <details class="i"><summary>i</summary><span class="pop">厚生年金に入って働いていた期間のだいたいの合計です。</span></details></h3>
+      <div class="btns" data-grp="kouseiY">
+        <div class="b on" data-v="0">なし</div><div class="b" data-v="5">5年くらい</div>
+        <div class="b" data-v="10">10年くらい</div><div class="b" data-v="20">20年以上</div>
+      </div>
+    </div>
+    <button class="cta" id="toRes">結果を見る →</button>
+    <button class="backlink" id="back1">← 戻る</button>
+  </section>
+
+  <!-- ===== 結果 ===== -->
+  <section id="scr3" hidden><div id="res"></div></section>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  計算エンジン（v1 から写したもの。中身は変えない）
+// ============================================================
+// ===ENGINE-START===
+
+// 所得年ごとの税制パラメータ（kojoMin=給与所得控除の最低保障・hikazeiLine=ひとり親非課税の給与収入ライン）
+// 2026・2027年所得は令和8年度税制改正大綱の+5万円特例で74万円→ライン209万円。2028年〜は特例終了。
+// hitoriS/hitoriJ＝ひとり親控除（所得税/住民税）。所得税38万は令和9年分〜、住民税33万は令和10年度分〜（＝2027年所得〜）
+//   出典：総務省 税制調査会資料 2026-10-06（261006_4-2.pdf）・国交省 報道発表 2026-11-06
+var YEAR_RULES = {
+  2025: { kojoMin: 65, hikazeiLine: 204, hitoriS: 35, hitoriJ: 30 },
+  2026: { kojoMin: 74, hikazeiLine: 209, hitoriS: 35, hitoriJ: 30 },
+  2027: { kojoMin: 74, hikazeiLine: 209, hitoriS: 38, hitoriJ: 33 },
+  def:  { kojoMin: 69, hikazeiLine: 204, hitoriS: 38, hitoriJ: 33 }
+};
+function yearRule(y) { return YEAR_RULES[y] || YEAR_RULES.def; }
+
+// 所得税の基礎控除（万円）。合計所得 sogo と所得年で決まる（住民税は43万で据え置き）
+//   出典：財務省「令和8年度税制改正の大綱の概要」（本則58→62万、加算＝R8・R9は489万以下42万/超5万、R10〜は132万以下37万）
+//   2025年分は令和7年度改正の段階制（95/88/68/63/58）
+function shotokuKiso(sogo, year) {
+  if (year <= 2025) {
+    if (sogo <= 132) return 95;
+    if (sogo <= 336) return 88;
+    if (sogo <= 489) return 68;
+    if (sogo <= 655) return 63;
+    return 58;
+  }
+  if (year <= 2027) {
+    if (sogo <= 489) return 104;
+    if (sogo <= 655) return 67;
+    return 62;
+  }
+  return sogo <= 132 ? 99 : 62;
+}
+
+// 「いま」タブが対象とする所得年（毎年更新：2027年になったら 2027 に変更）
+var CURRENT_INCOME_YEAR = 2026;
+
+var K = {
+  PENSION_M:   1.792,       // 万円/月 国民年金保険料（令和8年度）
+  // 児童扶養手当（令和8年4月改定・こども家庭庁/自治体一次ソース 2026-07-14確認）
+  FUYO_FULL:      4.805,    // 万円/月 第1子 全部支給
+  FUYO_PART_BASE: 4.804,    // 万円/月 第1子 一部支給の起点
+  FUYO_MIN:       1.134,    // 万円/月 第1子 一部支給の下限
+  FUYO_2ND:       1.135,    // 万円/月 第2子以降加算 全部支給（第3子以降も同額）
+  FUYO_2ND_BASE:  1.134,    // 万円/月 加算 一部支給の起点
+  FUYO_2ND_MIN:   0.568,    // 万円/月 加算 一部支給の下限
+  FUYO_RATE1:     0.0264029,// 第1子 逓減係数
+  FUYO_RATE2:     0.0040719,// 加算分 逓減係数
+  // 所得制限限度額（万円・所得ベース）: 基準額 + 38万×扶養親族数（令和6年11月〜）
+  FUYO_FULL_L0:   69,       // 扶養0人の全部支給限度額
+  FUYO_STOP_L0:   208,      // 扶養0人の一部支給限度額（＝これ以上で不支給）
+  FUYO_PER_DEP:   38,
+  IKUSEI:      1.35,        // 万円/月 東京都児童育成手当
+  HOIKU_BASE:     3.0,      // 万円/月 0〜2歳の保育料・国の基準の標準的な額の目安（所得割48,600〜97,000円未満の階層・標準時間）
+  HOIKU_HITORI:   0.9,      // 万円/月 ひとり親世帯等・所得割77,101円未満の第1子の上限（施行令4条2項）
+  HOIKU_HITORI_L: 7.7101,   // 万円   上の軽減が使える市町村民税所得割の上限
+  HIKA_MAX:    135,         // 万円   非課税合計所得ライン（ひとり親特例・地方税法295条）
+  // 国民年金免除：所得ライン（万円・ひとり親子1人目安）と免除割合
+  NEN_LINES:  [102, 126, 166, 206],
+  NEN_HITORI: 135,          // 万円 ひとり親は前年所得135万円以下なら全額免除（日本年金機構「年金制度説明会資料」2026・国民年金法施行令）
+  NEN_LABELS: ['全額免除', '3/4免除', '半額免除', '1/4免除'],
+  NEN_RATIO:  [1, 0.75, 0.5, 0.25],
+  NEN_FUTURE_LABEL: ['1/2', '5/8', '3/4', '7/8'],
+  NEN_REFLECT: [1/2, 5/8, 3/4, 7/8]  // 免除期間の基礎年金反映率（平成21年4月以降）
+};
+
+var PENSION = {
+  KISO_FULL_Y: 84.73,       // 万円/年 老齢基礎年金 満額（令和8年度・昭和31年4月2日以降生まれ）
+  KOUSEI_RATE: 5.481 / 1000,// 厚生年金 報酬比例乗率（平成15年4月以降）
+  KISO_MAX_M:  480          // 基礎年金の上限月数（40年）
+};
+
+// 給与所得控除（万円）: 最低保障は所得年により異なる
+function kyuyoKojo(inc, year) {
+  var min = yearRule(year).kojoMin;
+  var kojo;
+  if (inc <= 180)      kojo = inc * 0.40 - 10;
+  else if (inc <= 360) kojo = inc * 0.30 + 8;
+  else if (inc <= 660) kojo = inc * 0.20 + 44;
+  else                 kojo = 164;
+  return Math.max(kojo, min);
+}
+
+// 合計所得（万円）
+function sogoShotoku(inc, year) {
+  return Math.max(inc - kyuyoKojo(inc, year), 0);
+}
+
+// 住民税非課税判定（ひとり親特例：合計所得135万以下）
+function isHikazei(inc, year) {
+  return sogoShotoku(inc, year) <= K.HIKA_MAX;
+}
+
+// 国民年金免除段階（自営・無職のみ）
+function nenkinExempt(inc, year) {
+  var sogo = sogoShotoku(inc, year);
+  if (sogo <= K.NEN_HITORI) {
+    return { label: K.NEN_LABELS[0], saving: K.PENSION_M * K.NEN_RATIO[0], idx: 0 };
+  }
+  for (var i = 0; i < K.NEN_LINES.length; i++) {
+    if (sogo <= K.NEN_LINES[i]) {
+      return { label: K.NEN_LABELS[i], saving: K.PENSION_M * K.NEN_RATIO[i], idx: i };
+    }
+  }
+  return { label: '対象外（全額支払い）', saving: 0, idx: 4 };
+}
+
+// 免除段階idx → 基礎年金反映率（対象外=全額納付は満額反映）
+function nenkinReflectRate(idx) {
+  return idx < 4 ? K.NEN_REFLECT[idx] : 1;
+}
+
+// 児童扶養手当の「手当所得」（万円）
+// = 合計所得 − 8万（社保相当の一律控除）− 10万（給与・年金所得の追加控除）+ 養育費×0.8（年額換算）
+// 養育費のマイナス入力は0に丸める（マイナスだと手当所得が下がり手当が過大になるため）
+function calcTeateSoto(inc, aliM, year) {
+  return sogoShotoku(inc, year) - 18 + Math.max(aliM, 0) * 0.8 * 12;
+}
+
+// 児童扶養手当月額（万円）。childCnt=手当対象の子（18歳年度末まで）の人数＝扶養親族数として扱う
+function calcFuyo(inc, childCnt, aliM, year) {
+  if (childCnt <= 0) return 0;
+  var ts    = calcTeateSoto(inc, aliM, year);
+  var fullL = K.FUYO_FULL_L0 + K.FUYO_PER_DEP * childCnt;  // 全部支給の所得限度額
+  var stopL = K.FUYO_STOP_L0 + K.FUYO_PER_DEP * childCnt;  // 一部支給の所得限度額
+  var first = 0, add = 0;
+  var extraCnt = childCnt - 1;
+  if (ts < fullL) {
+    first = K.FUYO_FULL;
+    add   = K.FUYO_2ND * extraCnt;
+  } else if (ts < stopL) {
+    var over = ts - fullL;
+    first = Math.max(K.FUYO_PART_BASE - over * K.FUYO_RATE1, K.FUYO_MIN);
+    add   = Math.max(K.FUYO_2ND_BASE  - over * K.FUYO_RATE2, K.FUYO_2ND_MIN) * extraCnt;
+  }
+  return first + add;
+}
+
+// 最年少の子の年齢 → 表示バンド
+function bandOfAge(age) {
+  if (age <= 3)  return 'A';
+  if (age <= 12) return 'B';
+  if (age <= 18) return 'C';
+  return 'E';
+}
+
+// メインシミュレーション（1年分の断面）
+// o = { year, childBand, childCnt, workType, aliM, pref, kokoCnt(optional),
+//       nenApplied(optional): 国民年金の免除・猶予を申請済みか。省略時=true（将来推計のシナリオ用） }
+function simulate(inc, o) {
+  var year   = o.year || CURRENT_INCOME_YEAR;
+  var sogo   = sogoShotoku(inc, year);
+  var hikaze = isHikazei(inc, year);
+  var gross  = inc / 12;
+  var nenApplied = (o.nenApplied !== false);
+
+  // --- 社会保険料（月額・万円）---
+  var shakaiM, nenkin;
+  if (o.workType === 'employee') {
+    // 健保4.99% + 厚生年金9.15% + 雇用保険0.6% ≈ 14.74%
+    shakaiM = inc * 0.1474 / 12;
+    nenkin  = null;
+  } else {
+    nenkin = nenkinExempt(inc, year);  // 所得から見た免除の「対象目安」（申請していなければ適用されない）
+    var kokuhoM = Math.max(inc * 0.08, 6) / 12; // 国保概算（軽減考慮）
+    // 社保は全額納付ベースで控除し、免除の節約分は nenkinSaving（＋行）でのみ加算する（二重計上防止）
+    shakaiM = kokuhoM + K.PENSION_M;
+  }
+
+  var shakaiY = shakaiM * 12;
+
+  // --- 住民税（月額・万円）---
+  var yr = yearRule(year);
+  var juminKajo = Math.max(sogo - 43 - yr.hitoriJ - shakaiY, 0); // 基礎控除43+ひとり親(住民税)
+  var juminM    = hikaze ? 0 : (juminKajo * 0.10 + (juminKajo > 0 ? 0.5 : 0)) / 12;
+
+  // --- 所得税（月額・万円）---
+  var shotokuKajo = Math.max(sogo - shotokuKiso(sogo, year) - yr.hitoriS - shakaiY, 0); // 基礎控除(年別)+ひとり親(所得税)
+  var shotokuM = 0;
+  if (shotokuKajo > 0) {
+    var tax;
+    if (shotokuKajo <= 195)      tax = shotokuKajo * 0.05;
+    else if (shotokuKajo <= 330) tax = shotokuKajo * 0.10 - 9.75;
+    else                          tax = shotokuKajo * 0.20 - 42.75;
+    shotokuM = Math.max(tax, 0) / 12;
+  }
+
+  // --- 給与手取り（月額・万円）---
+  var netSalary = Math.max(gross - shakaiM - shotokuM - juminM, 0);
+
+  // --- 給付類 ---
+  var fuyo = calcFuyo(inc, o.childCnt, o.aliM, year);
+
+  var nenkinSaving = (nenkin && nenApplied) ? nenkin.saving : 0;
+
+  // 保育料の軽減（0〜2歳児クラス）＝「国の基準の標準的な額（月3万）」との差。課税・非課税の差を正しく出すための値
+  //   非課税＝0円／ひとり親で市町村民税所得割7.7101万円未満＝第1子は上限0.9万・第2子以降0円（子ども・子育て支援法施行令4条2項・14条）
+  //   東京都＝区市町村の第1子無償化（2025年9月〜・所得制限なし）を都が支援 → 0円とみなす
+  var hoiku = 0;
+  if (o.childBand === 'A') {
+    var hoikuCost;
+    if (hikaze || o.pref === 'tokyo')           hoikuCost = 0;
+    else if (juminKajo * 0.06 < K.HOIKU_HITORI_L) hoikuCost = (o.childCnt >= 2) ? 0 : K.HOIKU_HITORI;
+    else                                          hoikuCost = K.HOIKU_BASE;
+    hoiku = K.HOIKU_BASE - hoikuCost;
+  }
+
+  // 東京都児童育成手当（所得306万以下・月1.35万）
+  var ts     = calcTeateSoto(inc, o.aliM, year);
+  var ikusei = (o.pref === 'tokyo' && ts <= 306 && o.childCnt > 0) ? K.IKUSEI : 0;
+
+  // 高校就学支援金（公立・年118,800円→月換算）。kokoCnt未指定なら中高生バンドで1人分
+  var kokoCnt   = (o.kokoCnt != null) ? o.kokoCnt : (o.childBand === 'C' ? 1 : 0);
+  var kokoShien = kokoCnt * 11.88 / 12;
+
+  var totalBenefit = fuyo + nenkinSaving + hoiku + ikusei + kokoShien;
+  var total        = netSalary + totalBenefit;
+
+  return {
+    inc: inc, year: year, sogo: sogo, hikaze: hikaze,
+    gross: gross, netSalary: netSalary,
+    shakaiM: shakaiM, shotokuM: shotokuM, juminM: juminM,
+    fuyo: fuyo, nenkin: nenkin, nenkinSaving: nenkinSaving, nenkinApplied: nenApplied,
+    hoiku: hoiku, ikusei: ikusei, kokoShien: kokoShien,
+    totalBenefit: totalBenefit, total: total,
+    juminKajo: juminKajo, ts: ts
+  };
+}
+
+// グラフ用データ生成（100〜350万、5万刻み）
+// 非課税ライン（209万等）は5万刻みに乗らないので、崖の頂点を正確に描くため必ず点を足す
+function genData(o) {
+  var line = yearRule(o.year || CURRENT_INCOME_YEAR).hikazeiLine;
+  var incomes = [];
+  for (var inc = 100; inc <= 350; inc += 5) incomes.push(inc);
+  if (incomes.indexOf(line) === -1) {
+    incomes.push(line);
+    incomes.sort(function(a, b) { return a - b; });
+  }
+  return incomes.map(function(inc) {
+    var r = simulate(inc, o);
+    return { inc: inc, total: r.total, hikaze: r.hikaze };
+  });
+}
+
+// 最適年収（月手取り最大の年収）
+function findOptimal(data) {
+  var best = data[0];
+  for (var i = 1; i < data.length; i++) {
+    if (data[i].total > best.total) best = data[i];
+  }
+  return best.inc;
+}
+
+// ============================================================
+//  将来推計エンジン（v2）
+// ============================================================
+
+// シナリオは「収入（抑える/稼ぐ）×年金（国民年金/厚生年金）」の2軸4象限でMECEに構成する。
+// cfg = {
+//   key: 'A'|'B'|'C'|'D',     表示用キー
+//   incomeMode: 'cap'|'target'|'current',   cap=非課税ラインに抑える / target=目標年収まで稼ぐ / current=今の年収のまま（2026-11-12追加）
+//   pension: 'kokumin'|'kousei',  kokumin=国民年金・国保 / kousei=社会保険（厚生年金）
+//   targetInc,                incomeMode='target' の年収（万円）
+//   parentAge, childAges: [], aliM, pref,
+//   payHist: 'full'|'partial'|'unknown',  これまでの国民年金の納付状況（概算）
+//   kouseiPastY,              これまでの厚生年金加入年数
+//   curInc                    現在の年収（過去の厚生年金報酬の代用）
+// }
+function projectScenario(cfg) {
+  var histRate = { full: 1, partial: 0.7, unknown: 0.8 }[cfg.payHist] || 0.8;
+
+  // 初期年金台帳（20歳→現在）
+  var startM      = Math.min(Math.max(cfg.parentAge - 20, 0) * 12, PENSION.KISO_MAX_M);
+  var kouseiPastM = Math.min((cfg.kouseiPastY || 0) * 12, startM);
+  var kisoM   = startM;                                            // 基礎年金の経過月数
+  var kisoRef = kouseiPastM + (startM - kouseiPastM) * histRate;   // 反映済み月数（厚年期間は満額反映）
+  var kouseiM   = kouseiPastM;
+  var kouseiSal = kouseiPastM * (cfg.curInc / 12);                 // 標準報酬の累計（万円）
+
+  var rows = [], cum = 0;
+  for (var age = cfg.parentAge; age < 65; age++) {
+    var i    = age - cfg.parentAge;
+    var year = CURRENT_INCOME_YEAR + i;
+    var ages = cfg.childAges.map(function(a) { return a + i; });
+    var eligible = ages.filter(function(a) { return a <= 18; }).length;
+    var kokoCnt  = ages.filter(function(a) { return a >= 16 && a <= 18; }).length;
+    var youngest = ages.length ? Math.min.apply(null, ages) : 99;
+
+    var inc      = (cfg.incomeMode === 'cap') ? yearRule(year).hikazeiLine
+                 : (cfg.incomeMode === 'current') ? cfg.curInc : cfg.targetInc;
+    var workType = (cfg.pension === 'kousei') ? 'employee' : 'self';
+    var aliM     = (eligible > 0) ? cfg.aliM : 0;
+
+    var r = simulate(inc, {
+      year: year, childBand: bandOfAge(youngest), childCnt: eligible,
+      workType: workType, aliM: aliM, pref: cfg.pref, kokoCnt: kokoCnt
+    });
+
+    // --- 年金積算 ---
+    if (cfg.pension === 'kousei') {
+      if (age < 60 && kisoM < PENSION.KISO_MAX_M) { kisoM += 12; kisoRef += 12; }
+      kouseiM += 12; kouseiSal += inc;             // 12ヶ月×(inc/12)＝inc
+    } else {
+      if (age < 60 && kisoM < PENSION.KISO_MAX_M) {
+        var rate = r.nenkin ? nenkinReflectRate(r.nenkin.idx) : 1;
+        kisoM += 12; kisoRef += 12 * rate;
+      }
+    }
+
+    var net = r.total * 12;
+    cum += net;
+    rows.push({ age: age, year: year, inc: inc, eligible: eligible,
+                net: net, cum: cum, fuyo: r.fuyo, hikaze: r.hikaze });
+  }
+
+  // --- 65歳時点の年金（万円/年）---
+  var kiso    = PENSION.KISO_FULL_Y * Math.min(kisoRef, PENSION.KISO_MAX_M) / PENSION.KISO_MAX_M;
+  var kousei  = kouseiSal * PENSION.KOUSEI_RATE;  // (累計報酬/月数)×乗率×月数 = 累計報酬×乗率
+  var pensionY = kiso + kousei;
+
+  // --- 65〜90歳の累積（年金のみ）---
+  var post = [];
+  for (var a = 65; a <= 90; a++) { cum += pensionY; post.push({ age: a, cum: cum }); }
+
+  return {
+    type: cfg.key, rows: rows, post: post,
+    kiso: kiso, kousei: kousei, pensionY: pensionY, pensionM: pensionY / 12,
+    cumAt90: cum
+  };
+}
+
+// 4シナリオを生成（収入2択 × 年金2択 = MECE）
+function buildScenarios(input) {
+  var base = {
+    parentAge: input.parentAge, childAges: input.childAges,
+    aliM: input.aliM, pref: input.pref,
+    payHist: input.payHist, kouseiPastY: input.kouseiPastY, curInc: input.curInc,
+    targetInc: input.targetInc
+  };
+  function mk(key, incomeMode, pension) {
+    var cfg = {};
+    for (var k in base) cfg[k] = base[k];
+    cfg.key = key; cfg.incomeMode = incomeMode; cfg.pension = pension;
+    return projectScenario(cfg);
+  }
+  return [
+    mk('A', 'cap',    'kokumin'),
+    mk('B', 'cap',    'kousei'),
+    mk('C', 'target', 'kokumin'),
+    mk('D', 'target', 'kousei')
+  ];
+}
+
+// 「今のまま」：今の年収を65歳まで続けた場合（2026-11-12追加）。年金は今の働き方で決める（会社員＝厚生年金、それ以外＝国民年金）
+// 4シナリオのグラフには入れず、「今のままと比べると」のカードでだけ使う
+function buildCurrentScenario(input, curPension) {
+  var cfg = {};
+  for (var k in input) cfg[k] = input[k];
+  cfg.key = 'NOW'; cfg.incomeMode = 'current'; cfg.pension = curPension || 'kokumin';
+  return projectScenario(cfg);
+}
+// 今のままとの差の区分（±50万円未満は「ほぼ同じ」）
+var CUR_SAME_BAND = 50;
+function diffClass(diff) { return Math.abs(diff) < CUR_SAME_BAND ? 'same' : (diff > 0 ? 'up' : 'down'); }
+
+// シナリオの累積額を年齢で引く（rows＋post合成）
+function cumAtAge(sc, age) {
+  var all = sc.rows.concat(sc.post);
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].age === age) return all[i].cum;
+  }
+  return null;
+}
+
+// x と y の累積の関係。{ type: 'lead'（最初の年からxが多い）| 'cross'（途中でxが追い抜く）| 'never'（90歳までyが上）, age }
+function compareCum(x, y) {
+  var start = x.rows.length ? x.rows[0].age : 65;
+  var behind = false;
+  for (var age = start; age <= 90; age++) {
+    var cx = cumAtAge(x, age), cy = cumAtAge(y, age);
+    if (cx == null || cy == null) continue;
+    if (cx > cy) return behind ? { type: 'cross', age: age } : { type: 'lead', age: age };
+    behind = true;
+  }
+  return { type: 'never', age: null };
+}
+
+// x が y を累積で「追い抜く」年齢。最初の年から x が多い場合と、追い抜かない場合は null
+function findBreakEven(x, y) {
+  var c = compareCum(x, y);
+  return c.type === 'cross' ? c.age : null;
+}
+
+// お金のイベント年表を生成
+function buildTimeline(input) {
+  var ev = [];
+  var y0 = CURRENT_INCOME_YEAR;
+  input.childAges.forEach(function(a, idx) {
+    var nth = (idx + 1) + '人目';
+    if (a < 16) ev.push({ year: y0 + (16 - a), text: nth + 'が高校進学ごろ。授業料は就学支援金で実質無償（所得制限なし）。教科書代等の「奨学給付金」（年14〜15万円）は非課税世帯のみ' });
+    if (a < 19) ev.push({ year: y0 + (18 - a), text: nth + 'が18歳。年度末で児童扶養手当の対象外に。大学等に進むなら「修学支援新制度」があり、非課税世帯なら授業料の全額免除と給付奨学金の対象になる目安です（成績などの要件もあります。所得は進学前年までで見ます）' });
+  });
+  if (input.childAges.length) {
+    var youngest = Math.min.apply(null, input.childAges);
+    if (youngest < 19) ev.push({ year: y0 + (18 - youngest), text: '末子18歳の年度末で児童扶養手当が完全に終了。ここから先は「手当込みの手取り」が使えなくなる転換点' });
+  }
+  ev.push({ year: 2028, text: '非課税ラインの特例が終了（209万円→204万円）。ライン際で調整している場合は要注意' });
+  ev.push({ year: y0 + (65 - input.parentAge), text: 'あなたが65歳。年金受給開始（金額は上のシナリオ比較を参照）' });
+  ev.sort(function(a, b) { return a.year - b.year; });
+  return ev;
+}
+
+// ===ENGINE-END===
+
+// ============================================================
+//  グラフ（v1 から写し、横軸の範囲と文字の大きさだけ v2 用に変えたもの）
+// ============================================================
+var CHART_MAX = 350, CHART_TICKS = [100, 200, 300];
+// ============================================================
+//  CHART（いまタブ：年収〜手取り）
+// ============================================================
+function drawChart(canvas, data, curInc, optInc, zoneEnd) {
+  var container = canvas.parentElement;
+  var W   = container ? container.clientWidth : 340;
+  var H   = 210;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  var pad = { top: 28, right: 18, bottom: 38, left: 50 };
+  var cW  = W - pad.left - pad.right;
+  var cH  = H - pad.top  - pad.bottom;
+
+  var incMin = 100, incMax = CHART_MAX;
+  var totals = data.map(function(d){ return d.total; });
+  var yMin   = Math.max(Math.min.apply(null, totals) * 0.90, 0);
+  var yMax   = Math.max.apply(null, totals) * 1.08;
+
+  function toX(inc)   { return pad.left + (inc - incMin) / (incMax - incMin) * cW; }
+  function toY(total) { return pad.top  + (1 - (total - yMin) / (yMax - yMin)) * cH; }
+
+  var line = yearRule(CURRENT_INCOME_YEAR).hikazeiLine;
+
+  // 逆転ゾーン背景（非課税ライン〜手取りがライン時を再び上回る年収まで。回復しなければ右端まで）
+  var zEnd = Math.min(zoneEnd || incMax, incMax);
+  ctx.fillStyle = C.critL;
+  ctx.fillRect(toX(line), pad.top, toX(zEnd) - toX(line), cH);
+
+  // グリッド横線
+  ctx.strokeStyle = C.grid;
+  ctx.lineWidth = 1;
+  var gridVals = [];
+  var step = (yMax - yMin) > 12 ? 5 : 2;
+  for (var y = Math.ceil(yMin / step) * step; y <= yMax; y += step) {
+    gridVals.push(y);
+  }
+  gridVals.forEach(function(y) {
+    var cy = toY(y);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, cy);
+    ctx.lineTo(W - pad.right, cy);
+    ctx.stroke();
+    ctx.fillStyle = C.ink3;
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(y + '万', pad.left - 4, cy + 3.5);
+  });
+
+  // 非課税ライン縦破線
+  ctx.strokeStyle = C.ink2;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(toX(line), pad.top);
+  ctx.lineTo(toX(line), pad.top + cH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = C.ink2;
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(line + '万', toX(line), pad.top - 6);
+
+  // X軸ラベル（両端は内側に寄せて見切れを防ぐ）
+  ctx.fillStyle = C.ink3;
+  ctx.font = '12px sans-serif';
+  CHART_TICKS.forEach(function(inc) {
+    ctx.textAlign = (inc === incMin) ? 'left' : (inc === incMax) ? 'right' : 'center';
+    ctx.fillText(inc + '万', toX(inc), H - pad.bottom + 15);
+  });
+
+  // 折れ線（黒インク）
+  ctx.beginPath();
+  ctx.strokeStyle = C.ink;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  data.forEach(function(d, i) {
+    if (i === 0) ctx.moveTo(toX(d.inc), toY(d.total));
+    else          ctx.lineTo(toX(d.inc), toY(d.total));
+  });
+  ctx.stroke();
+
+  // 点を打つ共通処理（黒フチ＋ブランド色の塗り＝直接ラベル付き）
+  function marker(d, fill, label) {
+    ctx.beginPath();
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = C.ink;
+    ctx.lineWidth = 2;
+    ctx.arc(toX(d.inc), toY(d.total), 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = C.ink;
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, toX(d.inc), toY(d.total) + 3);
+  }
+
+  // 非課税の上限（＝手取りの山・ミント）
+  var optD = null;
+  data.forEach(function(d){ if (d.inc === optInc) optD = d; });
+  if (optD) marker(optD, C.mint, 'ライン');
+
+  // 現在地（ブランド黄）
+  var roundedCur = Math.round(curInc / 5) * 5;
+  var curD = null;
+  data.forEach(function(d){ if (d.inc === roundedCur) curD = d; });
+  if (curD && curD.inc !== optInc) marker(curD, C.brand, '今');
+}
+
+// ============================================================
+//  CHART（これからタブ：累積手取り3本線）
+// ============================================================
+// みくブランドに寄せた「2色 × 線種・しま」の複合符号化（2026-07-16 4色→2色に変更）。
+// 主決定＝収入の軸を「色」に振る（A,B,C,Dの並びと色のまとまりを一致させる）：
+//   抑える=ティール（ミントの濃色）／稼ぐ=そらいろ（サムネシリーズの次色）
+// 副決定＝年金の軸を「線種・しま」に振る：国民年金=実線・ベタ／厚生年金=破線・しま
+//   → 年金月額の棒グラフで「しま＝厚生年金だけ高い」が模様で読める。
+// 2色は dataviz validate_palette.js 全チェック合格（deutan ΔE 70.4・コントラスト3:1以上）。
+// 終点のA〜D直接ラベル・凡例・テキスト要約でも識別できる（色だけに意味を持たせない）。
+var SC_STYLE = {
+  A: { color: '#0f8a5f', dash: [],     swatch: 'solid',  stripe: false, label: 'A 抑える（国民年金）' },
+  B: { color: '#0f8a5f', dash: [7, 4], swatch: 'dashed', stripe: true,  label: 'B 抑える（厚生年金）' },
+  C: { color: '#2a78d6', dash: [],     swatch: 'solid',  stripe: false, label: 'C 稼ぐ（国民年金）' },
+  D: { color: '#2a78d6', dash: [7, 4], swatch: 'dashed', stripe: true,  label: 'D 稼ぐ（厚生年金）' }
+};
+
+// キャンバス描画用のブランド色（CSSの :root と対応させる）
+var C = {
+  brand: '#FFD93D',
+  mint:  '#C3F5E7',
+  ink:   '#1A1A1A',
+  ink2:  '#5C5A55',
+  ink3:  '#8F8A7E',
+  grid:  '#EFEBE0',
+  crit:  '#d03b3b',
+  critL: 'rgba(208,59,59,0.10)',
+  white: '#ffffff'
+};
+
+function drawFutureChart(canvas, scenarios, parentAge) {
+  var container = canvas.parentElement;
+  var W   = container ? container.clientWidth : 340;
+  var H   = 240;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  var pad = { top: 20, right: 26, bottom: 34, left: 68 };  // rightは終点の直接ラベル（A〜D）の分
+  var cW  = W - pad.left - pad.right;
+  var cH  = H - pad.top  - pad.bottom;
+
+  var ageMin = parentAge, ageMax = 90;
+  var yMax = 0;
+  scenarios.forEach(function(s) { if (s.cumAt90 > yMax) yMax = s.cumAt90; });
+  yMax *= 1.05;
+
+  function toX(age) { return pad.left + (age - ageMin) / (ageMax - ageMin) * cW; }
+  function toY(v)   { return pad.top  + (1 - v / yMax) * cH; }
+
+  // グリッド横線（2000万刻み目安）
+  var step = yMax > 12000 ? 4000 : yMax > 6000 ? 2000 : 1000;
+  ctx.strokeStyle = C.grid;
+  ctx.lineWidth = 1;
+  for (var v = step; v <= yMax; v += step) {
+    var cy = toY(v);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, cy);
+    ctx.lineTo(W - pad.right, cy);
+    ctx.stroke();
+    ctx.fillStyle = C.ink3;
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText((v >= 10000 ? (v / 10000).toFixed(1) + '億' : v.toLocaleString() + '万'), pad.left - 4, cy + 3.5);
+  }
+
+  // 65歳の縦破線（年金開始）
+  ctx.strokeStyle = C.ink2;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(toX(65), pad.top);
+  ctx.lineTo(toX(65), pad.top + cH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = C.ink2;
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('65歳 年金開始', toX(65), pad.top - 6);
+
+  // X軸ラベル（右端は内側に寄せて見切れを防ぐ）
+  ctx.fillStyle = C.ink3;
+  ctx.font = '12px sans-serif';
+  for (var age = Math.ceil(ageMin / 10) * 10; age <= 90; age += 10) {
+    ctx.textAlign = (age === 90) ? 'right' : 'center';
+    if (age !== 80 || ageMax - ageMin < 40) ctx.fillText(age + '歳', toX(age), H - pad.bottom + 15);   // v2：文字を大きくしたので、80歳は90歳と重なるとき省く
+  }
+
+  // 4本の線（色＋線種の二重符号化。凡例とテキスト要約も併記してある）
+  scenarios.forEach(function(s) {
+    var st = SC_STYLE[s.type];
+    var pts = s.rows.concat(s.post);
+    ctx.beginPath();
+    ctx.strokeStyle = st.color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.setLineDash(st.dash);
+    pts.forEach(function(p, i) {
+      if (i === 0) ctx.moveTo(toX(p.age), toY(p.cum));
+      else          ctx.lineTo(toX(p.age), toY(p.cum));
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // 終点に直接ラベル（凡例と往復させない）
+  scenarios.forEach(function(s) {
+    var st  = SC_STYLE[s.type];
+    var end = s.post[s.post.length - 1];
+    if (!end) return;
+    ctx.fillStyle = st.color;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.type, toX(90) + 4, toY(end.cum) + 4);
+  });
+}
+
+
+
+// ============================================================
+//  v2 の画面
+// ============================================================
+function fmt1(v) { return v.toFixed(1); }
+function fmtMan(v) { return (v == null || v < 0.05) ? '—' : fmt1(v) + '万円'; }
+function minus(v) { return v < 0.05 ? '—' : '−' + fmt1(v) + '万円'; }
+function fmtManInt(v) { return Math.round(v).toLocaleString() + '万円'; }
+function info(text) { return '<details class="i"><summary>i</summary><span class="pop">' + text + '</span></details>'; }
+var V2NAME = { A: '抑える＋国民年金', B: '抑える＋厚生年金', C: '稼ぐ＋国民年金', D: '稼ぐ＋厚生年金' };
+
+var S = {
+  income: 180, workType: 'employee', nenApplied: 'no',
+  kids: [2], ali: 'no', aliAmt: 3, pref: 'other',
+  parentAge: 35, payHist: 'full', kouseiY: 0,
+  target: null   // 「稼ぐ」ときの年収。null＝今の年収＋50万円
+};
+var lastNow = null, lastFuture = null;
+
+// ── 入力のつなぎ込み
+function setPct(el) {
+  var pct = (Number(el.value) - Number(el.min)) / (Number(el.max) - Number(el.min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
+}
+function bindRange(id, valId, key) {
+  var el = document.getElementById(id), out = document.getElementById(valId);
+  function up() { S[key] = Number(el.value); out.textContent = el.value; setPct(el); }
+  el.addEventListener('input', up); up();
+}
+bindRange('inc', 'incV', 'income');
+bindRange('age', 'ageV', 'parentAge');
+
+document.querySelectorAll('[data-grp]').forEach(function(g) {
+  var key = g.getAttribute('data-grp');
+  g.querySelectorAll('.b').forEach(function(b) {
+    b.addEventListener('click', function() {
+      g.querySelectorAll('.b').forEach(function(x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      var v = b.getAttribute('data-v');
+      S[key] = (key === 'kouseiY') ? Number(v) : v;
+      if (key === 'workType') document.getElementById('nenQ').hidden = (v === 'employee');
+      if (key === 'ali') document.getElementById('aliIn').hidden = (v !== 'yes');
+    });
+  });
+});
+
+var aliSel = document.getElementById('aliAmt');
+for (var a = 1; a <= 15; a++) aliSel.innerHTML += '<option value="' + a + '"' + (a === 3 ? ' selected' : '') + '>' + a + '</option>';
+aliSel.addEventListener('change', function() { S.aliAmt = Number(aliSel.value); });
+
+// お子さん（最大4人。年齢は0〜22歳）
+function renderKids() {
+  var box = document.getElementById('kids'), h = '';
+  S.kids.forEach(function(age, i) {
+    var opts = '';
+    for (var y = 0; y <= 22; y++) opts += '<option value="' + y + '"' + (y === age ? ' selected' : '') + '>' + y + '歳</option>';
+    h += '<span class="kid"><select data-i="' + i + '">' + opts + '</select>' +
+      (S.kids.length > 1 ? '<button class="x" data-i="' + i + '" aria-label="消す">×</button>' : '') + '</span>';
+  });
+  if (S.kids.length < 4) h += '<button class="kid-add" id="kidAdd">＋ 追加</button>';
+  box.innerHTML = h;
+  box.querySelectorAll('select').forEach(function(s) {
+    s.addEventListener('change', function() { S.kids[Number(s.getAttribute('data-i'))] = Number(s.value); });
+  });
+  box.querySelectorAll('.x').forEach(function(x) {
+    x.addEventListener('click', function() { S.kids.splice(Number(x.getAttribute('data-i')), 1); renderKids(); });
+  });
+  var add = document.getElementById('kidAdd');
+  if (add) add.addEventListener('click', function() { S.kids.push(Math.max.apply(null, S.kids) + 2 > 22 ? 22 : Math.max.apply(null, S.kids) + 2); renderKids(); });
+}
+renderKids();
+
+// ── 画面の切り替え
+function show(n) {
+  [1, 2, 3].forEach(function(i) {
+    document.getElementById('scr' + i).hidden = (i !== n);
+    document.getElementById('pg' + i).classList.toggle('on', i <= n);
+  });
+  document.getElementById('pgT').textContent = ['', 'STEP 1 / 3　いまのこと', 'STEP 2 / 3　これまでの年金', 'STEP 3 / 3　まとめ（スクショで保存できます）'][n];
+  document.getElementById('ttl').textContent = (n === 3) ? 'あなたの結果' : '手取りシミュレーター';
+  window.scrollTo(0, 0);
+}
+document.getElementById('toS2').addEventListener('click', function() { show(2); track('step', 'future'); });
+document.getElementById('back1').addEventListener('click', function() { show(1); });
+document.getElementById('toRes').addEventListener('click', function() { S.target = null; showResult(); });
+
+// ── 計算
+function aliM() { return S.ali === 'yes' ? S.aliAmt : 0; }
+function kidInfo() {
+  var ages = S.kids.slice();
+  var youngest = ages.length ? Math.min.apply(null, ages) : 99;
+  return {
+    ages: ages, youngest: youngest, band: bandOfAge(youngest),
+    elig: ages.filter(function(a) { return a <= 18; }).length,
+    koko: ages.filter(function(a) { return a >= 16 && a <= 18; }).length
+  };
+}
+function nowOpts() {
+  var k = kidInfo();
+  return { year: CURRENT_INCOME_YEAR, childBand: k.band, childCnt: k.elig, workType: S.workType,
+    aliM: aliM(), pref: S.pref, kokoCnt: k.koko,
+    nenApplied: (S.workType !== 'employee') && (S.nenApplied === 'yes') };
+}
+// グラフと「再び上回る年収」用。100万円〜max まで5万円刻み＋非課税ライン
+function genDataV2(o, max) {
+  var line = yearRule(o.year || CURRENT_INCOME_YEAR).hikazeiLine, incs = [];
+  for (var i = 100; i <= max; i += 5) incs.push(i);
+  if (incs.indexOf(line) === -1) { incs.push(line); incs.sort(function(a, b) { return a - b; }); }
+  return incs.map(function(inc) { var r = simulate(inc, o); return { inc: inc, total: r.total, hikaze: r.hikaze }; });
+}
+function computeNow() {
+  var inc = S.income, o = nowOpts(), k = kidInfo();
+  var line = yearRule(CURRENT_INCOME_YEAR).hikazeiLine;
+  var r = simulate(inc, o);
+  var lineTotal = simulate(line, o).total;
+  var data = genDataV2(o, 600), crossInc = null;
+  for (var i = 0; i < data.length; i++) { if (data[i].inc > line && data[i].total > lineTotal) { crossInc = data[i].inc; break; } }
+  var st = r.hikaze ? ((line - inc) <= 30 ? 'near' : 'hikazei') : ((crossInc === null || inc < crossInc) ? 'gyaku' : 'over');
+  var fl = ['w_' + S.workType, 'c_' + k.band];
+  if (!(aliM() > 0)) fl.push('noali');
+  if (k.band === 'C') fl.push('kyoiku');
+  return { inc: inc, o: o, r: r, line: line, lineTotal: lineTotal, crossInc: crossInc, st: st, fl: fl, data: data };
+}
+function targetInc() { return S.target != null ? S.target : Math.min(S.income + 50, 600); }
+function futureInput() {
+  var pa = S.parentAge;
+  return { parentAge: pa, childAges: S.kids.slice(), aliM: aliM(), pref: S.pref,
+    payHist: S.payHist, kouseiPastY: Math.min(S.kouseiY, Math.max(pa - 18, 0)),
+    curInc: S.income, targetInc: targetInc() };
+}
+function computeFuture(input) {
+  var scenarios = buildScenarios(input);
+  var cmp = compareCum(scenarios[3], scenarios[0]);
+  var byCash = scenarios.slice().sort(function(a, b) { return b.rows[b.rows.length - 1].cum - a.rows[a.rows.length - 1].cum; });
+  var fl = lastNow ? lastNow.fl.slice() : [];
+  if (byCash[0].type === 'C' || byCash[0].type === 'D') fl.push('kasegu');
+  if (input.payHist !== 'full') fl.push('nenkin');
+  var ages = input.childAges;
+  var youngest = ages.length ? Math.min.apply(null, ages) : 99, oldest = ages.length ? Math.max.apply(null, ages) : 0;
+  if ((oldest >= 12 || (youngest < 19 && 18 - youngest <= 5)) && fl.indexOf('kyoiku') === -1) fl.push('kyoiku');
+  var current = buildCurrentScenario(input, S.workType === 'employee' ? 'kousei' : 'kokumin');
+  return { input: input, scenarios: scenarios, current: current, cmpDA: cmp.type, beDA: (cmp.type === 'cross') ? cmp.age : null, fl: fl };
+}
+function curCompareRows(fd) {
+  var cur = fd.current.cumAt90;
+  return fd.scenarios.map(function(sc) { return { sc: sc, diff: Math.round(sc.cumAt90 - cur) }; })
+    .sort(function(a, b) { return b.diff - a.diff; });
+}
+
+// ── ほめる（答えから3つまで。収入の多い少ないは評価しない）
+function praiseLines() {
+  var k = kidInfo(), out = [];
+  var who = (S.kids.length >= 2) ? S.kids.length + '人のお子さん' : (k.youngest <= 18 ? k.youngest + '歳のお子さん' : 'お子さん');
+  var work = { employee: '社保ありで働いています', part: 'パートで働いています', self: '自営業で働いています', none: 'いまは家庭を一番にしています' }[S.workType];
+  out.push(who + 'を育てながら、' + work);
+  if (S.payHist === 'full') out.push('年金をコツコツ払ってきました。将来の年金にちゃんと積み上がっています');
+  else if (S.payHist === 'partial') out.push('大変な時期も、ここまで続けてきました');
+  else if (S.kouseiY > 0) out.push('会社員として働いた期間が、厚生年金に上乗せされています');
+  out.push(aliM() > 0 ? '養育費をきちんと受け取る形を作れています' : '養育費なしで、1人で家計を支えています');
+  return out.slice(0, 3);
+}
+
+// ── 結果の見出し（状態ごとの札と一言）
+function heroParts(n) {
+  var line = n.line, d;
+  if (n.st === 'gyaku') {
+    d = n.lineTotal - n.r.total;
+    return { chip: '逆転ゾーン', one: '非課税ライン（' + line + '万円）で止めた場合より、月' + fmt1(Math.max(d, 0)) + '万円少なめ',
+      pop: '年収が非課税ラインを超えると、住民税がかかり、手当や保育料の軽減が減るため、手取りが増えにくい帯です。' +
+        (n.crossInc ? 'この条件では、年収約' + n.crossInc + '万円を超えると、' + line + '万円のときを上回る計算です。' : '') };
+  }
+  if (n.st === 'over') {
+    d = n.r.total - n.lineTotal;
+    return { chip: '非課税ラインの上', one: '非課税ライン（' + line + '万円）のときより、月' + fmt1(Math.max(d, 0)) + '万円多い計算です',
+      pop: '逆転ゾーン（非課税ラインを超えて、手取りが一時的に増えにくい帯）は抜けています。この計算では、ここから先は稼ぐほど手取りも増えていきます。' };
+  }
+  if (n.st === 'near') return { chip: '非課税ラインの手前', one: 'あと' + (line - n.inc) + '万円で、非課税ライン（' + line + '万円）です',
+    pop: '住民税が非課税になる上限の年収です（2026・2027年の収入は' + line + '万円）。超えると住民税がかかり、手当や保育料の軽減が減ることがあります。' };
+  return { chip: '住民税 非課税', one: '非課税のまま、あと' + Math.max(line - n.inc, 0) + '万円は年収を増やせる計算です',
+    pop: '住民税が非課税の世帯は、保育料や高額療養費の負担が軽くなり、各種の給付も受けやすくなることが多い区分です。非課税ラインは' + line + '万円（2026・2027年の収入）です。' };
+}
+
+// ── 90歳までの比較の行
+function renderRows(fd) {
+  var c = fd.current, rows = curCompareRows(fd), curTop = diffClass(rows[0].diff) === 'down';
+  var h = '<div class="sr now"><span class="n">' + (curTop ? '<span class="badge">いちばん多い</span>' : '') + 'いまのまま</span>' +
+    '<span class="d">約' + Math.round(c.cumAt90).toLocaleString() + '万</span><span class="s">年収' + S.income + '万円を続けた場合／年金 月' + fmt1(c.pensionM) + '万円</span></div>';
+  rows.forEach(function(r, i) {
+    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up');
+    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万';
+    h += '<div class="sr ' + cls + (top ? ' best' : '') + '"><span class="n">' + V2NAME[r.sc.type] + '</span><span class="d">' + v + '</span>' +
+      '<span class="s">' + (top ? '<span class="badge">いちばん増える</span>' : '') + '年金 月' + fmt1(r.sc.pensionM) + '万円</span></div>';
+  });
+  return h;
+}
+
+// ── 使えるかもしれない制度（v1の「確かめておきたい申請」と同じ中身）
+function buildActions(n) {
+  var r = n.r, line = n.line, k = kidInfo(), a = [];
+  if (r.fuyo > 0.05) a.push(['児童扶養手当', '市区町村の窓口で申請します。申請した月の翌月分から支給されます。必要な書類は、市区町村で確かめてください。']);
+  if (r.nenkin && r.nenkin.idx < 4) {
+    if (!r.nenkinApplied) a.push(['国民年金の「' + r.nenkin.label + '」', 'あなたの所得なら対象の目安です。申請すると、月' + fmt1(r.nenkin.saving) + '万円ほど支払いが減る目安です。年金事務所か市区町村の窓口へ。']);
+    else a.push(['国民年金の免除の続け方', '全額免除は、申請のときに希望すれば翌年度も続けて審査されます。一部免除は毎年度の申請が必要です。']);
+  }
+  if (r.hikaze) a.push(['高額療養費の限度額の認定証', '非課税世帯は、医療費の1か月の上限が約3.5万円になる目安です。市区町村の窓口で取得できます。']);
+  if (k.band === 'A' && r.hikaze) a.push(['0〜2歳の保育料の無償化', '非課税世帯は保育料が無料になります。市区町村への申請が必要です。']);
+  if (S.pref === 'tokyo' && r.ikusei > 0) a.push(['東京都の児童育成手当', '月13,500円。区市町村の窓口で申請します。所得306万円以下が対象の目安です。']);
+  a.push(['ひとり親控除', '所得税35万円・住民税30万円の控除です。給与の方は年末調整で申告します。見落としがちです。']);
+  return a;
+}
+function breakdownTable(n) {
+  var r = n.r, t = '';
+  function tr(l, v) { t += '<tr><td>' + l + '</td><td>' + v + '</td></tr>'; }
+  tr('給与の額面（月）', fmt1(r.gross) + '万円');
+  tr('社会保険料', minus(r.shakaiM));
+  tr('所得税・住民税', minus(r.shotokuM + r.juminM));
+  tr('給与の手取り', fmt1(r.netSalary) + '万円');
+  if (r.fuyo > 0.05) tr('＋ 児童扶養手当', fmtMan(r.fuyo));
+  if (r.nenkinSaving > 0.05) tr('＋ 年金の免除（支払いが減る分）', fmtMan(r.nenkinSaving));
+  if (r.hoiku > 0.05) tr('＋ 保育料の軽減（概算）', fmtMan(r.hoiku));
+  if (r.ikusei > 0.05) tr('＋ 東京都の児童育成手当', fmtMan(r.ikusei));
+  if (r.kokoShien > 0.05) tr('＋ 高校の就学支援金（月にならす）', fmtMan(r.kokoShien));
+  t += '<tr class="sum"><td>合計</td><td>' + fmt1(r.total) + '万円</td></tr>';
+  return '<table class="mini">' + t + '</table>';
+}
+function pensionBars(fd) {
+  var maxP = 0.1, h = '';
+  fd.scenarios.forEach(function(s) { if (s.pensionM > maxP) maxP = s.pensionM; });
+  fd.scenarios.forEach(function(s) {
+    var st = SC_STYLE[s.type];
+    var fill = st.stripe ? 'repeating-linear-gradient(45deg,' + st.color + ' 0 6px, rgba(255,255,255,.6) 6px 9px)' : st.color;
+    h += '<div class="pbar-row"><span>' + s.type + ' ' + V2NAME[s.type] + '</span><div class="pbar-track"><div class="pbar" style="width:' + Math.round(s.pensionM / maxP * 100) + '%;background:' + fill + '"></div></div><b>月' + fmt1(s.pensionM) + '万</b></div>';
+  });
+  return h;
+}
+
+// 相談するときに聞くと良いこと（v1 と同じ）
+function buildAskList(n, f, fl, forFp) {
+  var q = [];
+  var add = function(h, s) { q.push({ h: h, s: s }); };
+  if (n.st === 'gyaku' || n.st === 'near') add('非課税ライン（' + n.line + '万円）に抑えるか、超えて働くか', '手当・保育料・医療費の変わり方も含めて');
+  if (n.st === 'over') add('増えた収入の残し方', '教育費の積み立てと老後の備えに、どう分けるか');
+  if (n.st === 'hikazei') add('教育費と老後のお金の準備', '今の収入で、何から準備していくか');
+  if (fl.indexOf('kasegu') !== -1) add('厚生年金に入る働き方を選ぶか', '収入を増やすとき、社会保険に入るかで年金が変わる');
+  if (fl.indexOf('kyoiku') !== -1) add('教育費をいつまでにいくら準備するか', '子どもの進学の時期に合わせて');
+  if (fl.indexOf('nenkin') !== -1) add('年金の免除・未納の期間を追納するか', '10年以内なら追納できる');
+  if (forFp && fl.indexOf('noali') !== -1) add('もしものときの備え（保険）', '養育費がない前提で、何に入っておくか');
+  if (f && f.input.childAges.length) {
+    var y = Math.min.apply(null, f.input.childAges);
+    if (y < 19) add((CURRENT_INCOME_YEAR + (18 - y)) + '年からの家計', '児童扶養手当が終わったあと、どう回すか');
+  }
+  if (forFp) add('いまの保険の見直し', '今の家計と子どもの年齢に合っているか');
+  return q;
+}
+
+// FP（fp・setsu）の案内は、最初のほめるカードを受ける文にする（2026-11-13 本人決定）
+function renderFpCard(ex, p) {
+  return '<div class="fp"><div class="h">ここまで1人でがんばってきたあなたの家計。次は、プロに応援してもらう番です。</div>' +
+    '<p>教育費や老後のことは、1人で抱えなくて大丈夫。この画面を見せるだけで、あなたに合う進め方をFPと一緒に考えられます。相談は無料です。</p>' +
+    '<a class="cta"' + exitAttrs(ex.main, p) + '>無料でFPに相談してみる →</a>' +
+    '<div class="pr">PR｜外部のサービスのページに移動します</div>' +
+    (ex.sub ? renderSubLink(ex.sub, p) : '') + '</div>';
+}
+
+// ── 結果画面
+function showResult() {
+  lastNow = computeNow();
+  lastFuture = computeFuture(futureInput());
+  var n = lastNow, fd = lastFuture, hp = heroParts(n);
+  var html = '';
+
+  html += '<div class="praise"><div class="ph">まずは、ここまでおつかれさまでした</div>';
+  praiseLines().forEach(function(t) { html += '<div class="pi"><span>★</span>' + t + '</div>'; });
+  html += '<div class="pf">あなたのがんばりを、数字で見てみましょう ↓</div></div>';
+
+  html += '<div class="hero"><div class="k">いまの月の手取り（目安）</div><div class="v">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
+    '<div class="chip ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + ' ' + info(hp.pop) + '</div></div>';
+
+  html += '<div class="sec-t">90歳までの手取りの合計 ' + info('令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。<br>「いまのまま」は、今の年収を65歳まで続けた場合です。手取りは給与の手取り＋手当＋免除で減る支払いの合計で、生活費は引いていません。差が50万円未満なら「ほぼ同じ」としています。') + '</div>';
+  html += '<div class="tgt"><div class="tgt-h">「稼ぐ」ときの年収 ' + info('「稼ぐ」の2つの働き方で使う年収です。最初は今の年収＋50万円にしてあります。動かすと、下の金額がすぐ計算し直されます。') + '</div>' +
+    '<div class="tgt-v"><span id="tgtV">' + targetInc() + '</span><small> 万円</small><span class="tgt-d" id="tgtD"></span></div>' +
+    '<input type="range" id="tgt" min="100" max="600" step="10" value="' + targetInc() + '">' +
+    '<div class="ticks"><span>100万</span><span>350万</span><span>600万</span></div></div>';
+  html += '<div id="rows">' + renderRows(fd) + '</div>';
+
+  var ex = pickExit(n.st, fd.fl, n.inc), forFp = (ex.main === 'fp' || ex.main === 'setsu');
+  var qs = buildAskList(n, fd, fd.fl, forFp);
+  var ask = '';
+  if (qs.length) {
+    ask = '<div class="ask"><div class="h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
+    qs.slice(0, forFp ? 4 : 3).forEach(function(q) { ask += '<div class="it"><i class="bx"></i><span>' + q.h + '</span></div>'; });
+    if (forFp) ask += '<p class="note">この画面をスクショしておくと、相談のときに伝えやすくなります。</p>';
+    ask += '</div>';
+  }
+  html += forFp ? renderFpCard(ex, 'summary') + ask : ask + renderExit(ex, n.st, 'summary');
+
+  var acts = buildActions(n);
+  html += '<details class="fold"><summary>使えるかもしれない制度（' + acts.length + '件）</summary><div class="in">';
+  acts.forEach(function(x) { html += '<div class="act"><b>' + x[0] + '</b>' + x[1] + '</div>'; });
+  html += '</div></details>';
+  html += '<details class="fold"><summary>月の手取りの内訳</summary><div class="in">' + breakdownTable(n) +
+    '<p class="small">税金と社会保険料は概算です。保育料の軽減は、0〜2歳児クラスの国の基準（月3万円前後）との差の目安です。</p></div></details>';
+  html += '<details class="fold" id="fChartNow"><summary>年収と手取りのグラフ</summary><div class="in"><div class="chart-wrap"><canvas id="chartNow"></canvas></div>' +
+    '<p class="small">黄色の●が今の年収、ミントの●が非課税ラインです。赤い帯が逆転ゾーン（年収が増えても手取りが増えにくい帯）です。</p></div></details>';
+  html += '<details class="fold" id="fChartFut"><summary>90歳までの推移と年金</summary><div class="in"><div class="chart-wrap"><canvas id="chartFut"></canvas></div><div class="leg" id="legFut"></div>' +
+    '<div style="margin-top:12px"><b>65歳からの年金（月）</b><div id="penBars"></div></div></div></details>';
+  var tl = buildTimeline(fd.input);
+  if (tl.length) {
+    html += '<details class="fold"><summary>あなたの年表</summary><div class="in">';
+    tl.forEach(function(e) { html += '<div class="tl"><b>' + e.year + '年</b><span>' + e.text + '</span></div>'; });
+    html += '</div></details>';
+  }
+  html += '<button class="back" id="backEdit">← 条件を変える</button>';
+
+  document.getElementById('res').innerHTML = html;
+  show(3);
+  bindResult();
+  track('result', 'now', n.st, n.fl.join(','));
+  track('result', 'future', n.st, fd.fl.join(','));
+}
+
+function bindResult() {
+  var t = document.getElementById('tgt');
+  function upTgt() {
+    S.target = Number(t.value);
+    setPct(t);
+    document.getElementById('tgtV').textContent = t.value;
+    var d = S.target - S.income;
+    document.getElementById('tgtD').textContent = (d === 50 && S.target === Math.min(S.income + 50, 600)) ? 'いま＋50万円' : (d >= 0 ? 'いま＋' + d + '万円' : 'いま−' + (-d) + '万円');
+    lastFuture = computeFuture(futureInput());
+    document.getElementById('rows').innerHTML = renderRows(lastFuture);
+    if (document.getElementById('fChartFut').open) drawFut();
+  }
+  t.addEventListener('input', upTgt);
+  t.addEventListener('change', function() { track('step', 'target'); });
+  upTgt();
+  document.getElementById('fChartNow').addEventListener('toggle', function(e) { if (e.target.open) drawNow(); });
+  document.getElementById('fChartFut').addEventListener('toggle', function(e) { if (e.target.open) drawFut(); });
+  document.getElementById('backEdit').addEventListener('click', function() { show(1); });
+}
+function drawNow() {
+  var n = lastNow;
+  CHART_MAX = (n.inc > 330 || (n.crossInc && n.crossInc > 330)) ? 600 : 350;
+  CHART_TICKS = CHART_MAX === 600 ? [100, 300, 500] : [100, 200, 300];
+  var data = n.data.filter(function(d) { return d.inc <= CHART_MAX; });
+  drawChart(document.getElementById('chartNow'), data, n.inc, n.line, n.crossInc);
+}
+function drawFut() {
+  drawFutureChart(document.getElementById('chartFut'), lastFuture.scenarios, lastFuture.input.parentAge);
+  var leg = '';
+  lastFuture.scenarios.forEach(function(s) { var st = SC_STYLE[s.type]; leg += '<span><i style="border-top-style:' + st.swatch + ';border-color:' + st.color + '"></i>' + s.type + ' ' + V2NAME[s.type] + '</span>'; });
+  document.getElementById('legFut').innerHTML = leg;
+  document.getElementById('penBars').innerHTML = pensionBars(lastFuture);
+}
+
+// ============================================================
+//  出口（v1 から写したもの）
+// ============================================================
+// ===EXIT-START===
+// c＝n8n /webhook/r のmapのキー。null＝まだ公開していない（公開したら c を入れて、n8nのmapにも足す）
+// url＝計測を通さない外部リンク（公的機関など）
+var EXIT_LINKS = {
+  fp:        { c: 'fp',      pr: true, label: 'FPの無料相談を見てみる' },
+  // 2026-11-13 A8 ほけんNaviせつやくん（非課税寄り向けのFP。無職は否認＝収入0には出さない）
+  setsu:     { c: 'setsu',   pr: true, label: 'FPに無料で相談してみる', subText: '保険や教育費の準備は、FPに無料で相談することもできます' },
+  note:      { c: 'note',    label: '無料noteを読む' },
+  yoikuhi:   { c: 'yoikuhi', label: '養育費のnote' },
+  manabi:    { c: 'manabi',  label: '学び直しと給付金のnote' },
+  pos:       { c: null,      label: '有料note「働き方のポジション戦略」' },
+  kyoikumap: { c: null,      label: '有料note「教育費まるごとマップ」' },
+  nenkin:    { url: 'https://www.nenkin.go.jp/n_net/', label: 'ねんきんネットで年金の記録を見る（日本年金機構）' }
+};
+// 結果の状態（st）ごとの主な案内と補助リンク
+var EXIT_BY_ST = {
+  gyaku:   { main: 'fp',   sub: 'pos' },
+  near:    { main: 'pos',  sub: 'setsu' },
+  over:    { main: 'fp',   sub: 'kyoikumap' },
+  hikazei: { main: 'setsu', sub: 'note' }
+};
+// 目印（fl）が付いたときの補助リンク。上ほど優先
+var EXIT_FLAG_SUB = [['noali', 'yoikuhi'], ['kasegu', 'manabi'], ['kyoiku', 'kyoikumap'], ['nenkin', 'nenkin']];
+var EXIT_FP_MIN_INC = 100;   // FPの却下条件「世帯年収100万円以下」には出さない
+// 案内ごとの「この年収（万円）を超えたら出す」。fp＝マネーサファリ（100万円以下は却下）／setsu＝せつやくん（無職は否認）
+var EXIT_MIN_INC = { fp: EXIT_FP_MIN_INC, setsu: 0 };
+
+function exitReady(k) { var L = EXIT_LINKS[k]; return !!(L && (L.c || L.url)); }
+function exitAllowed(k, inc) { var m = EXIT_MIN_INC[k]; return m == null || inc > m; }
+
+function pickExit(st, fl, inc) {
+  fl = fl || [];
+  var row = EXIT_BY_ST[st] || EXIT_BY_ST.hikazei;
+  var main = row.main;
+  if (!exitAllowed(main, inc)) main = 'note';
+  if (!exitReady(main)) main = 'note';          // 有料noteが未公開のあいだは無料noteで代える
+  var sub = null;
+  for (var i = 0; i < EXIT_FLAG_SUB.length; i++) {
+    var f = EXIT_FLAG_SUB[i];
+    if (fl.indexOf(f[0]) !== -1 && exitReady(f[1]) && f[1] !== main) { sub = f[1]; break; }
+  }
+  if (!sub && row.sub && exitReady(row.sub) && exitAllowed(row.sub, inc) && row.sub !== main) sub = row.sub;
+  return { main: main, sub: sub };
+}
+
+// 主な案内の前に置く一言（状態と飛び先の組み合わせで選ぶ）
+var EXIT_LEAD = {
+  'gyaku_fp':   '非課税ラインを少し超えたこの帯は、働き方の決め方で手取りが変わりやすいところです。保険や教育費まで含めて考えたいときは、FPに無料で相談できます。',
+  'over_fp':    '逆転ゾーンは抜けています。ここからは、増えた分をどう残すか（保険・教育費・貯金）を考えておきたい時期です。FPに無料で相談できます。',
+  'near_pos':   '非課税ラインまで、あと少しです。超えるか、とどまるかの決め方をまとめました。',
+  'near_note':  '非課税ラインまで、あと少しです。非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
+  'hikazei_note': '非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
+  'hikazei_setsu': '収入をおさえている時期は、毎月の保険料や教育費の準備が家計に重く感じやすいところです。今の保険が合っているか、教育費をどう準備するかを、FPに無料で相談できます。',
+  'note':       '使える制度を、動く順番でまとめた無料noteがあります。'
+};
+
+function exitHref(k, p) {
+  var L = EXIT_LINKS[k];
+  if (L.url) return L.url;
+  return (typeof trackUrl === 'function') ? trackUrl(L.c, p) : '#';
+}
+function exitAttrs(k, p) {
+  var L = EXIT_LINKS[k];
+  return ' href="' + exitHref(k, p) + '" target="_blank" rel="noopener"' + (L.c ? ' data-c="' + L.c + '" data-p="' + p + '"' : '');
+}
+function renderSubLink(k, p) {
+  var L = EXIT_LINKS[k];
+  if (L.subText) return '<p class="exit-sub"><a' + exitAttrs(k, p) + '>' + L.subText + '</a>' + (L.pr ? '（PR）' : '') + '</p>';
+  return '<p class="exit-sub">あわせて読む：<a' + exitAttrs(k, p) + '>' + L.label + '</a>' +
+    (L.pr ? '（PR）' : '') + '</p>';
+}
+function renderExit(ex, st, p, note) {
+  var L = EXIT_LINKS[ex.main];
+  var lead = EXIT_LEAD[st + '_' + ex.main] || EXIT_LEAD[ex.main] || '';
+  return '<div class="card exit-card"><div class="lbl">次の一歩</div>' +
+    (lead ? '<p class="exit-lead">' + lead + '</p>' : '') +
+    '<a class="exit-main"' + exitAttrs(ex.main, p) + '>' + L.label + ' →</a>' +
+    (L.pr ? '<p class="exit-pr">PR｜外部のサービスのページに移動します</p>' : '') +
+    (ex.sub ? renderSubLink(ex.sub, p) : '') +
+    (note ? '<p class="exit-note">' + note + '</p>' : '') +
+    '</div>';
+}
+// ===EXIT-END===
+
+// 案内リンクは押した瞬間に、今の状態（st・fl・uid）を付けたn8n中継のURLにする
+document.addEventListener('click', function(e) {
+  var a = e.target.closest ? e.target.closest('a[data-c]') : null;
+  if (a) a.href = trackUrl(a.getAttribute('data-c'), a.getAttribute('data-p'));
+}, true);
+
+// ============================================================
+//  計測（全施策共通の決まり：13_simulator-exit-design.md §2）
+//  送るのは区分だけ（t/ev/p/st/fl/v/src と端末ごとの乱数ID）。入力した金額・年齢は送らない
+
+
+// ============================================================
+//  計測・LIFF（v1 から写したもの。v を付けずに開いたときは v=v2 として記録する）
+// ============================================================
+// ============================================================
+var TRACK = {
+  // 出来事（分母）は診断チェッカーのGASへ直接送る。GASが順番待ちして1件ずつ書く（n8nのシート追記は同時に来ると上書きし合った）
+  E: 'https://script.google.com/macros/s/AKfycbzuShJi9Bde07hoOH9JM8CpzfWMzwcbfOEzK_vfSxoAXaEnVbCHXRwig5D3bZ-axtIB/exec?log=e',
+  R: 'https://primary-production-1f703.up.railway.app/webhook/r',   // 案内のクリック（分子）
+  t: 'sim', sid: '', uid: '', src: '', v: '', st: '', fl: ''
+};
+(function() {
+  try {
+    var v = localStorage.getItem('miku_sid');
+    if (!v) { v = Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4); localStorage.setItem('miku_sid', v); }
+    TRACK.sid = v;
+  } catch (e) { TRACK.sid = 'x' + Math.random().toString(36).slice(2, 12); }
+  try {
+    var m = location.search.match(/[?&]src=([A-Za-z0-9_,\-]+)/); if (m) TRACK.src = m[1].slice(0, 40);
+    var mv = location.search.match(/[?&]v=([A-Za-z0-9_,\-]+)/); if (mv) TRACK.v = mv[1].slice(0, 40); else TRACK.v = 'v2';
+  } catch (e) {}
+})();
+function _trackQs(o) {
+  return Object.keys(o).filter(function(k) { return o[k] !== '' && o[k] != null; })
+    .map(function(k) { return k + '=' + encodeURIComponent(o[k]); }).join('&');
+}
+// 出来事を1件送る。失敗しても画面の動きには影響させない
+function track(ev, p, st, fl) {
+  if (ev !== 'open' && typeof sendOpen === 'function') sendOpen();   // 開いた記録を先に
+  if (st != null) TRACK.st = st;
+  if (fl != null) TRACK.fl = fl;
+  try {
+    // GASは送り元のブラウザの種類を受け取れないので、ua として一緒に送る（ボット除外に使う）
+    // 端末ごとの番号は sd で送る（GASは sid という名前を受け付けない）
+    var url = TRACK.E + '&' + _trackQs({ t: TRACK.t, ev: ev, p: p || '', sd: TRACK.sid, uid: TRACK.uid,
+      st: TRACK.st, fl: TRACK.fl, v: TRACK.v, src: TRACK.src, ua: (navigator.userAgent || '').slice(0, 300) });
+    if (window.fetch) fetch(url, { mode: 'no-cors', keepalive: true }).catch(function() {});
+    else (new Image()).src = url;
+  } catch (e) {}
+}
+// 案内リンク（n8n中継）に、今の状態を付けたURLを作る。c＝飛び先のキー（n8nのmap）
+function trackUrl(c, p) {
+  return TRACK.R + '?' + _trackQs({ c: c, uid: TRACK.uid, t: TRACK.t, p: p || '', st: TRACK.st, fl: TRACK.fl, v: TRACK.v, src: TRACK.src });
+}
+// 開いた記録は1回だけ。LINEの中ならuidが取れてから送る（取れなければ4秒後に送る）
+var _openSent = false;
+function sendOpen() { if (_openSent) return; _openSent = true; track('open', 'now'); }
+setTimeout(sendOpen, 4000);
+
+// ============================================================
+//  LIFF INIT
+//  ↓ シミュレーター用の LIFF ID を LINE Developers で作成後、ここを書き換える
+// ============================================================
+var LIFF_ID = '2010170438-qibrHICN';   // 2026-11-12 登録（友だち追加オプション On (Aggressive)・scope profile）
+
+(function() {
+  if (typeof liff === 'undefined') { sendOpen(); return; }
+  // LIFF IDが未設定でも、通常のWebページ（LINE内ブラウザ含む）として計算機能は全て動く。
+  // LIFF化するとトーク画面への結果送信（liff.sendMessages）等が使えるようになる。
+  if (LIFF_ID.indexOf('YOUR_') === 0) {
+    console.log('LIFF ID未設定：通常のWebページとして動作します');
+    sendOpen();
+    return;
+  }
+  liff.init({ liffId: LIFF_ID }).then(function() {
+    // LINEの中で開いたときだけ、clicks と同じ変換をしたuidを付ける（GAS _uidTok と同じ）
+    if (liff.isLoggedIn && liff.isLoggedIn()) {
+      return liff.getProfile().then(function(pr) {
+        TRACK.uid = btoa(pr.userId).replace(/[+/=]/g, '').substring(0, 12);
+      });
+    }
+  }).then(sendOpen, function(e) {
+    console.log('LIFF init skipped (outside LINE):', e.message);
+    sendOpen();
+  });
+})();
+
+</script>
+</body>
+</html>
