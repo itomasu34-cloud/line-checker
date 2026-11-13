@@ -152,34 +152,49 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
 .pbar{height:100%;border-radius:6px}
 .small{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:6px}
 .back{display:block;width:100%;text-align:center;font-size:15px;font-weight:700;border:2px solid var(--soft);border-radius:12px;padding:13px;background:var(--white);margin-top:12px;cursor:pointer}
-/* 結果レポート（1枚の画像） */
-#rep{position:absolute;left:-10000px;top:0;width:390px;background:var(--paper);padding:18px 16px 16px;color:var(--ink);font-size:14px;line-height:1.55}
-#rep .rh{background:var(--brand);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:12px}
-#rep .rh b{display:block;font-size:20px;line-height:1.35}
-#rep .rh span{font-size:12px;color:var(--ink-2)}
+/* 結果レポート（2枚の画像。画面の外で、レポート用に組み立てる） */
+#rep{position:absolute;left:-10000px;top:0;width:390px}
+#rep .pg{width:390px;background:var(--paper);padding:18px 16px 14px;color:var(--ink);font-size:14px;line-height:1.55}
+#rep .rh{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;border-bottom:3px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
+#rep .rh b{display:block;font-size:20px;line-height:1.3}
+#rep .rh span{font-size:12px;color:var(--ink-2);text-align:right;line-height:1.4}
+#rep .no{display:inline-block;background:var(--brand);border:1.5px solid var(--ink);border-radius:6px;font-size:12px;font-weight:700;padding:0 8px;margin-bottom:4px}
 #rep .rs{background:var(--white);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:10px}
-#rep .rt{font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:4px}
-#rep .cl{display:flex;font-size:13px;padding:2px 0;border-bottom:1px dashed var(--soft)} #rep .cl:last-child{border-bottom:0}
-#rep .cl span{flex:0 0 104px;color:var(--ink-2)} #rep .cl b{flex:1}
+#rep .rt{font-size:14px;font-weight:700;margin-bottom:6px;padding-left:8px;border-left:4px solid var(--brand);line-height:1.4}
+#rep .cg{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+#rep .cl{display:flex;justify-content:space-between;gap:6px;font-size:13px;padding:3px 0;border-bottom:1px dashed var(--soft)}
+#rep .cl span{color:var(--ink-2);white-space:nowrap} #rep .cl b{text-align:right}
+#rep .cl.w{grid-column:1 / -1}
 #rep .hv{font-size:34px;font-weight:700;line-height:1.2} #rep .hv small{font-size:15px}
 #rep .rc{display:inline-block;font-size:12px;font-weight:700;padding:1px 10px;border-radius:99px;border:1.5px solid var(--ink);background:var(--mint);margin:2px 0 4px}
 #rep .rc.gyaku{background:var(--crit-l)} #rep .rc.over{background:var(--brand-l)}
-#rep .one{font-size:13px}
-#rep table{width:100%;border-collapse:collapse;font-size:13px}
-#rep td{padding:5px 4px;border-bottom:1px solid var(--soft);vertical-align:middle}
-#rep tr:last-child td{border-bottom:0}
-#rep td.v{text-align:right;font-weight:700;font-size:15px;white-space:nowrap}
-#rep td.p{text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap}
-#rep tr.up td.v{color:var(--teal)} #rep tr.down td.v{color:var(--crit)}
-#rep tr.best td{background:var(--mint-l)}
-#rep .rq{display:flex;gap:8px;font-size:14px;padding:3px 0} #rep .rq i{flex:0 0 14px;height:14px;border:2px solid var(--ink);border-radius:3px;margin-top:4px}
-#rep .tip{font-size:13px;color:var(--teal);font-weight:700;margin-top:6px}
+#rep .one{font-size:13px} #rep .bn{font-size:12px;color:var(--ink-2)}
+#rep .mini{font-size:13px;margin-top:4px} #rep .mini tr.sum td{font-size:15px}
+#rep .bar{position:relative;height:12px;background:var(--soft);border-radius:6px;margin:28px 6px 26px}
+#rep .bar .z{position:absolute;left:0;top:0;bottom:0;background:var(--mint);border-radius:6px 0 0 6px;border-right:2px solid var(--teal)}
+#rep .bar .m{position:absolute;top:-5px;width:6px;height:22px;background:var(--ink);border-radius:3px;margin-left:-3px}
+#rep .bar .ml{position:absolute;top:-24px;font-size:12px;font-weight:700;white-space:nowrap;transform:translateX(-50%)}
+#rep .bar .ll{position:absolute;top:18px;font-size:12px;color:var(--teal);font-weight:700;white-space:nowrap;transform:translateX(-50%)}
+#rep .ac{font-size:13px;padding:4px 0;border-bottom:1px dashed var(--soft)} #rep .ac:last-child{border-bottom:0}
+#rep .ac b{display:block;font-size:14px}
+#rep .pr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--soft)} #rep .pr:last-child{border-bottom:0}
+#rep .pr .nm{flex:1} #rep .pr .nm b{display:block;font-size:14px;line-height:1.35} #rep .pr .nm span{display:block;font-size:12px;color:var(--ink-2);line-height:1.45}
+#rep .pr .am{text-align:right;white-space:nowrap} #rep .pr .am b{display:block;font-size:15px;line-height:1.35} #rep .pr .am span{font-size:12px;font-weight:700;color:var(--ink-2)}
+#rep .pr.up .am span{color:var(--teal)} #rep .pr.down .am span{color:var(--crit)}
+#rep .pr.best{background:var(--mint-l);margin:0 -8px;padding:6px 8px;border-radius:8px}
+#rep .lg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--ink-2);margin-top:4px}
+#rep .lg i{display:inline-block;width:16px;border-top:3px solid;vertical-align:middle;margin-right:4px}
+#rep .tl{display:flex;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--soft)} #rep .tl:last-child{border-bottom:0}
+#rep .tl b{flex:0 0 64px;font-size:13px;line-height:1.35} #rep .tl b small{display:block;font-weight:400;color:var(--ink-2);font-size:12px}
+#rep .rq{display:flex;gap:8px;padding:4px 0} #rep .rq i{flex:0 0 14px;height:14px;border:2px solid var(--ink);border-radius:3px;margin-top:4px}
+#rep .rq b{display:block;font-size:14px;line-height:1.45} #rep .rq span{font-size:12px;color:var(--ink-2)}
+#rep .lead{font-size:13px;font-weight:700;color:var(--teal);margin:-2px 0 4px}
 #rep .rf{font-size:12px;color:var(--ink-3);line-height:1.6;margin-top:4px}
 #repOv{position:fixed;inset:0;background:rgba(26,26,26,.78);z-index:1000;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
 #repOv[hidden]{display:none}
 #repOv .ob{background:var(--paper);border-radius:14px;padding:14px;max-width:420px;margin:0 auto}
 #repOv .on{font-size:15px;font-weight:700;text-align:center;margin:0 0 10px}
-#repOv img{display:block;width:100%;border-radius:8px;border:1px solid var(--soft);-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+#repOv img{display:block;width:100%;border-radius:8px;border:1px solid var(--soft);margin-bottom:10px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
 /* 結果レポートを作るボタン */
 .save{display:block;width:100%;text-align:center;font-size:16px;font-weight:700;border:2px solid var(--ink);border-radius:12px;padding:14px;background:var(--brand);color:var(--ink);margin-top:20px;cursor:pointer;box-shadow:var(--shadow)}
 .save:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
@@ -199,7 +214,7 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
   <!-- ===== STEP 1 ===== -->
   <section id="scr1">
     <div class="mint-hero">
-      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果は、1枚の画像にまとめて保存できます。</span></details></div>
+      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果は、画像のレポートにまとめて保存できます。</span></details></div>
       <div class="steps">⏱ 3分で完結　3ステップで分かる</div>
     </div>
     <p class="assume-note">※ 2026年時点の制度で試算</p>
@@ -1216,7 +1231,7 @@ function showResult() {
   if (qs.length) {
     ask = '<div class="ask"><div class="h">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
     qs.slice(0, forFp ? 4 : 3).forEach(function(q) { ask += '<div class="it"><i class="bx"></i><span>' + q.h + '</span></div>'; });
-    if (forFp) ask += '<p class="note">📄 この内容は、いちばん下の「結果を1枚の画像にする」で保存できます。FPに見せると話が早いです。</p>';
+    if (forFp) ask += '<p class="note">📄 この内容は、いちばん下の「結果をレポートにする」で保存できます。</p>';
     ask += '</div>';
   }
   html += forFp ? renderFpCard(ex, 'summary') + ask : ask + renderExit(ex, n.st, 'summary');
@@ -1237,8 +1252,8 @@ function showResult() {
     tl.forEach(function(e) { html += '<div class="tl"><b>' + e.year + '年</b><span>' + e.text + '</span></div>'; });
     html += '</div></details>';
   }
-  html += '<button class="save" id="saveBtn" type="button">📄 結果を1枚の画像にする</button>';
-  html += '<p class="save-note">条件と結果を1枚にまとめます。写真に保存しておけます。</p>';
+  html += '<button class="save" id="saveBtn" type="button">📄 結果をレポートにする</button>';
+  html += '<p class="save-note">条件と結果を、2枚の画像にまとめます。写真に保存しておけます。</p>';
   html += '<button class="back" id="backEdit">← 条件を変える</button>';
 
   document.getElementById('res').innerHTML = html;
@@ -1271,51 +1286,97 @@ function bindResult() {
 }
 
 // ============================================================
-//  結果レポート（条件と結果だけを1枚の画像にまとめる）
-//  画面の外に専用のレイアウトを組み、html2canvasで画像にして重ね画面に出す。
-//  保存は画像の長押し、共有シートが使える端末では「共有・保存する」ボタンも出す。
+//  結果レポート（2枚の画像。結果画面を撮るのではなく、レポート用に組み立て直す）
+//  1枚目＝いまの家計／2枚目＝これからのお金。画面の外で組み、html2canvasで画像にする。
 // ============================================================
 var WT_LABEL = { employee: '勤め・社保あり', part: 'パート・社保なし', self: '自営業', none: 'いまは無職' };
 var PAY_LABEL = { full: 'だいたい払ってきた', partial: '免除・未納が数年ある', unknown: 'よく分からない' };
 var KOUSEI_LABEL = { 0: 'なし', 5: '5年くらい', 10: '10年くらい', 20: '20年以上' };
-function buildReportHtml() {
-  var n = lastNow, fd = lastFuture, hp = heroParts(n), d = new Date();
-  var ds = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+var REP_NOTE = '※ 令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。';
+function repDate() { var d = new Date(); return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+function repHead(no, title) {
+  return '<div class="rh"><div><div class="no">' + no + ' / 2</div><b>' + title + '</b></div><span>手取りシミュレーター<br>' + repDate() + ' 作成</span></div>';
+}
+function repAct(a, n) {
+  var nm = a[0];
+  if (nm === '児童扶養手当') return '申請した月の翌月分から支給。市区町村の窓口へ';
+  if (nm.indexOf('国民年金の「') === 0) return '申請すると、月' + fmt1(n.r.nenkin.saving) + '万円ほど支払いが減る目安';
+  if (nm.indexOf('国民年金の免除の続け方') === 0) return '全額免除は翌年度も続けて審査を希望できる。一部免除は毎年度の申請';
+  if (nm.indexOf('高額療養費') === 0) return '医療費の1か月の上限が約3.5万円になる目安';
+  if (nm.indexOf('0〜2歳') === 0) return '非課税世帯は保育料が無料。市区町村への申請が必要';
+  if (nm.indexOf('東京都') === 0) return '月13,500円。区市町村の窓口へ';
+  if (nm === 'ひとり親控除') return '給与の方は年末調整で申告。見落としがち';
+  return a[1].split('。')[0];
+}
+function reportPage1(n) {
+  var hp = heroParts(n);
+  var h = repHead(1, 'いまの家計');
+  var cond = [['年収', S.income + '万円'], ['あなたの年齢', S.parentAge + '歳'],
+    ['お子さん', S.kids.map(function(a) { return a + '歳'; }).join('・')], ['養育費', aliM() > 0 ? '月' + S.aliAmt + '万円' : 'なし'],
+    ['住まい', S.pref === 'tokyo' ? '東京都' : '東京都以外'], ['会社員の期間', KOUSEI_LABEL[S.kouseiY]]];
+  h += '<div class="rs"><div class="rt">入力した条件</div><div class="cg">';
+  h += '<div class="cl w"><span>働き方</span><b>' + WT_LABEL[S.workType] + (S.workType !== 'employee' ? '（年金の免除申請：' + (S.nenApplied === 'yes' ? 'している' : 'していない') + '）' : '') + '</b></div>';
+  cond.forEach(function(c) { h += '<div class="cl"><span>' + c[0] + '</span><b>' + c[1] + '</b></div>'; });
+  h += '<div class="cl w"><span>国民年金</span><b>' + PAY_LABEL[S.payHist] + '</b></div></div></div>';
+
+  h += '<div class="rs"><div class="rt">月の手取り（目安）</div><div class="hv">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
+    '<div class="rc ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + '</div>' + breakdownTable(n) + '</div>';
+
+  var max = Math.max(n.line, n.inc) * 1.3, pIn = Math.min(n.inc / max * 100, 100), pLn = n.line / max * 100;
+  h += '<div class="rs"><div class="rt">非課税ラインとの位置</div><div class="bar"><div class="z" style="width:' + pLn + '%"></div>' +
+    '<div class="m" style="left:' + pIn + '%"></div><div class="ml" style="left:' + pIn + '%">あなた ' + n.inc + '万円</div>' +
+    '<div class="ll" style="left:' + pLn + '%">非課税ライン ' + n.line + '万円</div></div>' +
+    '<div class="bn">緑の部分が、住民税がかからない年収の範囲です（2026・2027年の収入）。</div></div>';
+
+  var acts = buildActions(n);
+  h += '<div class="rs"><div class="rt">使えるかもしれない制度</div>';
+  acts.forEach(function(a) { h += '<div class="ac"><b>' + a[0] + '</b>' + repAct(a, n) + '</div>'; });
+  h += '</div><div class="rf">' + REP_NOTE + '</div>';
+  return h;
+}
+function repTimeline(fd) {
+  var inp = fd.input, y0 = CURRENT_INCOME_YEAR, ev = [];
+  var ages = inp.childAges.slice().sort(function(a, b) { return b - a; }), multi = ages.length > 1;
+  ages.forEach(function(a, i) {
+    var who = multi ? (i + 1) + '人目' : 'お子さん';
+    if (a < 16) ev.push({ y: y0 + (16 - a), t: who + 'が高校進学ごろ。授業料は就学支援金で実質0円の目安' });
+    var last = (i === ages.length - 1);
+    if (a < 19) ev.push({ y: y0 + (18 - a), t: who + 'が18歳。' + (last ? 'この年度末で児童扶養手当が終わる。' : '') + '進学するなら修学支援新制度を確認' });
+  });
+  ev.push({ y: 2028, t: '非課税ラインが年収209万円から204万円に下がる' });
+  ev.push({ y: y0 + (65 - inp.parentAge), t: 'あなたが65歳。年金が始まる（いまのままなら月' + fmt1(fd.current.pensionM) + '万円の目安）' });
+  ev.sort(function(a, b) { return a.y - b.y; });
+  return ev.map(function(e) { return '<div class="tl"><b>' + e.y + '年<small>あなた' + (inp.parentAge + e.y - y0) + '歳</small></b><span>' + e.t + '</span></div>'; }).join('');
+}
+function reportPage2(n, fd) {
+  var h = repHead(2, 'これからのお金');
+  var c = fd.current, rows = curCompareRows(fd), tgt = targetInc();
+  var nenOf = function(t) { return (t === 'B' || t === 'D') ? '厚生年金' : '国民年金'; };
+  var incOf = function(t) { return (t === 'A' || t === 'B') ? '年収' + n.line + '万円まで' : '年収' + tgt + '万円'; };
+  h += '<div class="rs"><div class="rt">働き方ごとの、90歳までの合計（手取り＋年金）</div>';
+  h += '<div class="pr"><div class="nm"><b>いまのまま</b><span>年収' + S.income + '万円・' + (S.workType === 'employee' ? '厚生年金' : '国民年金') + '</span><span>年金 月' + fmt1(c.pensionM) + '万円</span></div>' +
+    '<div class="am"><b>約' + Math.round(c.cumAt90).toLocaleString() + '万円</b><span>比べる基準</span></div></div>';
+  rows.forEach(function(r, i) {
+    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up'), t = r.sc.type;
+    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万円';
+    h += '<div class="pr ' + cls + (top ? ' best' : '') + '"><div class="nm"><b>' + V2NAME[t] + '</b><span>' + incOf(t) + '・' + nenOf(t) + '</span><span>年金 月' + fmt1(r.sc.pensionM) + '万円</span></div>' +
+      '<div class="am"><b>約' + Math.round(r.sc.cumAt90).toLocaleString() + '万円</b><span>' + v + '</span></div></div>';
+  });
+  h += '</div>';
+  var lg = '';
+  fd.scenarios.forEach(function(s) { var st = SC_STYLE[s.type]; lg += '<span><i style="border-top-style:' + st.swatch + ';border-color:' + st.color + '"></i>' + V2NAME[s.type] + '</span>'; });
+  h += '<div class="rs"><div class="rt">合計の増え方（年齢ごと）</div><div><canvas id="repChart"></canvas></div><div class="lg">' + lg + '</div></div>';
+  h += '<div class="rs"><div class="rt">これからの主なできごと</div>' + repTimeline(fd) + '</div>';
+
   var ex = pickExit(n.st, fd.fl, n.inc), forFp = (ex.main === 'fp' || ex.main === 'setsu');
   var qs = buildAskList(n, fd, fd.fl, forFp).slice(0, forFp ? 4 : 3);
-  var cond = [['年収', S.income + '万円'], ['働き方', WT_LABEL[S.workType]]];
-  if (S.workType !== 'employee') cond.push(['年金の免除申請', S.nenApplied === 'yes' ? 'している' : 'していない']);
-  cond.push(['お子さん', S.kids.map(function(a) { return a + '歳'; }).join('・')]);
-  cond.push(['養育費', aliM() > 0 ? '月' + S.aliAmt + '万円' : 'なし']);
-  cond.push(['住まい', S.pref === 'tokyo' ? '東京都' : '東京都以外']);
-  cond.push(['あなたの年齢', S.parentAge + '歳']);
-  cond.push(['国民年金', PAY_LABEL[S.payHist]]);
-  cond.push(['会社員の期間', KOUSEI_LABEL[S.kouseiY]]);
-
-  var h = '<div class="rh"><b>あなたの結果レポート</b><span>手取りシミュレーター（ひとり親向け）｜' + ds + ' 作成</span></div>';
-  h += '<div class="rs"><div class="rt">入力した条件</div>';
-  cond.forEach(function(c) { h += '<div class="cl"><span>' + c[0] + '</span><b>' + c[1] + '</b></div>'; });
-  h += '</div>';
-  h += '<div class="rs"><div class="rt">いまの月の手取り（目安）</div><div class="hv">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
-    '<div class="rc ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + '</div></div>';
-
-  var c = fd.current, rows = curCompareRows(fd);
-  h += '<div class="rs"><div class="rt">90歳までの手取り＋年金の合計（稼ぐときの年収 ' + targetInc() + '万円）</div><table>';
-  h += '<tr><td>いまのまま</td><td class="v">約' + Math.round(c.cumAt90).toLocaleString() + '万</td><td class="p">年金 月' + fmt1(c.pensionM) + '万</td></tr>';
-  rows.forEach(function(r, i) {
-    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up');
-    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万';
-    h += '<tr class="' + cls + (top ? ' best' : '') + '"><td>' + V2NAME[r.sc.type] + '</td><td class="v">' + v + '</td><td class="p">年金 月' + fmt1(r.sc.pensionM) + '万</td></tr>';
-  });
-  h += '</table></div>';
-
   if (qs.length) {
     h += '<div class="rs"><div class="rt">' + (forFp ? 'FPに相談するときに聞くと良いこと' : 'これから考えておきたいこと') + '</div>';
-    qs.forEach(function(q) { h += '<div class="rq"><i></i><span>' + q.h + '</span></div>'; });
-    if (forFp) h += '<div class="tip">この画像をFPに見せると、話が早く進みます。</div>';
+    if (forFp) h += '<div class="lead">特にこの内容を、FPに確認してみてください。</div>';
+    qs.forEach(function(q) { h += '<div class="rq"><i></i><div><b>' + q.h + '</b><span>' + q.s + '</span></div></div>'; });
     h += '</div>';
   }
-  h += '<div class="rf">※ 令和8年度の制度と金額がこの先も変わらず、昇給や物価の上昇もないと仮定した計算です。実際に受け取る金額ではなく、働き方による差の目安として見てください。</div>';
+  h += '<div class="rf">' + REP_NOTE + '</div>';
   return h;
 }
 function makeReport() {
@@ -1326,41 +1387,51 @@ function makeReport() {
   var done = function() { btn.textContent = lab; btn.disabled = false; };
   var box = document.getElementById('rep');
   if (!box) { box = document.createElement('div'); box.id = 'rep'; box.setAttribute('aria-hidden', 'true'); document.body.appendChild(box); }
-  box.innerHTML = buildReportHtml();
+  box.innerHTML = '<div class="pg" id="rp1">' + reportPage1(lastNow) + '</div><div class="pg" id="rp2">' + reportPage2(lastNow, lastFuture) + '</div>';
+  try { drawFutureChart(document.getElementById('repChart'), lastFuture.scenarios, lastFuture.input.parentAge); } catch (e) {}
   try { track('event', 'save_report'); } catch (e) {}
+  var opt = { scale: 3, backgroundColor: '#FFFCF2', logging: false };
   var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-  ready.then(function() {
-    return html2canvas(box, { scale: 3, backgroundColor: '#FFFCF2', logging: false });
-  }).then(function(canvas) {
-    showReport(canvas);
-    done();
-  }).catch(function(err) {
-    console.error('report error:', err);
-    alert('画像を作れませんでした。お手数ですが、端末のスクリーンショットをお使いください。');
-    done();
-  });
+  var c1;
+  ready.then(function() { return html2canvas(document.getElementById('rp1'), opt); })
+    .then(function(c) { c1 = c; return html2canvas(document.getElementById('rp2'), opt); })
+    .then(function(c2) { showReport([c1, c2]); done(); })
+    .catch(function(err) {
+      console.error('report error:', err);
+      alert('画像を作れませんでした。お手数ですが、端末のスクリーンショットをお使いください。');
+      done();
+    });
 }
-function showReport(canvas) {
+function showReport(canvases) {
   var ov = document.getElementById('repOv');
   if (!ov) { ov = document.createElement('div'); ov.id = 'repOv'; document.body.appendChild(ov); }
-  ov.innerHTML = '<div class="ob"><p class="on">画像を長押しして、写真に保存してください</p>' +
-    '<img alt="手取りシミュレーターの結果レポート" src="' + canvas.toDataURL('image/png') + '">' +
-    '<button class="save" id="repShare" type="button" hidden>共有・保存する</button>' +
+  var urls = canvases.map(function(c) { return c.toDataURL('image/png'); });
+  var h = '<div class="ob"><p class="on">あなたの結果レポート（2枚）</p>';
+  urls.forEach(function(u, i) { h += '<img alt="結果レポート ' + (i + 1) + '枚目" src="' + u + '">'; });
+  h += '<button class="save" id="repSave" type="button">保存する</button>' +
+    '<p class="save-note">画像を長押しして、1枚ずつ保存することもできます。</p>' +
     '<button class="back" id="repClose" type="button">閉じる</button></div>';
+  ov.innerHTML = h;
   ov.hidden = false;
+  ov.scrollTop = 0;
   document.body.style.overflow = 'hidden';
   document.getElementById('repClose').addEventListener('click', function() { ov.hidden = true; document.body.style.overflow = ''; });
-  if (!navigator.canShare) return;
-  canvas.toBlob(function(blob) {
-    if (!blob) return;
-    var d = new Date(), fname = 'tedori-report-' + d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '.png';
-    var file;
-    try { file = new File([blob], fname, { type: 'image/png' }); } catch (e) { return; }
-    if (!navigator.canShare({ files: [file] })) return;
-    var sb = document.getElementById('repShare');
-    sb.hidden = false;
-    sb.addEventListener('click', function() { navigator.share({ files: [file], title: '手取りシミュレーターの結果' }).catch(function() {}); });
-  }, 'image/png');
+  var d = new Date(), ymd = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+  var names = urls.map(function(u, i) { return 'tedori-report-' + ymd + '-' + (i + 1) + '.png'; });
+  var files = [];
+  canvases.forEach(function(c, i) {
+    c.toBlob(function(b) { if (b) { try { files[i] = new File([b], names[i], { type: 'image/png' }); } catch (e) {} } }, 'image/png');
+  });
+  document.getElementById('repSave').addEventListener('click', function() {
+    try { track('event', 'save_report_save'); } catch (e) {}
+    var ok = files.length === 2 && files[0] && files[1] && navigator.canShare && navigator.canShare({ files: files });
+    if (ok) { navigator.share({ files: files }).catch(function() {}); return; }
+    // 共有シートが使えない端末は、ファイルとして保存を試す
+    urls.forEach(function(u, i) {
+      var a = document.createElement('a'); a.href = u; a.download = names[i];
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+  });
 }
 function drawNow() {
   var n = lastNow;
