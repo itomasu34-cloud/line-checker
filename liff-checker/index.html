@@ -293,36 +293,36 @@
     <div class="progress-label" id="label-3">3 / 5</div>
     <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
   </div>
-  <div class="q-title" id="q2b-title">お子さんは<br>何歳ですか？</div>
+  <div class="q-title" id="q2b-title">お子さんは<br>いまどの学年ですか？</div>
   <div class="option-list">
     <div class="option-btn" onclick="selectOption(this,'q2b','age_young')">
       <span class="option-emoji">👶</span>
       <div class="option-text">
-        <div class="option-label">0〜2歳</div>
+        <div class="option-label">0〜2歳クラス</div><div class="option-sub">保育園に入っていない2歳以下の子もここ</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2b','age_preschool')">
       <span class="option-emoji">🧒</span>
       <div class="option-text">
-        <div class="option-label">3〜5歳</div>
+        <div class="option-label">3〜5歳クラス</div><div class="option-sub">年少・年中・年長</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2b','age_school')">
       <span class="option-emoji">🎒</span>
       <div class="option-text">
-        <div class="option-label">小中学生（6〜14歳）</div>
+        <div class="option-label">小学生・中学生</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2b','age_highschool')">
       <span class="option-emoji">📚</span>
       <div class="option-text">
-        <div class="option-label">高校生（15〜17歳）</div>
+        <div class="option-label">高校生</div><div class="option-sub">高校に行っていない場合は、18歳になった年度の3月まで</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2b','age_adult')">
       <span class="option-emoji">🎓</span>
       <div class="option-text">
-        <div class="option-label">18歳以上</div>
+        <div class="option-label">高校を卒業した</div><div class="option-sub">18歳になった年度の4月から</div>
       </div>
     </div>
   </div>
@@ -335,27 +335,27 @@
     <div class="progress-label">3b / 5</div>
     <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
   </div>
-  <div class="q-title">一番上のお子さんは<br>何歳ですか？</div>
+  <div class="q-title">一番上のお子さんは<br>いまどの学年ですか？</div>
   <div class="option-list">
     <div class="option-btn" onclick="selectOption(this,'q2c','age_young')">
       <span class="option-emoji">👶</span>
-      <div class="option-text"><div class="option-label">0〜2歳</div></div>
+      <div class="option-text"><div class="option-label">0〜2歳クラス</div><div class="option-sub">保育園に入っていない2歳以下の子もここ</div></div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2c','age_preschool')">
       <span class="option-emoji">🧒</span>
-      <div class="option-text"><div class="option-label">3〜5歳</div></div>
+      <div class="option-text"><div class="option-label">3〜5歳クラス</div><div class="option-sub">年少・年中・年長</div></div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2c','age_school')">
       <span class="option-emoji">🎒</span>
-      <div class="option-text"><div class="option-label">小中学生（6〜14歳）</div></div>
+      <div class="option-text"><div class="option-label">小学生・中学生</div></div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2c','age_highschool')">
       <span class="option-emoji">📚</span>
-      <div class="option-text"><div class="option-label">高校生（15〜17歳）</div></div>
+      <div class="option-text"><div class="option-label">高校生</div><div class="option-sub">高校に行っていない場合は、18歳になった年度の3月まで</div></div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q2c','age_adult')">
       <span class="option-emoji">🎓</span>
-      <div class="option-text"><div class="option-label">18歳以上</div></div>
+      <div class="option-text"><div class="option-label">高校を卒業した</div><div class="option-sub">18歳になった年度の4月から</div></div>
     </div>
   </div>
   <div id="error-q2c" class="error-msg">一番上のお子さんは一番下と同じか年上を選んでください</div>
@@ -368,34 +368,34 @@
     <div class="progress-label">4 / 5</div>
     <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
   </div>
-  <div class="q-title">年収はだいたい<br>どのくらいですか？<br><small style="font-size:14px;font-weight:normal;color:#888">目安で大丈夫です</small></div>
+  <div class="q-title">年収はだいたい<br>どのくらいですか？<br><small style="font-size:14px;font-weight:normal;color:#888">税金などが引かれる前の金額です（目安で大丈夫です）</small></div>
   <div class="option-list">
     <div class="option-btn" onclick="selectOption(this,'q3','inc_1')">
       <span class="option-emoji">💴</span>
       <div class="option-text">
-        <div class="option-label">〜190万円</div>
-        <div class="option-sub">月収16万以下</div>
+        <div class="option-label">190万円まで</div>
+        <div class="option-sub">月16万円くらいまで</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q3','inc_2')">
       <span class="option-emoji">💴</span>
       <div class="option-text">
-        <div class="option-label">190〜209万円</div>
-        <div class="option-sub">月収16〜17万</div>
+        <div class="option-label">191万〜209万円</div>
+        <div class="option-sub">月16〜17万円くらい</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q3','inc_3')">
       <span class="option-emoji">💴</span>
       <div class="option-text">
-        <div class="option-label">209〜385万円</div>
-        <div class="option-sub">月収約17〜32万</div>
+        <div class="option-label">210万〜385万円</div>
+        <div class="option-sub">月18〜32万円くらい</div>
       </div>
     </div>
     <div class="option-btn" onclick="selectOption(this,'q3','inc_4')">
       <span class="option-emoji">💴</span>
       <div class="option-text">
-        <div class="option-label">385万円以上</div>
-        <div class="option-sub">月収32万以上</div>
+        <div class="option-label">386万円から</div>
+        <div class="option-sub">月32万円くらいから</div>
       </div>
     </div>
   </div>
@@ -584,8 +584,8 @@
     // Q2b のタイトルを人数に合わせて変える
     const isMulti = answers.q2a === 'ch_multi';
     document.getElementById('q2b-title').textContent = isMulti
-      ? '一番下のお子さんは\n何歳ですか？'
-      : 'お子さんは\n何歳ですか？';
+      ? '一番下のお子さんは\nいまどの学年ですか？'
+      : 'お子さんは\nいまどの学年ですか？';
     goTo(3);
   }
 
