@@ -152,6 +152,42 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
 .pbar{height:100%;border-radius:6px}
 .small{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:6px}
 .back{display:block;width:100%;text-align:center;font-size:15px;font-weight:700;border:2px solid var(--soft);border-radius:12px;padding:13px;background:var(--white);margin-top:12px;cursor:pointer}
+/* いま／これから と、働き方の比べ表・「つまり」（2026-11-16 案B） */
+.stage{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.stage .tag{font-size:14px;font-weight:700;border:2px solid var(--ink);border-radius:8px;padding:2px 10px}
+.stage .tag.now{background:var(--brand)} .stage .tag.fut{background:var(--mint)}
+.stage b{font-size:17px}
+.bridge{text-align:center;margin:0 0 16px;font-size:15px;font-weight:700;color:var(--ink-2)}
+.bridge span{display:block;font-size:22px;line-height:1;color:var(--ink-3)}
+.futbox{background:var(--mint-l);border:3px solid var(--teal);border-radius:14px;padding:14px 12px 12px;margin-bottom:16px}
+.fut-lead{font-size:14px;margin-bottom:10px}
+.futbox .tgt{background:var(--white)}
+.cf-base{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--white);border:2px dashed var(--ink-3);border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:13px;line-height:1.45}
+.cf-base small{display:block;font-size:12px;color:var(--ink-2)}
+.cf-base b{font-size:16px;white-space:nowrap;text-align:right}
+.cf-h{font-size:14px;font-weight:700;margin:4px 0 2px}
+.cf-ico{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:0 6px}
+.cf-ico.k{background:#E3EEFB;color:#2a5fa8} .cf-ico.f{background:#F3E9FA;color:#7a3fa0}
+.cf-mx{border-collapse:separate;border-spacing:6px;margin:0 -6px;width:calc(100% + 12px)}
+.cf-mx th{font-size:13px;font-weight:700;line-height:1.35;padding:2px;text-align:center}
+.cf-mx th small{display:block;font-weight:400;font-size:12px;color:var(--ink-2)}
+.cf-mx th.cf-rh{text-align:left;width:92px}
+.cf-mx td{background:var(--white);border:2px solid var(--soft);border-radius:12px;text-align:center;padding:8px 4px;vertical-align:middle}
+.cf-mx td b{display:block;font-size:18px;line-height:1.3}
+.cf-mx td span{display:block;font-size:12px;color:var(--ink-2);line-height:1.4}
+.cf-mx td.best{border:3px solid var(--ink);background:var(--brand-l);box-shadow:var(--shadow)}
+.cf-mx td .cr{display:inline-block;font-size:12px;font-weight:700;color:var(--ink);background:var(--brand);border:1.5px solid var(--ink);border-radius:6px;margin:0 0 4px;padding:0 6px}
+.cf-up{color:var(--teal)} .cf-down{color:var(--crit)} .cf-same{color:var(--ink-2)}
+.cf-sum{background:var(--white);border:3px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;margin-top:10px}
+.cf-sum .sh{display:inline-block;background:var(--brand);border:2px solid var(--ink);border-radius:8px;font-size:13px;font-weight:700;padding:1px 10px;margin-bottom:8px}
+.cf-sum .main{font-size:17px;font-weight:700;line-height:1.5}
+.cf-sum .main em{font-style:normal;background:linear-gradient(transparent 60%,var(--brand) 60%)}
+.cf-sum ul{list-style:none;margin:8px 0 0;padding:6px 0 0;border-top:1px dashed var(--soft)}
+.cf-sum li{font-size:14px;line-height:1.55;padding:3px 0 3px 18px;position:relative}
+.cf-sum li:before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:700}
+.cf-sum li b{color:var(--teal)}
+#rep .cf-sum .main em{background:none;color:var(--teal)}
+.fut-note{font-size:12px;color:var(--ink-3);line-height:1.6;margin-top:8px}
 /* 結果レポート（2枚の画像。画面の外で、レポート用に組み立てる） */
 #rep{position:absolute;left:-10000px;top:0;width:390px}
 #rep .pg{width:390px;background:var(--paper);padding:18px 16px 14px;color:var(--ink);font-size:14px;line-height:1.55}
@@ -214,7 +250,7 @@ details.i[open] summary{background:var(--ink);color:var(--white);border-color:va
   <!-- ===== STEP 1 ===== -->
   <section id="scr1">
     <div class="mint-hero">
-      <div class="lead">手取りと将来の年金を合わせて、どの働き方がいちばん得かが分かるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果は、画像のレポートにまとめて保存できます。</span></details></div>
+      <div class="lead">手取りと将来の年金を合わせて、働き方によるお金の違いを比べられるシミュレーターです。<details class="i"><summary>i</summary><span class="pop">このシミュレーターで分かること：<br>・今の月の手取り（給料から税金などを引いて、使えるお金）<br>・働き方を変えたら、90歳までにもらえるお金の合計がどう変わるか<br>・65歳からの年金は月いくらか<br><br>計算はあなたのスマホ・パソコンの中だけでやります。入れた数字はどこにも送りません。結果は、画像のレポートにまとめて保存できます。</span></details></div>
       <div class="steps">⏱ 3分で完結　3ステップで分かる</div>
     </div>
     <p class="assume-note">※ 2026年時点の制度で試算</p>
@@ -945,7 +981,7 @@ function fmtMan(v) { return (v == null || v < 0.05) ? '—' : fmt1(v) + '万円'
 function minus(v) { return v < 0.05 ? '—' : '−' + fmt1(v) + '万円'; }
 function fmtManInt(v) { return Math.round(v).toLocaleString() + '万円'; }
 function info(text) { return '<details class="i"><summary>i</summary><span class="pop">' + text + '</span></details>'; }
-var V2NAME = { A: '抑える＋国民年金', B: '抑える＋厚生年金', C: '稼ぐ＋国民年金', D: '稼ぐ＋厚生年金' };
+var V2NAME = { A: 'パート・自営で209万円まで', B: '会社員で209万円まで', C: 'パート・自営で増やす', D: '会社員で増やす' };
 
 var S = {
   income: 180, workType: 'employee', nenApplied: 'no',
@@ -1118,17 +1154,62 @@ function heroParts(n) {
     pop: '住民税がかからない世帯は、保育園代や病院代の負担が軽くなり、使える手当も多くなります。ラインは年収' + line + '万円まで（2026・2027年の収入）です。' };
 }
 
-// ── 90歳までの比較の行
-function renderRows(fd) {
-  var c = fd.current, rows = curCompareRows(fd), curTop = diffClass(rows[0].diff) === 'down';
-  var h = '<div class="sr now"><span class="n">' + (curTop ? '<span class="badge">いちばん多い</span>' : '') + 'いまのまま</span>' +
-    '<span class="d">約' + Math.round(c.cumAt90).toLocaleString() + '万</span><span class="s">年収' + S.income + '万円を続けた場合／年金 月' + fmt1(c.pensionM) + '万円</span></div>';
-  rows.forEach(function(r, i) {
-    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up');
-    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万';
-    h += '<div class="sr ' + cls + (top ? ' best' : '') + '"><span class="n">' + V2NAME[r.sc.type] + '</span><span class="d">' + v + '</span>' +
-      '<span class="s">' + (top ? '<span class="badge">いちばん増える</span>' : '') + '年金 月' + fmt1(r.sc.pensionM) + '万円</span></div>';
-  });
+// ── 働き方の比べ表（2×2）と「つまり」（2026-11-16 案B）
+//  列＝会社員（社会保険あり＝厚生年金：B・D）／パート・自営（社会保険なし＝国民年金：A・C）
+//  行＝年収を増やす（スライダーの年収：C・D）／年収を非課税ラインまでにする（A・B）
+//  opt.abs が true なら、各マスに90歳までの合計の金額も出す（レポート用）
+var WT_SHORT = { employee: '会社員', part: 'パート', self: '自営業', none: '無職' };
+function cfDiffText(d) { var c = diffClass(d); return c === 'same' ? 'ほぼ同じ' : (c === 'up' ? '＋' : '−') + Math.abs(d).toLocaleString() + '万'; }
+function renderCompare(fd, opt) {
+  opt = opt || {};
+  var c = fd.current, cur = c.cumAt90, by = {}, tgt = targetInc(), line = lastNow.line;
+  fd.scenarios.forEach(function(s) { by[s.type] = s; });
+  var dif = function(t) { return Math.round(by[t].cumAt90 - cur); };
+  var best = ['D', 'B', 'C', 'A'].reduce(function(a, t) { return by[t].cumAt90 > by[a].cumAt90 ? t : a; }, 'D');
+  var bestUp = diffClass(dif(best)) === 'up';
+  var incWord = tgt > S.income ? '年収を' + tgt + '万円に増やす' : '年収を' + tgt + '万円にする';
+  var lineShort = line + (S.income < line ? '万円にする' : '万円までにする'), lineWord = '年収を' + lineShort;
+  function cell(t) {
+    var d = dif(t), cls = diffClass(d), top = (t === best && bestUp);
+    return '<td' + (top ? ' class="best"' : '') + '>' + (top ? '<span class="cr">👑 いちばん多い</span>' : '') +
+      '<b class="cf-' + cls + '">' + cfDiffText(d) + '</b>' +
+      (opt.abs ? '<span>合計 約' + Math.round(by[t].cumAt90).toLocaleString() + '万</span>' : '') +
+      '<span>年金 月' + fmt1(by[t].pensionM) + '万</span></td>';
+  }
+  var h = '<div class="cf-base"><span>今と同じ働き方なら<small>' + WT_SHORT[S.workType] + '・年収' + S.income + '万円のまま</small><small>年金 月' + fmt1(c.pensionM) + '万円</small></span>' +
+    '<b>約' + Math.round(cur).toLocaleString() + '万円</b></div>';
+  h += '<div class="cf-h">働き方を変えると（今と比べて）</div><table class="cf-mx">' +
+    '<tr><th></th><th><span class="cf-ico k">会社員</span><small>社会保険あり</small></th><th><span class="cf-ico f">パート・自営</span><small>社会保険なし</small></th></tr>' +
+    '<tr><th class="cf-rh">' + incWord + '</th>' + cell('D') + cell('C') + '</tr>' +
+    '<tr><th class="cf-rh">' + lineWord + '<small>住民税がかからない範囲</small></th>' + cell('B') + cell('A') + '</tr></table>';
+
+  // つまり（計算の結果として書く。「おすすめ」「得」「〜しましょう」は使わない）
+  var work = function(t) { return (t === 'B' || t === 'D') ? '会社員（社会保険あり）' : 'パート・自営（社会保険なし）'; };
+  var how = function(t) { return (t === 'C' || t === 'D') ? incWord : lineWord; };
+  var main;
+  if (bestUp) main = '<em>' + work(best) + 'で、' + how(best) + '</em>と、90歳までのお金がいちばん多くなる計算です。';
+  else if (diffClass(dif(best)) === 'same') main = 'どの働き方にしても、<em>今と同じ働き方と大きな差はない</em>計算です。';
+  else main = '<em>今と同じ働き方</em>が、90歳までのお金がいちばん多くなる計算です。';
+  var li = [];
+  var dT = Math.round(by.D.cumAt90 - by.C.cumAt90), dL = Math.round(by.B.cumAt90 - by.A.cumAt90);
+  if (dT >= CUR_SAME_BAND && dL >= CUR_SAME_BAND) {
+    var pa = Math.round(Math.min(by.D.pensionM - by.C.pensionM, by.B.pensionM - by.A.pensionM)),
+        pb = Math.round(Math.max(by.D.pensionM - by.C.pensionM, by.B.pensionM - by.A.pensionM));
+    li.push('年収が同じなら、<b>会社員のほうが多く</b>なります。' + (pb >= 1 ? '65歳からの年金も月' + (pa === pb ? '約' + pa : pa + '〜' + pb) + '万円多い計算です。' : ''));
+  } else if (dT <= -CUR_SAME_BAND && dL <= -CUR_SAME_BAND) {
+    li.push('年収が同じなら、<b>パート・自営のほうが多く</b>なる計算です。');
+  } else if (Math.abs(dT) < CUR_SAME_BAND && Math.abs(dL) < CUR_SAME_BAND) {
+    li.push('年収が同じなら、会社員でもパート・自営でも<b>大きな差はありません</b>。');
+  } else {
+    li.push('会社員とパート・自営のどちらが多いかは、<b>年収によって変わります</b>。');
+  }
+  var kousei = (best === 'B' || best === 'D'), hi = by[kousei ? 'D' : 'C'], lo = by[kousei ? 'B' : 'A'];
+  var dv = Math.round(hi.cumAt90 - lo.cumAt90), who = kousei ? '会社員なら' : 'パート・自営なら';
+  if (Math.abs(dv) < CUR_SAME_BAND) li.push(who + '、年収' + tgt + '万円でも' + line + '万円まででも、<b>ほぼ同じ</b>です。');
+  else if (dv > 0) li.push(who + '、' + lineShort + 'より<b>' + tgt + '万円' + (tgt > S.income ? 'に増やす' : 'にする') + 'ほうが' + dv.toLocaleString() + '万円多く</b>なります。');
+  else li.push(who + '、' + tgt + '万円にするより<b>' + lineShort + 'ほうが' + (-dv).toLocaleString() + '万円多く</b>なります。');
+  h += '<div class="cf-sum"><div class="sh">👉 つまり、あなたの条件では</div><div class="main">' + main + '</div><ul>' +
+    li.map(function(x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>';
   return h;
 }
 
@@ -1176,10 +1257,10 @@ function pensionBars(fd) {
 function buildAskList(n, f, fl, forFp) {
   var q = [];
   var add = function(h, s) { q.push({ h: h, s: s }); };
-  if (n.st === 'gyaku' || n.st === 'near') add('非課税ライン（' + n.line + '万円）に抑えるか、超えて働くか', '手当・保育料・医療費の変わり方も含めて');
+  if (n.st === 'gyaku' || n.st === 'near') add('年収を非課税ライン（' + n.line + '万円）までにするか、超えて働くか', '手当・保育料・医療費の変わり方も含めて');
   if (n.st === 'over') add('増えた収入の残し方', '教育費の積み立てと老後の備えに、どう分けるか');
   if (n.st === 'hikazei') add('教育費と老後のお金の準備', '今の収入で、何から準備していくか');
-  if (fl.indexOf('kasegu') !== -1) add('厚生年金に入る働き方を選ぶか', '収入を増やすとき、社会保険に入るかで年金が変わる');
+  if (fl.indexOf('kasegu') !== -1) add('会社の社会保険（厚生年金）に入って働くか', '社会保険に入るかどうかで、将来の年金が変わる');
   if (fl.indexOf('kyoiku') !== -1) add('教育費をいつまでにいくら準備するか', '子どもの進学の時期に合わせて');
   if (fl.indexOf('nenkin') !== -1) add('年金の免除・未納の期間を追納するか', '10年以内なら追納できる');
   if (forFp && fl.indexOf('noali') !== -1) add('もしものときの備え（保険）', '養育費がない前提で、何に入っておくか');
@@ -1211,19 +1292,20 @@ function showResult() {
   praiseLines().forEach(function(t) { html += '<div class="pi"><span>★</span>' + t + '</div>'; });
   html += '<div class="pf">あなたのがんばりを、数字で見てみましょう ↓</div></div>';
 
+  html += '<div class="stage"><span class="tag now">いま</span><b>毎月のお金</b></div>';
   html += '<div class="hero"><div class="k">いまの月の手取り（目安）</div><div class="v">' + fmt1(n.r.total) + '<small> 万円</small></div>' +
     '<div class="chip ' + n.st + '">' + hp.chip + '</div><div class="one">' + hp.one + ' ' + info(hp.pop) + '</div></div>';
+  html += '<div class="bridge"><span>▼</span>このまま働き続けたら？ 働き方を変えたら？</div>';
 
-  html += '<div class="sec-t">90歳までの手取りの合計 ' + info('どうやって計算しているか：<br>・今の制度や金額が、この先もずっと変わらないと仮定しています<br>・給料アップや物の値段の上がり下がりは入れていません<br>・「いまのまま」＝今の年収のまま65歳まで働いた場合<br><br>「手取り」は、給料の手取り＋もらえる手当＋年金免除で払わずに済むお金の合計です。食費・家賃などの生活費は引いていません。<br>差が50万円より小さければ「ほぼ同じ」と表示しています。<br><br>実際にもらえる金額を当てるものではなく、働き方による差を見るためのものです。') + '</div>';
-  html += '<p class="sim-lead">下のスライダーで「稼ぐときの年収」を動かすと、<b>いまのまま／抑える＋厚生年金／抑える＋国民年金／稼ぐ＋厚生年金／稼ぐ＋国民年金</b>の5パターンで、90歳までに手に入るお金（手取り＋年金）の合計を比較できます。</p>';
-  html += '<div class="tgt"><div class="tgt-h">「稼ぐときの年収」</div>' +
+  html += '<div class="stage"><span class="tag fut">これから</span><b>90歳までに入るお金</b></div><div class="futbox">';
+  html += '<p class="fut-lead">働き方と年収を変えると、90歳までに入るお金（手取り＋年金）がどう変わるかを比べます。' + info('比べている働き方：<br>・「今と同じ働き方」＝今の年収のまま65歳まで働く<br>・「会社員」＝会社の社会保険（厚生年金）に入って働く<br>・「パート・自営」＝社会保険に入らず、国民年金を払って働く<br>・「' + n.line + '万円までにする」＝住民税がかからない年収までにおさえる（2026・2027年は' + n.line + '万円、2028年からは204万円）<br>・「増やす」＝下のスライダーで決めた年収で働く<br><br>どれも65歳まで働き、90歳まで生きる前提です。今の制度や金額がこの先も変わらないと仮定し、給料アップや物の値段の上がり下がりは入れていません。<br>「手取り」は、給料の手取り＋もらえる手当＋年金免除で払わずに済むお金の合計です。食費・家賃などの生活費は引いていません。<br>差が50万円より小さければ「ほぼ同じ」と表示しています。') + '</p>';
+  html += '<div class="tgt"><div class="tgt-h">年収を増やすなら、いくら？</div>' +
     '<div class="tgt-v"><span id="tgtV">' + targetInc() + '</span><small> 万円</small><span class="tgt-d" id="tgtD"></span></div>' +
     '<input type="range" id="tgt" min="100" max="600" step="10" value="' + targetInc() + '">' +
     '<div class="ticks"><span>100万</span><span>350万</span><span>600万</span></div>' +
-    '<div class="tgt-sub">※ この年収で65歳まで働く前提です。初めは「今＋50万円」が入っています。</div>' +
-    '</div>';
-  html += '<div class="cmp-wrap"><div id="rows">' + renderRows(fd) + '</div>' +
-    '<div class="cmp-foot"><span>5パターンの前提</span>' + info('5パターンの中身：<br>・「いまのまま」＝今の年収のまま65歳まで働く<br>・「抑える＋厚生年金」＝税金がかからないライン（2026・2027年は年収209万円）までに収入をおさえて、会社の社会保険に入って働く<br>・「抑える＋国民年金」＝税金がかからないラインまでに収入をおさえて、自営やパートで国民年金に入って働く<br>・「稼ぐ＋厚生年金」＝このスライダーで決めた年収で、会社の社会保険に入って65歳まで働く<br>・「稼ぐ＋国民年金」＝このスライダーで決めた年収で、自営やパートで国民年金に入って65歳まで働く<br><br>いずれも65歳で引退、90歳まで生きる前提。給料アップや物の値段の上下は入れていません。') + '</div></div>';
+    '<div class="tgt-sub">※ この年収で65歳まで働く前提です。初めは「今＋50万円」が入っています。</div></div>';
+  html += '<div id="rows">' + renderCompare(fd) + '</div>';
+  html += '<p class="fut-note">※ 今の制度が変わらないと仮定した計算上の比較です。どの働き方を選ぶかを決めるものではありません。</p></div>';
 
   var ex = pickExit(n.st, fd.fl, n.inc), forFp = (ex.main === 'fp' || ex.main === 'setsu');
   var qs = buildAskList(n, fd, fd.fl, forFp);
@@ -1272,7 +1354,7 @@ function bindResult() {
     var d = S.target - S.income;
     document.getElementById('tgtD').textContent = (d === 50 && S.target === Math.min(S.income + 50, 600)) ? 'いま＋50万円' : (d >= 0 ? 'いま＋' + d + '万円' : 'いま−' + (-d) + '万円');
     lastFuture = computeFuture(futureInput());
-    document.getElementById('rows').innerHTML = renderRows(lastFuture);
+    document.getElementById('rows').innerHTML = renderCompare(lastFuture);
     if (document.getElementById('fChartFut').open) drawFut();
   }
   t.addEventListener('input', upTgt);
@@ -1350,19 +1432,8 @@ function repTimeline(fd) {
 }
 function reportPage2(n, fd) {
   var h = repHead(2, 'これからのお金');
-  var c = fd.current, rows = curCompareRows(fd), tgt = targetInc();
-  var nenOf = function(t) { return (t === 'B' || t === 'D') ? '厚生年金' : '国民年金'; };
-  var incOf = function(t) { return (t === 'A' || t === 'B') ? '年収' + n.line + '万円まで' : '年収' + tgt + '万円'; };
-  h += '<div class="rs"><div class="rt">働き方ごとの、90歳までの合計（手取り＋年金）</div>';
-  h += '<div class="pr"><div class="nm"><b>いまのまま</b><span>年収' + S.income + '万円・' + (S.workType === 'employee' ? '厚生年金' : '国民年金') + '</span><span>年金 月' + fmt1(c.pensionM) + '万円</span></div>' +
-    '<div class="am"><b>約' + Math.round(c.cumAt90).toLocaleString() + '万円</b><span>比べる基準</span></div></div>';
-  rows.forEach(function(r, i) {
-    var cls = diffClass(r.diff), top = (i === 0 && cls === 'up'), t = r.sc.type;
-    var v = cls === 'same' ? 'ほぼ同じ' : (cls === 'up' ? '＋' : '−') + Math.abs(r.diff).toLocaleString() + '万円';
-    h += '<div class="pr ' + cls + (top ? ' best' : '') + '"><div class="nm"><b>' + V2NAME[t] + '</b><span>' + incOf(t) + '・' + nenOf(t) + '</span><span>年金 月' + fmt1(r.sc.pensionM) + '万円</span></div>' +
-      '<div class="am"><b>約' + Math.round(r.sc.cumAt90).toLocaleString() + '万円</b><span>' + v + '</span></div></div>';
-  });
-  h += '</div>';
+  h += '<div class="rs"><div class="rt">働き方を変えると、90歳までに入るお金（手取り＋年金）</div>' + renderCompare(fd, { abs: true }) +
+    '<div class="rf">「会社員」＝会社の社会保険（厚生年金）に入る働き方、「パート・自営」＝社会保険に入らず国民年金を払う働き方です。</div></div>';
   var lg = '';
   fd.scenarios.forEach(function(s) { var st = SC_STYLE[s.type]; lg += '<span><i style="border-top-style:' + st.swatch + ';border-color:' + st.color + '"></i>' + V2NAME[s.type] + '</span>'; });
   h += '<div class="rs"><div class="rt">合計の増え方（年齢ごと）</div><div><canvas id="repChart"></canvas></div><div class="lg">' + lg + '</div></div>';
