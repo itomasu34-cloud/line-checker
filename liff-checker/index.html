@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>制度診断チェッカー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     /* ============================================================
@@ -22,7 +24,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{background:var(--paper)}
     body{
-      font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic UI',sans-serif; /* 手取りシミュと同じ */
+      font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif; /* 手取りシミュ（v2）と同じ */
       color:var(--ink);font-size:15px;line-height:1.6;
       -webkit-text-size-adjust:100%;min-height:100vh;
     }
@@ -466,7 +468,7 @@
   <div class="done-wrap">
     <div class="done-icon">✅</div>
     <div class="done-title">診断が完了しました！</div>
-    <div class="done-desc">LINEのトークのいちばん下に<br>結果のカードが届いています。<br><br>カードは横にスワイプすると<br>2枚目も見られます。</div>
+    <div class="done-desc">LINEのトークのいちばん下に<br>結果のカードが届いています。<br><br>カードを横にめくると<br>2枚目もあります。</div>
     <button class="next-btn" onclick="closeLiff()" style="margin-top:8px">LINEに戻る</button>
   </div>
 </div>
