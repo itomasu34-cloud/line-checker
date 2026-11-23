@@ -352,7 +352,7 @@ var CURRENT_INCOME_YEAR = 2026;
 
 var K = {
   PENSION_M:   1.792,       // 万円/月 国民年金保険料（令和8年度）
-  // 児童扶養手当（令和8年4月改定・こども家庭庁/自治体一次ソース 2026-07-14確認）
+  // 児童扶養手当（令和8年4月改定・こども家庭庁/自治体一次ソース 2026-07-14確認、2026-11-23 再確認：額・係数とも一致）
   FUYO_FULL:      4.805,    // 万円/月 第1子 全部支給
   FUYO_PART_BASE: 4.804,    // 万円/月 第1子 一部支給の起点
   FUYO_MIN:       1.134,    // 万円/月 第1子 一部支給の下限
@@ -365,7 +365,24 @@ var K = {
   FUYO_FULL_L0:   69,       // 扶養0人の全部支給限度額
   FUYO_STOP_L0:   208,      // 扶養0人の一部支給限度額（＝これ以上で不支給）
   FUYO_PER_DEP:   38,
-  IKUSEI:      1.35,        // 万円/月 東京都児童育成手当
+  IKUSEI:      1.35,        // 万円/月 東京都児童育成手当（児童1人につき・令和8年度）
+  // 育成手当の所得制限（万円・所得ベース。令和8年6月分〜〔港区は8月〜〕。区市の公式ページ 2026-11-23確認）
+  //   限度額＝375.8万＋38万×扶養親族数＋特定扶養親族（16〜18歳を含む）1人につき25万。この額「以上」で支給なし
+  //   所得＝給与所得−給与所得の10万円控除（最大10万）−一律8万−ひとり親控除35万。養育費の8割加算はない（児童扶養手当とは別）
+  IKUSEI_L0:      375.8,
+  IKUSEI_PER_DEP: 38,
+  IKUSEI_TOKUTEI: 25,
+  IKUSEI_ICHIRITSU: 8,
+  IKUSEI_HITORI:  35,
+  // 会社員の社会保険料の本人負担（%・令和8年度）
+  //   協会けんぽ 令和8年3月分〜（全国平均9.90%・東京都9.85%の半分）／介護1.62%の半分（40〜64歳）
+  //   子ども・子育て支援金 0.23%の半分（令和8年4月分〜・こども家庭庁）／厚生年金18.3%の半分／雇用保険 一般の事業の労働者負担5/1000（令和8年4月〜・厚労省）
+  SH_KENPO:       4.95,
+  SH_KENPO_TOKYO: 4.925,
+  SH_KAIGO:       0.81,
+  SH_KODOMO:      0.115,
+  SH_KOUSEI:      9.15,
+  SH_KOYO:        0.5,
   HOIKU_BASE:     3.0,      // 万円/月 0〜2歳の保育料・国の基準の標準的な額の目安（所得割48,600〜97,000円未満の階層・標準時間）
   HOIKU_HITORI:   0.9,      // 万円/月 ひとり親世帯等・所得割77,101円未満の第1子の上限（施行令4条2項）
   HOIKU_HITORI_L: 7.7101,   // 万円   上の軽減が使える市町村民税所得割の上限
@@ -432,6 +449,16 @@ function calcTeateSoto(inc, aliM, year) {
   return sogoShotoku(inc, year) - 18 + Math.max(aliM, 0) * 0.8 * 12;
 }
 
+// 東京都児童育成手当の所得（万円）と、支給されるか。depCnt＝扶養親族数（手当の対象の子の数で代用）、tokuteiCnt＝16〜18歳の子の数
+function ikuseiShotoku(inc, year) {
+  var kyuyo = sogoShotoku(inc, year);
+  return Math.max(kyuyo - Math.min(kyuyo, 10) - K.IKUSEI_ICHIRITSU - K.IKUSEI_HITORI, 0);
+}
+function ikuseiEligible(inc, year, depCnt, tokuteiCnt) {
+  var limit = K.IKUSEI_L0 + K.IKUSEI_PER_DEP * depCnt + K.IKUSEI_TOKUTEI * (tokuteiCnt || 0);
+  return ikuseiShotoku(inc, year) < limit;
+}
+
 // 児童扶養手当月額（万円）。childCnt=手当対象の子（18歳年度末まで）の人数＝扶養親族数として扱う
 function calcFuyo(inc, childCnt, aliM, year) {
   if (childCnt <= 0) return 0;
@@ -472,8 +499,11 @@ function simulate(inc, o) {
   // --- 社会保険料（月額・万円）---
   var shakaiM, nenkin;
   if (o.workType === 'employee') {
-    // 健保4.99% + 厚生年金9.15% + 雇用保険0.6% ≈ 14.74%
-    shakaiM = inc * 0.1474 / 12;
+    // 本人負担（令和8年度）：健保（協会けんぽ 全国平均4.95%・東京都4.925%）＋子ども・子育て支援金0.115%＋厚生年金9.15%＋雇用保険0.5%
+    //   40〜64歳は介護保険0.81%を足す（o.age が無いときは足さない）。合計＝全国14.715%／東京都14.69%（40〜64歳は＋0.81%）
+    var shRate = (o.pref === 'tokyo' ? K.SH_KENPO_TOKYO : K.SH_KENPO) + K.SH_KODOMO + K.SH_KOUSEI + K.SH_KOYO
+               + ((o.age >= 40 && o.age <= 64) ? K.SH_KAIGO : 0);
+    shakaiM = inc * shRate / 100 / 12;
     nenkin  = null;
   } else {
     nenkin = nenkinExempt(inc, year);  // 所得から見た免除の「対象目安」（申請していなければ適用されない）
@@ -520,9 +550,10 @@ function simulate(inc, o) {
     hoiku = K.HOIKU_BASE - hoikuCost;
   }
 
-  // 東京都児童育成手当（所得306万以下・月1.35万）
+  // 東京都児童育成手当（児童1人につき月1.35万。所得制限は扶養人数で変わる。K の IKUSEI_* を参照）
   var ts     = calcTeateSoto(inc, o.aliM, year);
-  var ikusei = (o.pref === 'tokyo' && ts <= 306 && o.childCnt > 0) ? K.IKUSEI : 0;
+  var ikusei = (o.pref === 'tokyo' && o.childCnt > 0 && ikuseiEligible(inc, year, o.childCnt, o.kokoCnt != null ? o.kokoCnt : (o.childBand === 'C' ? 1 : 0)))
+             ? K.IKUSEI * o.childCnt : 0;
 
   // 高校就学支援金（公立・年118,800円→月換算）。kokoCnt未指定なら中高生バンドで1人分
   var kokoCnt   = (o.kokoCnt != null) ? o.kokoCnt : (o.childBand === 'C' ? 1 : 0);
@@ -609,7 +640,7 @@ function projectScenario(cfg) {
 
     var r = simulate(inc, {
       year: year, childBand: bandOfAge(youngest), childCnt: eligible,
-      workType: workType, aliM: aliM, pref: cfg.pref, kokoCnt: kokoCnt
+      workType: workType, aliM: aliM, pref: cfg.pref, kokoCnt: kokoCnt, age: age
     });
 
     // --- 年金積算 ---
@@ -1072,7 +1103,7 @@ function kidInfo() {
 function nowOpts() {
   var k = kidInfo();
   return { year: CURRENT_INCOME_YEAR, childBand: k.band, childCnt: k.elig, workType: S.workType,
-    aliM: aliM(), pref: S.pref, kokoCnt: k.koko,
+    aliM: aliM(), pref: S.pref, kokoCnt: k.koko, age: S.parentAge,
     nenApplied: (S.workType !== 'employee') && (S.nenApplied === 'yes') };
 }
 // グラフと「再び上回る年収」用。100万円〜max まで5万円刻み＋非課税ライン
@@ -1223,7 +1254,7 @@ function buildActions(n) {
   }
   if (r.hikaze) a.push(['高額療養費の限度額の認定証', '非課税世帯は、医療費の1か月の上限が約3.5万円になる目安です。市区町村の窓口で取得できます。']);
   if (k.band === 'A' && r.hikaze) a.push(['0〜2歳の保育料の無償化', '非課税世帯は保育料が無料になります。市区町村への申請が必要です。']);
-  if (S.pref === 'tokyo' && r.ikusei > 0) a.push(['東京都の児童育成手当', '月13,500円。区市町村の窓口で申請します。所得306万円以下が対象の目安です。']);
+  if (S.pref === 'tokyo' && r.ikusei > 0) a.push(['東京都の児童育成手当', '子ども1人につき月13,500円。区市町村の窓口で申請します。所得の制限は扶養1人なら所得413.8万円未満が目安です（令和8年6月分〜、港区は8月〜）。']);
   a.push(['ひとり親控除', '所得税35万円・住民税30万円の控除です。給与の方は年末調整で申告します。見落としがちです。']);
   return a;
 }
@@ -1386,7 +1417,7 @@ function repAct(a, n) {
   if (nm.indexOf('国民年金の免除の続け方') === 0) return '全額免除は翌年度も続けて審査を希望できる。一部免除は毎年度の申請';
   if (nm.indexOf('高額療養費') === 0) return '医療費の1か月の上限が約3.5万円になる目安';
   if (nm.indexOf('0〜2歳') === 0) return '非課税世帯は保育料が無料。市区町村への申請が必要';
-  if (nm.indexOf('東京都') === 0) return '月13,500円。区市町村の窓口へ';
+  if (nm.indexOf('東京都') === 0) return '子ども1人につき月13,500円。区市町村の窓口へ';
   if (nm === 'ひとり親控除') return '給与の方は年末調整で申告。見落としがち';
   return a[1].split('。')[0];
 }
@@ -1529,7 +1560,8 @@ var EXIT_LINKS = {
   fp:        { c: 'fp',      pr: true, label: 'FPの無料相談を見てみる' },
   // 2026-11-13 A8 ほけんNaviせつやくん（非課税寄り向けのFP。無職は否認＝収入0には出さない）
   setsu:     { c: 'setsu',   pr: true, label: 'FPに無料で相談してみる', subText: '保険や教育費の準備は、FPに無料で相談することもできます' },
-  note:      { c: 'note',    label: '無料noteを読む' },
+  // 2026-11-23 診断の解説note（c=note）→ 教育記事「ひとり親が働き方を決める前に確かめる3つのお金」（c=edu3）に変更。結果の読み方として出す
+  note:      { c: 'edu3',    label: '結果の読み方（無料note）' },
   yoikuhi:   { c: 'yoikuhi', label: '養育費のnote' },
   manabi:    { c: 'manabi',  label: '学び直しと給付金のnote' },
   pos:       { c: null,      label: '有料note「働き方のポジション戦略」' },
@@ -1572,10 +1604,10 @@ var EXIT_LEAD = {
   'gyaku_fp':   '非課税ラインを少し超えたこの帯は、働き方の決め方で手取りが変わりやすいところです。保険や教育費まで含めて考えたいときは、FPに無料で相談できます。',
   'over_fp':    '逆転ゾーンは抜けています。ここからは、増えた分をどう残すか（保険・教育費・貯金）を考えておきたい時期です。FPに無料で相談できます。',
   'near_pos':   '非課税ラインまで、あと少しです。超えるか、とどまるかの決め方をまとめました。',
-  'near_note':  '非課税ラインまで、あと少しです。非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
-  'hikazei_note': '非課税のうちに使える制度を、動く順番でまとめた無料noteがあります。',
+  'near_note':  '非課税ラインまで、あと少しです。この結果をどう読めばいいかを、無料noteにまとめました。働き方を決める前に確かめる3つのお金（今月・これから・ずっと先）の話です。',
+  'hikazei_note': 'この結果をどう読めばいいかを、無料noteにまとめました。働き方を決める前に確かめる3つのお金（今月・これから・ずっと先）の話です。',
   'hikazei_setsu': '収入をおさえている時期は、毎月の保険料や教育費の準備が家計に重く感じやすいところです。今の保険が合っているか、教育費をどう準備するかを、FPに無料で相談できます。',
-  'note':       '使える制度を、動く順番でまとめた無料noteがあります。'
+  'note':       'この結果をどう読めばいいかを、無料noteにまとめました。働き方を決める前に確かめる3つのお金（今月・これから・ずっと先）の話です。'
 };
 
 function exitHref(k, p) {
